@@ -1,5 +1,62 @@
+/**
+ * tsconfig.json - Root TypeScript Configuration
+ * ==============================================
+ * This is the main TypeScript configuration file for your project.
+ *
+ * WHAT IS TYPESCRIPT?
+ * ===================
+ * TypeScript is JavaScript with types. Instead of:
+ *   function add(a, b) { return a + b }  // Could be anything!
+ *
+ * You write:
+ *   function add(a: number, b: number): number { return a + b }
+ *
+ * Benefits:
+ *   - Catch errors at compile time (not runtime)
+ *   - Better IDE autocomplete and refactoring
+ *   - Self-documenting code
+ *   - Safer refactoring
+ *
+ * PROJECT REFERENCES PATTERN
+ * ==========================
+ * This project uses TypeScript "project references" - a way to split
+ * configuration into multiple files for different parts of the project.
+ *
+ * Why split configs?
+ * - Browser code (src/) needs different settings than Node.js code (vite.config.ts)
+ * - Browser code needs DOM types; Node code needs Node.js types
+ * - Keeps configurations focused and maintainable
+ *
+ * FILES IN THIS PROJECT:
+ * - tsconfig.json (this file) - Root config, references the others
+ * - tsconfig.app.json - Settings for your React application (src/ folder)
+ * - tsconfig.node.json - Settings for build tools (vite.config.ts)
+ */
 {
+  /**
+   * files: []
+   * =========
+   * An empty array means this config doesn't directly compile any files.
+   * Instead, it just references other configs that do the actual work.
+   *
+   * This is the "solution-style" tsconfig pattern - the root config
+   * acts as a coordinator for sub-projects.
+   */
   "files": [],
+
+  /**
+   * references
+   * ==========
+   * Points to other tsconfig files that handle specific parts of the project.
+   *
+   * Each referenced project is compiled separately, which:
+   * - Improves build performance (incremental builds)
+   * - Ensures proper isolation between different code contexts
+   * - Allows different compiler settings for different code
+   *
+   * tsconfig.app.json: Your React app code (runs in browser)
+   * tsconfig.node.json: Vite config file (runs in Node.js)
+   */
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

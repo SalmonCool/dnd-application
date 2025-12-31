@@ -1,28 +1,295 @@
+/**
+ * tsconfig.app.json - React Application TypeScript Configuration
+ * ================================================================
+ * This config applies to your React application code in the src/ folder.
+ * It's optimized for browser environments and React/JSX development.
+ *
+ * WHY A SEPARATE CONFIG?
+ * ======================
+ * Your React code runs in the BROWSER, which is different from Node.js:
+ * - Has DOM APIs (document, window, etc.)
+ * - Uses ES modules loaded by the browser
+ * - Gets bundled by Vite before serving
+ *
+ * This config includes browser-specific types and React-specific settings.
+ */
 {
   "compilerOptions": {
+    /**
+     * ===================
+     * BUILD CONFIGURATION
+     * ===================
+     */
+
+    /**
+     * tsBuildInfoFile
+     * ===============
+     * Where to store incremental build information.
+     * TypeScript saves compilation state here to speed up subsequent builds.
+     * Stored in node_modules so it's not committed to git.
+     */
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    /**
+     * target
+     * ======
+     * Which JavaScript version to compile to.
+     *
+     * ES2022 is well-supported by modern browsers and includes:
+     * - Private class fields (#privateField)
+     * - Top-level await
+     * - .at() method for arrays
+     *
+     * Vite handles additional transpilation if needed for older browsers.
+     */
     "target": "ES2022",
+
+    /**
+     * useDefineForClassFields
+     * =======================
+     * Use the standard JavaScript class field behavior.
+     * This is the modern default - class fields are defined with Object.defineProperty.
+     *
+     * Example difference:
+     *   class Example { field = 'value' }
+     *
+     * With true: Uses standard ES class field semantics
+     * With false: Uses older TypeScript-specific behavior
+     */
     "useDefineForClassFields": true,
+
+    /**
+     * lib
+     * ===
+     * Which built-in type definitions to include.
+     *
+     * ES2022: JavaScript standard library types (Array, Promise, etc.)
+     * DOM: Browser APIs (document, window, HTMLElement, etc.)
+     * DOM.Iterable: Iterable versions of DOM collections (NodeList, etc.)
+     *
+     * LEARNING POINT: Without "DOM", TypeScript wouldn't know about
+     * document.getElementById or window.addEventListener!
+     */
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    /**
+     * module
+     * ======
+     * What module system the output should use.
+     *
+     * ESNext = latest ES module features (import/export)
+     * This works great with Vite, which handles module bundling.
+     *
+     * Other options: CommonJS (Node.js require/exports), AMD, UMD, etc.
+     */
     "module": "ESNext",
+
+    /**
+     * types
+     * =====
+     * Additional type definition packages to include.
+     *
+     * "vite/client" provides types for Vite-specific features:
+     * - import.meta.env (environment variables)
+     * - Importing assets (import logo from './logo.png')
+     * - Hot Module Replacement APIs
+     */
     "types": ["vite/client"],
+
+    /**
+     * skipLibCheck
+     * ============
+     * Skip type checking of .d.ts declaration files from node_modules.
+     *
+     * Benefits:
+     * - Much faster compilation
+     * - Avoids errors from conflicting library types
+     *
+     * Your own code is still fully type-checked!
+     */
     "skipLibCheck": true,
 
-    /* Bundler mode */
+    /**
+     * ============
+     * BUNDLER MODE
+     * ============
+     * These settings optimize TypeScript for use with a bundler like Vite.
+     */
+
+    /**
+     * moduleResolution
+     * ================
+     * How TypeScript finds modules when you import them.
+     *
+     * "bundler" mode matches how modern bundlers (Vite, webpack) resolve imports:
+     * - Supports package.json "exports" field
+     * - Handles .ts extensions in imports
+     * - Works with path aliases
+     *
+     * Other options: "node" (Node.js style), "node16" (Node.js ESM)
+     */
     "moduleResolution": "bundler",
+
+    /**
+     * allowImportingTsExtensions
+     * ==========================
+     * Allows importing files with .ts/.tsx extensions explicitly.
+     *
+     * import Component from './Component.tsx'  // Allowed with this option
+     *
+     * Only works with noEmit:true (since the bundler handles the output).
+     */
     "allowImportingTsExtensions": true,
+
+    /**
+     * verbatimModuleSyntax
+     * ====================
+     * Enforces explicit type-only imports.
+     *
+     * Instead of:  import { MyType } from './types'
+     * You write:   import type { MyType } from './types'
+     *
+     * Benefits:
+     * - Clearer code (obvious what's a type vs runtime value)
+     * - Better tree-shaking (bundlers know types can be removed)
+     */
     "verbatimModuleSyntax": true,
+
+    /**
+     * moduleDetection
+     * ===============
+     * How TypeScript determines if a file is a module or script.
+     *
+     * "force" = treat ALL files as modules (have their own scope)
+     *
+     * Without this, files without import/export would be "scripts"
+     * with global scope, which is rarely what you want.
+     */
     "moduleDetection": "force",
+
+    /**
+     * noEmit
+     * ======
+     * Don't output any JavaScript files - just type-check.
+     *
+     * Vite handles the actual compilation with esbuild (much faster).
+     * TypeScript's job here is just to check for type errors.
+     *
+     * LEARNING POINT: This is why `npm run build` uses Vite, not tsc.
+     * TypeScript checks types; Vite does the bundling.
+     */
     "noEmit": true,
+
+    /**
+     * jsx
+     * ===
+     * How to handle JSX syntax (<div>, <Component />, etc.)
+     *
+     * "react-jsx" = React 17+ automatic runtime
+     * - No need to import React in every file
+     * - Compiles to _jsx() calls instead of React.createElement()
+     *
+     * Other options:
+     * - "react" = React.createElement() (need to import React)
+     * - "preserve" = Keep JSX as-is (for another tool to handle)
+     */
     "jsx": "react-jsx",
 
-    /* Linting */
+    /**
+     * =======
+     * LINTING
+     * =======
+     * These options enable extra type-checking rules for code quality.
+     */
+
+    /**
+     * strict
+     * ======
+     * Enables ALL strict type-checking options. This includes:
+     * - strictNullChecks: null and undefined are distinct types
+     * - strictFunctionTypes: Stricter function type checking
+     * - strictBindCallApply: Check bind, call, apply arguments
+     * - strictPropertyInitialization: Class properties must be initialized
+     * - noImplicitAny: Error on implicit 'any' type
+     * - noImplicitThis: Error on 'this' with implicit 'any'
+     * - alwaysStrict: Add "use strict" to all files
+     *
+     * HIGHLY RECOMMENDED - catches many bugs at compile time!
+     */
     "strict": true,
+
+    /**
+     * noUnusedLocals
+     * ==============
+     * Error when a local variable is declared but never used.
+     *
+     * const unused = 5  // Error! Variable 'unused' is declared but never used
+     *
+     * Helps keep code clean and catch forgotten variables.
+     */
     "noUnusedLocals": true,
+
+    /**
+     * noUnusedParameters
+     * ==================
+     * Error when a function parameter is never used.
+     *
+     * function greet(name: string, unused: number) { }  // Error on 'unused'
+     *
+     * Prefix with _ to indicate intentionally unused: _unused
+     */
     "noUnusedParameters": true,
+
+    /**
+     * erasableSyntaxOnly
+     * ==================
+     * Only allow TypeScript syntax that can be erased (removed) to get valid JS.
+     *
+     * Disallows:
+     * - const enums (require compile-time evaluation)
+     * - namespaces (non-module pattern)
+     *
+     * This ensures your TS can be compiled by any tool (esbuild, Babel, etc.)
+     */
     "erasableSyntaxOnly": true,
+
+    /**
+     * noFallthroughCasesInSwitch
+     * ==========================
+     * Error when a switch case falls through without break/return.
+     *
+     * switch(x) {
+     *   case 1:
+     *     doSomething()
+     *     // Error! Falls through to case 2
+     *   case 2:
+     *     doOther()
+     * }
+     *
+     * Catches a common source of bugs in switch statements.
+     */
     "noFallthroughCasesInSwitch": true,
+
+    /**
+     * noUncheckedSideEffectImports
+     * ============================
+     * Ensures side-effect imports actually exist.
+     *
+     * import './styles.css'  // TypeScript will verify this file exists
+     *
+     * Catches typos in CSS/asset imports.
+     */
     "noUncheckedSideEffectImports": true
   },
+
+  /**
+   * include
+   * =======
+   * Which files/folders to compile.
+   *
+   * "src" means all .ts and .tsx files in the src folder (and subfolders).
+   *
+   * This config only applies to your application code, not config files.
+   */
   "include": ["src"]
 }

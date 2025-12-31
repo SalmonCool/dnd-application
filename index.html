@@ -1,13 +1,153 @@
+<!--
+  index.html - The Single HTML File
+  ==================================
+  This is the ONLY HTML file in a React single-page application (SPA).
+
+  HOW REACT WORKS WITH THIS FILE:
+  ==============================
+  1. Browser loads this HTML file
+  2. Browser sees the <script> tag and loads main.tsx
+  3. React runs and renders your entire app INTO the <div id="root">
+  4. From then on, React handles all UI updates (no page reloads!)
+
+  This is why it's called a "Single Page Application" - there's literally
+  just this one HTML page, and JavaScript handles everything else.
+
+  VITE'S ROLE:
+  ============
+  During development, Vite serves this file and handles:
+  - Hot Module Replacement (instant updates without refresh)
+  - TypeScript/JSX compilation on the fly
+  - Importing CSS, images, and other assets
+
+  For production, Vite builds optimized bundles and updates the script tags.
+-->
+
 <!doctype html>
+<!--
+  DOCTYPE Declaration
+  ===================
+  Tells the browser "this is an HTML5 document."
+  Without it, browsers might render in "quirks mode" (legacy compatibility).
+  Always include this as the first line of any HTML file.
+-->
+
 <html lang="en">
+<!--
+  <html> Root Element
+  ===================
+  The root element of the page. All other elements are inside this.
+
+  lang="en" - Declares the page language as English.
+  This helps:
+    - Screen readers pronounce text correctly
+    - Search engines understand the content
+    - Browsers offer translation when appropriate
+-->
+
   <head>
+    <!--
+      <head> Section - Metadata
+      =========================
+      Contains information ABOUT the page (not visible content).
+      Includes: character encoding, title, stylesheets, meta tags, etc.
+    -->
+
     <meta charset="UTF-8" />
+    <!--
+      Character Encoding
+      ==================
+      UTF-8 supports virtually all characters from all languages.
+      Without this, special characters (é, ñ, 日本語) might display incorrectly.
+      Always include this and make it the FIRST meta tag.
+    -->
+
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <!--
+      Favicon (Browser Tab Icon)
+      ==========================
+      The small icon shown in browser tabs and bookmarks.
+      - rel="icon" - This link is a favicon
+      - type="image/svg+xml" - It's an SVG file (modern, scalable)
+      - href="/vite.svg" - Located in the /public folder
+
+      You can replace this with your own D&D-themed icon!
+    -->
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Viewport Meta Tag (CRITICAL for mobile)
+      =======================================
+      Tells mobile browsers how to handle the page width.
+
+      width=device-width: Page width = device screen width
+      initial-scale=1.0: Start at 100% zoom (no zooming out to fit)
+
+      Without this, mobile browsers assume the page is ~980px wide
+      (designed for desktop) and zoom out to fit, making text tiny!
+    -->
+
     <title>dnd-application</title>
+    <!--
+      Page Title
+      ==========
+      Shown in:
+        - Browser tab
+        - Browser history
+        - Search engine results
+        - Bookmarks
+
+      Keep it concise but descriptive. You might change this to
+      "D&D Adventure | Character Tracker" or similar.
+    -->
   </head>
+
   <body>
+    <!--
+      <body> Section - Visible Content
+      =================================
+      Everything the user sees goes here.
+      In a React app, there's usually just one element...
+    -->
+
     <div id="root"></div>
+    <!--
+      React Mount Point
+      =================
+      THIS IS WHERE REACT LIVES!
+
+      React's createRoot() function (in main.tsx) finds this div
+      and renders your entire application inside it.
+
+      The id="root" is a convention, but you could name it anything
+      as long as main.tsx looks for the same ID.
+
+      After React renders, this div will contain your full app:
+        <div id="root">
+          <div class="app">
+            <header>...</header>
+            <main>...</main>
+          </div>
+        </div>
+    -->
+
     <script type="module" src="/src/main.tsx"></script>
+    <!--
+      Application Entry Point
+      =======================
+      This loads and runs your React application.
+
+      type="module" - Use ES6 modules (import/export syntax)
+                      Also makes the script "defer" by default
+                      (waits for HTML to parse before running)
+
+      src="/src/main.tsx" - The entry point TypeScript file
+                            Vite compiles this on the fly during development
+
+      LEARNING POINT:
+      In traditional HTML, you'd have many <script> tags for each JS file.
+      With modern bundlers like Vite, you have ONE entry point that
+      imports everything else. Vite handles all the bundling!
+    -->
   </body>
 </html>
