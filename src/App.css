@@ -1,0 +1,96 @@
+/**
+ * App.css - Main Application Styles
+ * ==================================
+ * This file contains styles specific to the App component and its children.
+ *
+ * LEARNING POINT: In React, it's common to have:
+ *   - index.css: Global styles (fonts, resets, variables)
+ *   - App.css: Main application layout styles
+ *   - Component-specific CSS files (for larger apps)
+ *
+ * CSS is imported in the component file: import './App.css'
+ */
+
+/**
+ * Main App Container
+ * ------------------
+ * The root container for our application.
+ * Uses flexbox to create a vertical layout (header + main content).
+ */
+.app {
+  width: 100vw;           /* vw = viewport width (100% of screen width) */
+  height: 100vh;          /* vh = viewport height (100% of screen height) */
+  display: flex;          /* Enable flexbox layout */
+  flex-direction: column; /* Stack children vertically (header on top, content below) */
+
+  /*
+   * CSS Gradient Background
+   * -----------------------
+   * linear-gradient creates a smooth color transition
+   * 135deg = angle of gradient (diagonal from top-left to bottom-right)
+   * First color at 0% (start), second at 100% (end)
+   */
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+/**
+ * Header Section
+ * --------------
+ * Contains the app title with a D&D fantasy theme
+ */
+.header {
+  padding: 1rem 2rem;     /* rem = relative to root font size (typically 16px) */
+
+  /*
+   * rgba() color with transparency
+   * rgba(red, green, blue, alpha)
+   * alpha: 0 = transparent, 1 = opaque
+   */
+  background: rgba(0, 0, 0, 0.3);
+
+  /* Bottom border for separation - deep red for D&D theme */
+  border-bottom: 2px solid #8b0000;
+}
+
+/**
+ * Header Title
+ * ------------
+ * Fantasy-styled title using serif font and gold coloring
+ */
+.header h1 {
+  margin: 0;              /* Remove default heading margin */
+  font-family: 'Georgia', serif;  /* Serif font for medieval/fantasy feel */
+  font-size: 2rem;
+  color: #d4af37;         /* Gold color - classic D&D aesthetic */
+
+  /*
+   * text-shadow: x-offset y-offset blur-radius color
+   * Creates depth effect behind the text
+   */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/**
+ * Main Content Area
+ * -----------------
+ * Contains the 3D scene and any UI panels
+ */
+.main {
+  flex: 1;                /* flex: 1 means "take up all remaining space" */
+  display: flex;
+  overflow: hidden;       /* Prevents content from spilling outside */
+}
+
+/**
+ * 3D Scene Container
+ * ------------------
+ * Holds the React Three Fiber Canvas component.
+ * The Canvas needs a container with defined dimensions.
+ *
+ * LEARNING POINT: Three.js/R3F Canvas will fill its container,
+ * so we need to ensure the container has proper sizing.
+ */
+.scene-container {
+  flex: 1;                /* Take up full width of main area */
+  position: relative;     /* Allows absolute positioning of children */
+}

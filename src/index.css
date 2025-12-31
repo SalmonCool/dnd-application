@@ -1,0 +1,126 @@
+/**
+ * index.css - Global Styles
+ * ========================
+ * This file contains global CSS styles that apply to the entire application.
+ * It's imported in main.tsx and affects all components.
+ *
+ * LEARNING POINT: CSS files in React work just like regular CSS.
+ * The difference is how they're imported - using JavaScript imports.
+ */
+
+/**
+ * :root pseudo-class
+ * ------------------
+ * Targets the root element (<html>). Used here to set CSS custom properties
+ * (variables) and global font settings that cascade to all elements.
+ */
+:root {
+  /* System font stack - uses the user's system fonts for faster loading */
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* Line height affects readability - 1.5 is a good default */
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Modern browsers support color-scheme for automatic dark/light styling */
+  color-scheme: light dark;
+
+  /* Default text color with slight transparency for softer appearance */
+  color: rgba(255, 255, 255, 0.87);
+
+  /* Dark background for the D&D theme */
+  background-color: #242424;
+
+  /* Font rendering optimizations for crisp text */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;  /* Chrome/Safari */
+  -moz-osx-font-smoothing: grayscale;   /* Firefox on Mac */
+}
+
+/**
+ * Link styles
+ * -----------
+ * Styling for all <a> anchor elements
+ */
+a {
+  font-weight: 500;
+  color: #646cff;          /* Purple-blue accent color */
+  text-decoration: inherit; /* Removes underline */
+}
+
+a:hover {
+  color: #535bf2;          /* Lighter on hover for feedback */
+}
+
+/**
+ * Body reset
+ * ----------
+ * Removes default margins and sets up the main container.
+ *
+ * LEARNING POINT: Browsers add default styles (like margin on body).
+ * We often reset these to have full control over layout.
+ */
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;     /* Centers content (flexbox shorthand) */
+  min-width: 320px;        /* Minimum width for mobile support */
+  min-height: 100vh;       /* Full viewport height */
+}
+
+/**
+ * Heading styles
+ * --------------
+ */
+h1 {
+  font-size: 3.2em;        /* 'em' is relative to parent font size */
+  line-height: 1.1;        /* Tighter line height for headings */
+}
+
+/**
+ * Button reset and styling
+ * ------------------------
+ * Creates consistent button appearance across browsers
+ */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;    /* Use same font as parent */
+  background-color: #1a1a1a;
+  cursor: pointer;         /* Shows hand cursor on hover */
+  transition: border-color 0.25s;  /* Smooth transition for hover effect */
+}
+
+button:hover {
+  border-color: #646cff;   /* Visible border on hover */
+}
+
+/* Focus styles for accessibility - keyboard navigation */
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/**
+ * Light mode media query
+ * ----------------------
+ * LEARNING POINT: @media queries let you apply different styles
+ * based on user preferences or device characteristics.
+ * 'prefers-color-scheme' detects the user's OS theme setting.
+ */
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
