@@ -58,6 +58,16 @@ import { Suspense } from 'react'
  * Our custom component for the interactive 20-sided dice.
  */
 import D20Dice from './D20Dice'
+import D6Dice from './D6Dice'
+
+/**
+ * Scene Props Interface
+ */
+interface SceneProps {
+  onRollComplete?: (value: number) => void
+  displayValue?: number | null
+  selectedDice?: 'd20' | 'd6'
+}
 
 /**
  * Scene Component
@@ -69,7 +79,7 @@ import D20Dice from './D20Dice'
  * - Our D20 dice
  * - A ground plane for shadows
  */
-export default function Scene() {
+export default function Scene({ onRollComplete, displayValue, selectedDice = 'd20' }: SceneProps) {
   return (
     /**
      * Canvas Component
@@ -116,7 +126,7 @@ export default function Scene() {
         //1-2-2026 Disabled Orbital Controls
         enablePan={false}
         enableZoom={false}
-        enableRotate={true}
+        enableRotate={false}
       />
 
       {/**
@@ -169,12 +179,24 @@ export default function Scene() {
         <Environment preset="sunset" />
 
         {/**
-         * Our D20 Dice
-         * ------------
-         * Custom component that renders an interactive 20-sided dice.
-         * position={[x, y, z]} sets where it appears in the scene.
+         * Dice Components
+         * ---------------
+         * Renders the selected dice type.
          */}
-        <D20Dice position={[0, 0, 0]} />
+        {selectedDice === 'd20' && (
+          <D20Dice
+            position={[0, -0.5, 0]}
+            onRollComplete={onRollComplete}
+            displayValue={displayValue}
+          />
+        )}
+        {selectedDice === 'd6' && (
+          <D6Dice
+            position={[0, -0.5, 0]}
+            onRollComplete={onRollComplete}
+            displayValue={displayValue}
+          />
+        )}
 
         {/**
          * Ground Plane

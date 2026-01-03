@@ -34,3 +34,6 @@ export { default as Scene } from './Scene'
 
 // Re-export D20Dice component as a named export
 export { default as D20Dice } from './D20Dice'
+
+// Re-export D6Dice component as a named export
+export { default as D6Dice } from './D6Dice'

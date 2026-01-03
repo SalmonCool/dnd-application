@@ -94,3 +94,80 @@
   flex: 1;                /* Take up full width of main area */
   position: relative;     /* Allows absolute positioning of children */
 }
+
+/**
+ * Multiply Button
+ * ---------------
+ * Fixed position button in bottom-right corner for multiplying dice rolls.
+ */
+.multiply-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.multiply-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.multiply-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+/**
+ * Dice Selection Sidebar
+ * ----------------------
+ * Vertical bar on the left side with dice type icons.
+ */
+.dice-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-right: 2px solid #e00606;
+}
+
+.dice-icon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dice-icon:hover {
+  background: rgba(139, 0, 0, 0.9);
+  border-color: #888;
+  transform: scale(1.05);
+}
+
+.dice-icon.selected {
+  background: #8b0000;
+  border-color: #e00606;
+  box-shadow: 0 0 10px rgba(224, 6, 6, 0.5);
+}
+
+.dice-label {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: 'Georgia', serif;
+}

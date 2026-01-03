@@ -26,6 +26,7 @@
  *   - Styled-components library
  *   - Tailwind CSS utility classes
  */
+import { useState } from 'react'
 import './App.css'
 
 /**
@@ -55,7 +56,27 @@ import { Scene } from './components/3d'
  * - must return a single root element (or Fragment: <>...</>)
  * - export default makes this the main export of the file
  */
+// Available dice types
+type DiceType = 'd20' | 'd6'
+
 function App() {
+  // State for roll value display and multiplier
+  const [displayValue, setDisplayValue] = useState<number | null>(null)
+  const [multiplier, setMultiplier] = useState(1)
+  const [selectedDice, setSelectedDice] = useState<DiceType>('d20')
+
+  const handleRollComplete = (value: number) => {
+    setDisplayValue(value)
+    setMultiplier(1) // Reset multiplier on new roll
+  }
+
+  const handleMultiply = () => {
+    if (displayValue !== null) {
+      setDisplayValue(displayValue * 2)
+      setMultiplier(multiplier * 2)
+    }
+  }
+
   return (
     /**
      * The div.app container
@@ -82,6 +103,24 @@ function App() {
        * Screen readers and SEO benefit from proper semantic tags.
        */}
       <main className="main">
+        {/* Dice Selection Sidebar */}
+        <aside className="dice-sidebar">
+          <button
+            className={`dice-icon ${selectedDice === 'd20' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d20')}
+            title="D20 - Twenty-sided die"
+          >
+            <span className="dice-label">D20</span>
+          </button>
+          <button
+            className={`dice-icon ${selectedDice === 'd6' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d6')}
+            title="D6 - Six-sided die"
+          >
+            <span className="dice-label">D6</span>
+          </button>
+        </aside>
+
         {/**
          * 3D Scene Container
          * ------------------
@@ -93,9 +132,22 @@ function App() {
          * Could also write: <Scene></Scene>
          */}
         <div className="scene-container">
-          <Scene />
+          <Scene
+            onRollComplete={handleRollComplete}
+            displayValue={displayValue}
+            selectedDice={selectedDice}
+          />
         </div>
       </main>
+
+      {/* Multiply Button - Bottom Right */}
+      <button
+        className="multiply-button"
+        onClick={handleMultiply}
+        disabled={displayValue === null}
+      >
+        x2 Multiply {multiplier > 1 ? `(${multiplier}x)` : ''}
+      </button>
     </div>
   )
 }

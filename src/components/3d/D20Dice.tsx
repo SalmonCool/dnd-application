@@ -48,7 +48,7 @@ import { useFrame } from '@react-three/fiber'
  * TYPESCRIPT TIP: Type imports help catch errors at compile time.
  * useRef<Mesh> tells TypeScript "this ref will point to a Mesh object"
  */
-import { Mesh } from 'three'
+import { Mesh, MathUtils } from 'three'
 
 /**
  * Text Component from Drei
@@ -100,6 +100,8 @@ const FACE_DATA: { position: [number, number, number]; rotation: [number, number
  */
 interface D20DiceProps {
   position?: [number, number, number]
+  onRollComplete?: (value: number) => void
+  displayValue?: number | null
 }
 
 /**
@@ -114,7 +116,7 @@ interface D20DiceProps {
  *     const position = props.position ?? [0, 0, 0]
  *   }
  */
-export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
+export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayValue }: D20DiceProps) {
   /**
    * useRef Hook
    * -----------
@@ -129,6 +131,18 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
    * In R3F, refs give you access to Three.js objects.
    */
   const meshRef = useRef<Mesh>(null)
+
+  /**
+   * Sound Effect
+   * ------------
+   * Audio element for dice roll sound. Update the path to your sound file.
+   * Supported formats: mp3, wav, ogg
+   * Place your sound file in the public folder and reference it like: '/sounds/dice-roll.mp3'
+   */
+  const rollSound = useRef<HTMLAudioElement | null>(null)
+  const settleSound = useRef<HTMLAudioElement | null>(null)
+  const ROLL_SOUND_PATH = '/sounds/dice-roll.mp3'
+  const SETTLE_SOUND_PATH = '/sounds/bell-ding.mp3'
 
   /**
    * useState Hook - isRolling
@@ -158,6 +172,16 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
   const [rollValue, setRollValue] = useState<number | null>(null)
 
   /**
+   * Settling State & Target Rotation
+   * ---------------------------------
+   * After rolling stops, the dice eases into its final position.
+   * isSettling: true during the ease-in animation
+   * targetRotation: the final [x, y, z] rotation to ease towards
+   */
+  const [isSettling, setIsSettling] = useState(false)
+  const targetRotation = useRef<[number, number, number]>([0, 0, 0])
+
+  /**
    * Animation Loop with useFrame
    * ----------------------------
    * This function runs every frame (~60 times per second).
@@ -173,13 +197,42 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
    * Without delta, animation would be faster on 144Hz monitors than 60Hz!
    */
   useFrame((_, delta) => {
-    // Only animate if we have a mesh reference AND we're rolling
-    if (meshRef.current && isRolling) {
-      // Rotate on all three axes for a tumbling effect
-      // Different speeds on each axis creates more natural-looking movement
+    if (!meshRef.current) return
+
+    // Rolling animation - tumble on all axes
+    if (isRolling) {
       meshRef.current.rotation.x += delta * 5
       meshRef.current.rotation.y += delta * 7
       meshRef.current.rotation.z += delta * 3
+    }
+
+    // Settling animation - ease into final position
+    if (isSettling) {
+      const [tx, ty, tz] = targetRotation.current
+      const lerpFactor = 25 * delta // Adjust for faster/slower easing
+
+      meshRef.current.rotation.x = MathUtils.lerp(meshRef.current.rotation.x, tx, lerpFactor)
+      meshRef.current.rotation.y = MathUtils.lerp(meshRef.current.rotation.y, ty, lerpFactor)
+      meshRef.current.rotation.z = MathUtils.lerp(meshRef.current.rotation.z, tz, lerpFactor)
+
+      // Check if we're close enough to snap and stop settling
+      const threshold = 0.1
+      const dx = Math.abs(meshRef.current.rotation.x - tx)
+      const dy = Math.abs(meshRef.current.rotation.y - ty)
+      const dz = Math.abs(meshRef.current.rotation.z - tz)
+
+      if (dx < threshold && dy < threshold && dz < threshold) {
+        meshRef.current.rotation.set(tx, ty, tz)
+        setIsSettling(false)
+
+        // Play settle sound
+        if (!settleSound.current) {
+          settleSound.current = new Audio(SETTLE_SOUND_PATH)
+        }
+        settleSound.current.currentTime = 0.05
+        settleSound.current.volume = 0.25
+        settleSound.current.play().catch(() => {})
+      }
     }
   })
 
@@ -194,6 +247,15 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
   const handleClick = () => {
     // Prevent multiple rolls at once (guard clause)
     if (isRolling) return
+
+    // Play roll sound
+    if (!rollSound.current) {
+      rollSound.current = new Audio(ROLL_SOUND_PATH)
+    }
+    rollSound.current.currentTime = 0.3 // Reset to start if already playing
+    rollSound.current.play().catch(() => {
+      // Audio play failed (e.g., file not found or autoplay blocked)
+    })
 
     // Start the rolling animation
     setIsRolling(true)
@@ -219,13 +281,15 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
       const result = Math.floor(Math.random() * 20) + 1
       setRollValue(result)
 
-      // Snap the dice to a valid face-up orientation
-      // We use the result (1-20) to pick a rotation, so each number has its own face
-      if (meshRef.current) {
-        const rotationIndex = result - 1 // Convert 1-20 to 0-19 index
-        const [rx, ry, rz] = FACE_UP_ROTATIONS[rotationIndex]
-        meshRef.current.rotation.set(rx, ry, rz)
+      // Notify parent of roll result
+      if (onRollComplete) {
+        onRollComplete(result)
       }
+
+      // Start settling animation towards the target face-up rotation
+      const rotationIndex = result - 1 // Convert 1-20 to 0-19 index
+      targetRotation.current = FACE_UP_ROTATIONS[rotationIndex]
+      setIsSettling(true)
     }, 1500)
   }
 
@@ -382,14 +446,10 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
           {/**
            * Dynamic Text Content
            * --------------------
-           * Using nested ternary to show different messages:
-           *   - 20: "CRITICAL HIT!"
-           *   - 1: "CRITICAL FAIL!"
-           *   - Other: "Rolled: X"
-           *
-           * Template literal: `Rolled: ${rollValue}` embeds the variable in the string
+           * Uses displayValue (which can be multiplied) if provided, otherwise rollValue.
+           * Shows special messages for natural 20 and 1.
            */}
-          {rollValue === 20 ? 'CRITICAL HIT!' : rollValue === 1 ? 'CRITICAL FAIL!' : `Rolled: ${rollValue}`}
+          {rollValue === 20 ? 'NATURAL 20!' : rollValue === 1 ? 'CRITICAL FAIL!' : `Rolled: ${displayValue ?? rollValue}`}
         </Text>
       )}
 
