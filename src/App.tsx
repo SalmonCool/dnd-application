@@ -72,7 +72,7 @@ function App() {
        * "this is the header section of the page"
        */}
       <header className="header">
-        <h1>D&D Adventure</h1>
+        <h1>D&D Application</h1>
       </header>
 
       {/**

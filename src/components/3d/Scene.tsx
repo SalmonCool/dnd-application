@@ -99,7 +99,7 @@ export default function Scene() {
        *   - y: down (-) to up (+)
        *   - z: into screen (-) to toward viewer (+)
        */}
-      <PerspectiveCamera makeDefault position={[0, 2, 5]} />
+      <PerspectiveCamera makeDefault position={[0, 0, 5]} />
 
       {/**
        * OrbitControls
@@ -113,8 +113,9 @@ export default function Scene() {
        * You might disable some for certain UIs (e.g., enablePan={false})
        */}
       <OrbitControls
-        enablePan={true}
-        enableZoom={true}
+        //1-2-2026 Disabled Orbital Controls
+        enablePan={false}
+        enableZoom={false}
         enableRotate={true}
       />
 
@@ -128,7 +129,7 @@ export default function Scene() {
        *   - Prevents areas from being completely black
        *   - intensity: Brightness (0 = off, 1 = full)
        */}
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={3} />
 
       {/**
        * directionalLight: Parallel rays from a direction (like the sun)
@@ -189,7 +190,7 @@ export default function Scene() {
          *
          * receiveShadow: This mesh will show shadows cast onto it.
          */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
+        <mesh rotation={[0, 0, 0]} position={[0, 0, -1]} receiveShadow>
           {/**
            * planeGeometry
            * -------------
@@ -209,7 +210,7 @@ export default function Scene() {
            *   - meshLambertMaterial: Matte, non-shiny surface
            *   - meshPhongMaterial: Shiny surface with specular highlights
            */}
-          <meshStandardMaterial color="#2a2a2a" />
+          <meshStandardMaterial color="rgba(0, 0, 0, 0)" />
         </mesh>
       </Suspense>
     </Canvas>

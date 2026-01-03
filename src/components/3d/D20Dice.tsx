@@ -56,7 +56,37 @@ import { Mesh } from 'three'
  * Renders 3D text in the scene. Much easier than vanilla Three.js text!
  * Uses SDF (Signed Distance Field) for crisp text at any size.
  */
-import { Text } from '@react-three/drei'
+import { Text, Decal } from '@react-three/drei'
+
+/**
+ * Face Data for D20 Decals
+ * ------------------------
+ * Each entry contains position [x, y, z] and rotation [x, y, z] for placing
+ * a number decal on each face. Adjust manually as needed.
+ * Index 0 = face showing "1", Index 19 = face showing "20"
+ */
+const FACE_DATA: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[] = [
+  { position: [0, 0.5, -0.28], rotation: [-1.35, 0.00, 0], scale: [0.4, 0.4, 0.4] },   // 1 Done
+  { position: [0.00, 0.5, 0.18], rotation: [-1.35, 0.00, 0], scale: [0.4, 0.4, 0.4] },     // 2 Done
+  { position: [0.3, -0.3, 0.3], rotation: [0.9, 0.7, 0], scale: [0.4, 0.4, 0.4] },    // 3 Done
+  { position: [-0.37, 0.3, -0.3], rotation: [-2, 0, 0], scale: [0.4, 0.4, 0.4] },  // 4 Done
+  { position: [-.7, 0.2, 0.05], rotation: [0, -1, -0.06], scale: [0.4, 0.4, 0.4] },   // 5 Done
+  { position: [.7, 0.2, 0.05], rotation: [0, 1, 0.1], scale: [0.4, 0.4, 0.4] },     // 6 Done
+  { position: [-0.3, 0.01, 0.74], rotation: [0.0, -0.4, 0.5], scale: [0.4, 0.4, 0.4] },   // 7 Done
+  { position: [-0.7, -0.26, 0], rotation: [0, -1.5, 0], scale: [0.4, 0.4, 0.4] },  // 8 Done
+  { position: [-0.3, 0, -0.74], rotation: [0, 0.4, 0.5], scale: [-0.4, 0.4, 0.4] },  // 9 Done
+  { position: [0.3, 0, -0.74], rotation: [0, -0.4, -0.5], scale: [-0.4, 0.4, 0.4] },    // 10 Done
+  { position: [0, -0.5, -0.18], rotation: [-1.35, 0.00, 0], scale: [-0.4, 0.4, 0.4] },     // 11 Done
+  { position: [0.37, 0.3, -0.3], rotation: [-2, 0, 0], scale: [0.4, 0.4, 0.4] },   // 12 Done
+  { position: [0.00, -0.5, 0.18], rotation: [1.35, 0.00, 0], scale: [0.4, 0.4, 0.4] },  // 13 Done
+  { position: [-0.3, 0.3, 0.3], rotation: [-0.9, -0.7, 0], scale: [0.4, 0.4, 0.4] },    // 14 Done
+  { position: [0.7, -0.26, 0], rotation: [0, 1.5, 0], scale: [0.4, 0.4, 0.4] },    // 15 Done
+  { position: [0.3, 0.01, 0.74], rotation: [0.0, 0.4, -0.5], scale: [0.4, 0.4, 0.4] },     // 16 Done
+  { position: [-0.3, -0.3, -0.3], rotation: [-0.9, 0.7, 0], scale: [-0.4, 0.4, 0.4] },   // 17 Done
+  { position: [-0.3, -0.3, 0.3], rotation: [0.9, -0.7, 0], scale: [0.4, 0.4, 0.4] },  // 18 Done
+  { position: [0.3, -0.3, -0.3], rotation: [-0.9, -0.7, 0], scale: [-0.4, 0.4, 0.4] },    // 19 Done
+  { position: [0.3, 0.3, 0.3], rotation: [-0.9, .7, 0], scale: [0.4, 0.4, 0.4] },     // 20 Done
+]
 
 /**
  * TypeScript Interface
@@ -180,15 +210,54 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
      * After 1.5 seconds of rolling animation:
      * 1. Stop the animation
      * 2. Generate random result (1-20)
-     * 3. Display the result
+     * 3. Snap dice to a valid face-up rotation
+     * 4. Display the result
      */
     setTimeout(() => {
       setIsRolling(false)
       // Math.random() returns 0-0.999..., multiply by 20, floor, add 1 = 1-20
       const result = Math.floor(Math.random() * 20) + 1
       setRollValue(result)
+
+      // Snap the dice to a valid face-up orientation
+      // We use the result (1-20) to pick a rotation, so each number has its own face
+      if (meshRef.current) {
+        const rotationIndex = result - 1 // Convert 1-20 to 0-19 index
+        const [rx, ry, rz] = FACE_UP_ROTATIONS[rotationIndex]
+        meshRef.current.rotation.set(rx, ry, rz)
+      }
     }, 1500)
   }
+
+  /**
+ * Face-Up Rotations for D20
+ * -------------------------
+ * Each entry is [x, y, z] Euler rotation in radians.
+ * Index 0 = roll of 1, Index 19 = roll of 20.
+ * Fill in values manually through testing.
+ */
+const FACE_UP_ROTATIONS: [number, number, number][] = [
+  [2, 0, 0], // 1 Done
+  [1.2, 0, 0], // 2 Done
+  [-0.7, -0.6, -0.2], // 3 Done
+  [2, -0.3, -0.6], // 4 Done
+  [1.6, 2.7, -1.2], // 5 Done
+  [.5, -1.5, 0], // 6 Done
+  [0, 0.45, 0], // 7 Done
+  [-0.3, 1.6, 0], // 8 Done
+  [1.7, 0.8, 1.2], // 9 Done
+  [0, -2.7, 0], // 10
+  [-1.2, 3.14, 0], // 11 Done
+  [2, 0.3, 0.6], // 12 Done
+  [-1.2, 0, 0], // 13 Done
+  [0.7, 0.8, 0], // 14 Done
+  [-0.3, -1.6, 0], // 15 Done
+  [0, -0.45, 0], // 16 Done
+  [-0.7, 2.5, 0.2], // 17 Done
+  [-0.7, 0.6, 0.2], // 18 Done
+  [-0.7, -2.5, -0.2], // 19
+  [0.8, -0.8, 0], // 20 Done
+]
 
   /**
    * Return JSX
@@ -255,6 +324,38 @@ export default function D20Dice({ position = [0, 0, 0] }: D20DiceProps) {
           metalness={0.3}
           roughness={0.4}
         />
+
+        {/* Number decals for each face */}
+        {FACE_DATA.map((face, index) => (
+          <Decal
+            key={index}
+            position={face.position}
+            rotation={face.rotation}
+            scale={face.scale}
+          >
+            <meshBasicMaterial
+              transparent
+              polygonOffset
+              polygonOffsetFactor={-1}
+            >
+              <canvasTexture
+                attach="map"
+                image={(() => {
+                  const canvas = document.createElement('canvas')
+                  canvas.width = 64
+                  canvas.height = 64
+                  const ctx = canvas.getContext('2d')!
+                  ctx.fillStyle = 'white'
+                  ctx.font = 'bold 40px Arial'
+                  ctx.textAlign = 'center'
+                  ctx.textBaseline = 'middle'
+                  ctx.fillText(String(index + 1), 32, 32)
+                  return canvas
+                })()}
+              />
+            </meshBasicMaterial>
+          </Decal>
+        ))}
       </mesh>
 
       {/**

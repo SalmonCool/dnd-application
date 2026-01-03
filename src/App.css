@@ -46,10 +46,10 @@
    * rgba(red, green, blue, alpha)
    * alpha: 0 = transparent, 1 = opaque
    */
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 1);
 
   /* Bottom border for separation - deep red for D&D theme */
-  border-bottom: 2px solid #8b0000;
+  border-bottom: 2px solid #e00606;
 }
 
 /**
@@ -61,7 +61,7 @@
   margin: 0;              /* Remove default heading margin */
   font-family: 'Georgia', serif;  /* Serif font for medieval/fantasy feel */
   font-size: 2rem;
-  color: #d4af37;         /* Gold color - classic D&D aesthetic */
+  color: #e00606;         /* Gold color - classic D&D aesthetic */
 
   /*
    * text-shadow: x-offset y-offset blur-radius color
