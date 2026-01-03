@@ -70,10 +70,17 @@ function App() {
     setMultiplier(1) // Reset multiplier on new roll
   }
 
-  const handleMultiply = () => {
+  const handleMultiply = (factor: number) => {
     if (displayValue !== null) {
-      setDisplayValue(displayValue * 2)
-      setMultiplier(multiplier * 2)
+      setDisplayValue(displayValue * factor)
+      setMultiplier(multiplier * factor)
+    }
+  }
+
+  const handleResetMultiplier = () => {
+    if (displayValue !== null && multiplier > 1) {
+      setDisplayValue(displayValue / multiplier)
+      setMultiplier(1)
     }
   }
 
@@ -140,14 +147,32 @@ function App() {
         </div>
       </main>
 
-      {/* Multiply Button - Bottom Right */}
-      <button
-        className="multiply-button"
-        onClick={handleMultiply}
-        disabled={displayValue === null}
-      >
-        x2 Multiply {multiplier > 1 ? `(${multiplier}x)` : ''}
-      </button>
+      {/* Multiply Buttons - Bottom Right */}
+      <div className="multiplier-container">
+        <button
+          className="reset-button"
+          onClick={handleResetMultiplier}
+          disabled={multiplier <= 1}
+          title="Reset multiplier to 1"
+        >
+          Reset
+        </button>
+        <div className="multiply-buttons">
+          {multiplier > 1 && (
+            <span className="multiplier-display">Current: {multiplier}x</span>
+          )}
+          {[2, 3, 4, 5, 6].map((factor) => (
+            <button
+              key={factor}
+              className="multiply-button"
+              onClick={() => handleMultiply(factor)}
+              disabled={displayValue === null}
+            >
+              x{factor}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
