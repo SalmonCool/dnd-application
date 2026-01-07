@@ -32,8 +32,10 @@
 // Re-export Scene component as a named export
 export { default as Scene } from './Scene'
 
-// Re-export D20Dice component as a named export
-export { default as D20Dice } from './D20Dice'
-
-// Re-export D6Dice component as a named export
+// Re-export dice components as named exports
+export { default as D4Dice } from './D4Dice'
 export { default as D6Dice } from './D6Dice'
+export { default as D8Dice } from './D8Dice'
+export { default as D10Dice } from './D10Dice'
+export { default as D12Dice } from './D12Dice'
+export { default as D20Dice } from './D20Dice'

@@ -145,8 +145,8 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
   const nat20Sound = useRef<HTMLAudioElement | null>(null)
   const ROLL_SOUND_PATH = '/sounds/dice-roll.mp3'
   const SETTLE_SOUND_PATH = '/sounds/bell-ding.mp3'
-  const NAT1_SOUND_PATH = '/sounds/SamBad.ogg'
-  const NAT20_SOUND_PATH = '/sounds/LeeroyJenkins.ogg'
+  const NAT1_SOUND_PATH = '/sounds/SamBad.ogg' //Applies only to NAT1 on D20
+  const NAT20_SOUND_PATH = '/sounds/LeeroyCompressed.mp3' //Applies only to NAT20 on D20
 
   /**
    * useState Hook - isRolling
@@ -253,7 +253,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
             nat20Sound.current = new Audio(NAT20_SOUND_PATH)
           }
           nat20Sound.current.currentTime = 0
-          nat20Sound.current.volume = 0.5
+          nat20Sound.current.volume = 1
           nat20Sound.current.play().catch(() => {})
         }
       }
@@ -303,7 +303,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
       setIsRolling(false)
       // Math.random() returns 0-0.999..., multiply by 20, floor, add 1 = 1-20
       // HARDCODE DICE RESULT HERE
-      const result = 20//Math.floor(Math.random() * 20) + 1
+      const result = Math.floor(Math.random() * 20) + 1
       setRollValue(result)
 
       // Notify parent of roll result

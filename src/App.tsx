@@ -57,7 +57,7 @@ import { Scene } from './components/3d'
  * - export default makes this the main export of the file
  */
 // Available dice types
-type DiceType = 'd20' | 'd6'
+type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
 
 function App() {
   // State for roll value display and multiplier
@@ -113,11 +113,11 @@ function App() {
         {/* Dice Selection Sidebar */}
         <aside className="dice-sidebar">
           <button
-            className={`dice-icon ${selectedDice === 'd20' ? 'selected' : ''}`}
-            onClick={() => setSelectedDice('d20')}
-            title="D20 - Twenty-sided die"
+            className={`dice-icon ${selectedDice === 'd4' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d4')}
+            title="D4 - Four-sided die"
           >
-            <span className="dice-label">D20</span>
+            <span className="dice-label">D4</span>
           </button>
           <button
             className={`dice-icon ${selectedDice === 'd6' ? 'selected' : ''}`}
@@ -125,6 +125,34 @@ function App() {
             title="D6 - Six-sided die"
           >
             <span className="dice-label">D6</span>
+          </button>
+          <button
+            className={`dice-icon ${selectedDice === 'd8' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d8')}
+            title="D8 - Eight-sided die"
+          >
+            <span className="dice-label">D8</span>
+          </button>
+          <button
+            className={`dice-icon ${selectedDice === 'd10' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d10')}
+            title="D10 - Ten-sided die"
+          >
+            <span className="dice-label">D10</span>
+          </button>
+          <button
+            className={`dice-icon ${selectedDice === 'd12' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d12')}
+            title="D12 - Twelve-sided die"
+          >
+            <span className="dice-label">D12</span>
+          </button>
+          <button
+            className={`dice-icon ${selectedDice === 'd20' ? 'selected' : ''}`}
+            onClick={() => setSelectedDice('d20')}
+            title="D20 - Twenty-sided die"
+          >
+            <span className="dice-label">D20</span>
           </button>
         </aside>
 

@@ -53,12 +53,16 @@ import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei
 import { Suspense } from 'react'
 
 /**
- * D20Dice Component Import
- * ------------------------
- * Our custom component for the interactive 20-sided dice.
+ * Dice Component Imports
+ * ----------------------
+ * Our custom components for the interactive dice.
  */
-import D20Dice from './D20Dice'
+import D4Dice from './D4Dice'
 import D6Dice from './D6Dice'
+import D8Dice from './D8Dice'
+import D10Dice from './D10Dice'
+import D12Dice from './D12Dice'
+import D20Dice from './D20Dice'
 
 /**
  * Scene Props Interface
@@ -66,7 +70,7 @@ import D6Dice from './D6Dice'
 interface SceneProps {
   onRollComplete?: (value: number) => void
   displayValue?: number | null
-  selectedDice?: 'd20' | 'd6'
+  selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
 }
 
 /**
@@ -124,9 +128,9 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
        */}
       <OrbitControls
         //1-2-2026 Disabled Orbital Controls
-        enablePan={false}
-        enableZoom={false}
-        enableRotate={false}
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
       />
 
       {/**
@@ -183,8 +187,8 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
          * ---------------
          * Renders the selected dice type.
          */}
-        {selectedDice === 'd20' && (
-          <D20Dice
+        {selectedDice === 'd4' && (
+          <D4Dice
             position={[0, -0.5, 0]}
             onRollComplete={onRollComplete}
             displayValue={displayValue}
@@ -192,6 +196,34 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
         )}
         {selectedDice === 'd6' && (
           <D6Dice
+            position={[0, -0.5, 0]}
+            onRollComplete={onRollComplete}
+            displayValue={displayValue}
+          />
+        )}
+        {selectedDice === 'd8' && (
+          <D8Dice
+            position={[0, -0.5, 0]}
+            onRollComplete={onRollComplete}
+            displayValue={displayValue}
+          />
+        )}
+        {selectedDice === 'd10' && (
+          <D10Dice
+            position={[0, -0.5, 0]}
+            onRollComplete={onRollComplete}
+            displayValue={displayValue}
+          />
+        )}
+        {selectedDice === 'd12' && (
+          <D12Dice
+            position={[0, -0.5, 0]}
+            onRollComplete={onRollComplete}
+            displayValue={displayValue}
+          />
+        )}
+        {selectedDice === 'd20' && (
+          <D20Dice
             position={[0, -0.5, 0]}
             onRollComplete={onRollComplete}
             displayValue={displayValue}
