@@ -141,8 +141,12 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
    */
   const rollSound = useRef<HTMLAudioElement | null>(null)
   const settleSound = useRef<HTMLAudioElement | null>(null)
+  const nat1Sound = useRef<HTMLAudioElement | null>(null)
+  const nat20Sound = useRef<HTMLAudioElement | null>(null)
   const ROLL_SOUND_PATH = '/sounds/dice-roll.mp3'
   const SETTLE_SOUND_PATH = '/sounds/bell-ding.mp3'
+  const NAT1_SOUND_PATH = '/sounds/SamBad.ogg'
+  const NAT20_SOUND_PATH = '/sounds/LeeroyJenkins.ogg'
 
   /**
    * useState Hook - isRolling
@@ -232,6 +236,26 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
         settleSound.current.currentTime = 0.05
         settleSound.current.volume = 0.25
         settleSound.current.play().catch(() => {})
+
+        // Play NAT1 sound on critical fail
+        if (rollValue === 1) {
+          if (!nat1Sound.current) {
+            nat1Sound.current = new Audio(NAT1_SOUND_PATH)
+          }
+          nat1Sound.current.currentTime = 0
+          nat1Sound.current.volume = 1
+          nat1Sound.current.play().catch(() => {})
+        }
+
+        // Play NAT20 sound on critical hit
+        if (rollValue === 20) {
+          if (!nat20Sound.current) {
+            nat20Sound.current = new Audio(NAT20_SOUND_PATH)
+          }
+          nat20Sound.current.currentTime = 0
+          nat20Sound.current.volume = 0.5
+          nat20Sound.current.play().catch(() => {})
+        }
       }
     }
   })
@@ -278,7 +302,8 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
     setTimeout(() => {
       setIsRolling(false)
       // Math.random() returns 0-0.999..., multiply by 20, floor, add 1 = 1-20
-      const result = Math.floor(Math.random() * 20) + 1
+      // HARDCODE DICE RESULT HERE
+      const result = 20//Math.floor(Math.random() * 20) + 1
       setRollValue(result)
 
       // Notify parent of roll result
