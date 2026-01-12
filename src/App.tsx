@@ -39,6 +39,7 @@ import './App.css'
  * making imports cleaner: './components/3d' instead of './components/3d/Scene'
  */
 import { Scene } from './components/3d'
+import { ChatPanel } from './components/ui'
 
 /**
  * App Component
@@ -64,16 +65,37 @@ function App() {
   const [displayValue, setDisplayValue] = useState<number | null>(null)
   const [multiplier, setMultiplier] = useState(1)
   const [selectedDice, setSelectedDice] = useState<DiceType>('d20')
+  const [chatOpen, setChatOpen] = useState(false)
 
   const handleRollComplete = (value: number) => {
+    console.log('🎲 handleRollComplete called!', {
+      diceType: selectedDice,
+      value: value,
+      sendDiceRollExists: !!(window as any).__sendDiceRoll
+    })
+
     setDisplayValue(value)
     setMultiplier(1) // Reset multiplier on new roll
+
+    // Send dice roll to chat
+    if ((window as any).__sendDiceRoll) {
+      console.log('✅ Calling __sendDiceRoll with:', selectedDice, value)
+      ;(window as any).__sendDiceRoll(selectedDice, value)
+    } else {
+      console.warn('⚠️ __sendDiceRoll not available yet')
+    }
   }
 
   const handleMultiply = (factor: number) => {
     if (displayValue !== null) {
-      setDisplayValue(displayValue * factor)
+      const newValue = displayValue * factor
+      setDisplayValue(newValue)
       setMultiplier(multiplier * factor)
+
+      // Send multiplier to chat
+      if ((window as any).__sendMultiplier) {
+        (window as any).__sendMultiplier(factor, newValue)
+      }
     }
   }
 
@@ -81,6 +103,14 @@ function App() {
     if (displayValue !== null && multiplier > 1) {
       setDisplayValue(displayValue / multiplier)
       setMultiplier(1)
+    }
+  }
+
+  const handleNewSession = () => {
+    if (confirm('Are you sure you want to start a new session? This will clear all chat history.')) {
+      if ((window as any).__clearMessages) {
+        (window as any).__clearMessages()
+      }
     }
   }
 
@@ -101,6 +131,9 @@ function App() {
        */}
       <header className="header">
         <h1>D&D Application</h1>
+        <button className="new-session-button" onClick={handleNewSession}>
+          Start New Session
+        </button>
       </header>
 
       {/**
@@ -154,6 +187,15 @@ function App() {
           >
             <span className="dice-label">D20</span>
           </button>
+
+          {/* Chat Button */}
+          <button
+            className={`dice-icon ${chatOpen ? 'selected' : ''}`}
+            onClick={() => setChatOpen(!chatOpen)}
+            title="Open chat"
+          >
+            <span className="dice-label">💬</span>
+          </button>
         </aside>
 
         {/**
@@ -201,6 +243,9 @@ function App() {
           ))}
         </div>
       </div>
+
+      {/* Chat Panel */}
+      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   )
 }

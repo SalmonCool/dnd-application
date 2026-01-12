@@ -57,7 +57,7 @@ createRoot(document.getElementById('root')!).render(
    * LEARNING POINT: If you see things rendering twice in development,
    * that's StrictMode doing its job to help you find bugs!
    */
-  <StrictMode>
+  //<StrictMode>
     <App />
-  </StrictMode>,
+  //</StrictMode>,
 )

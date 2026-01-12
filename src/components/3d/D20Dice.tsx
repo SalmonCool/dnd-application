@@ -303,7 +303,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
       setIsRolling(false)
       // Math.random() returns 0-0.999..., multiply by 20, floor, add 1 = 1-20
       //HARDCODE DIE HERE
-      const result = 1//Math.floor(Math.random() * 20) + 1
+      const result = Math.floor(Math.random() * 20) + 1
       setRollValue(result)
 
       // Notify parent of roll result
