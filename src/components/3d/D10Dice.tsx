@@ -21,12 +21,12 @@ function createD10Geometry(radius: number = 0.8): BufferGeometry {
   const geometry = new BufferGeometry()
 
   // D10 vertices: top point, bottom point, and two rings of 5 vertices
-  const topHeight = radius * 0.9
-  const bottomHeight = -radius * 0.9
-  const upperRingHeight = radius * 0.3
-  const lowerRingHeight = -radius * 0.3
-  const upperRadius = radius * 0.7
-  const lowerRadius = radius * 0.7
+  // Using proper pentagonal trapezohedron proportions
+  const topHeight = radius * 1.0
+  const bottomHeight = -radius * 1.0
+  const upperRingHeight = radius * 0.001
+  const lowerRingHeight = -radius * 0.001
+  const ringRadius = radius * 0.85
 
   const vertices: number[] = []
   const indices: number[] = []
@@ -41,19 +41,19 @@ function createD10Geometry(radius: number = 0.8): BufferGeometry {
   for (let i = 0; i < 5; i++) {
     const angle = (i * 2 * Math.PI) / 5
     vertices.push(
-      Math.cos(angle) * upperRadius,
+      Math.cos(angle) * ringRadius,
       upperRingHeight,
-      Math.sin(angle) * upperRadius
+      Math.sin(angle) * ringRadius
     )
   }
 
   // Lower ring vertices (indices 7-11), offset by 36 degrees
   for (let i = 0; i < 5; i++) {
-    const angle = (i * 2 * Math.PI) / 5 + Math.PI / 5
+    const angle = (i * 2 * Math.PI) / 5 //+ Math.PI / 5 (Removed 36 degree offset)
     vertices.push(
-      Math.cos(angle) * lowerRadius,
+      Math.cos(angle) * ringRadius,
       lowerRingHeight,
-      Math.sin(angle) * lowerRadius
+      Math.sin(angle) * ringRadius
     )
   }
 
@@ -84,22 +84,23 @@ function createD10Geometry(radius: number = 0.8): BufferGeometry {
  * Face Data for D10 Decals
  * ------------------------
  * Each entry contains position [x, y, z] and rotation [x, y, z] for placing
- * a number decal on each face. Adjust manually as needed.
- * Index 0 = face showing "1" (or "0"), Index 9 = face showing "10" (or "9")
- *
- * TODO: Fill in correct positions/rotations through manual testing
+ * a number decal on each face.
+ * Index 0 = face showing "1", Index 9 = face showing "10"
  */
 const FACE_DATA: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[] = [
-  { position: [0, 0.5, 0.4], rotation: [0.3, 0, 0], scale: [0.25, 0.25, 0.25] },       // 1 - TODO: Adjust
-  { position: [0.38, 0.5, 0.12], rotation: [0.3, 0.6, 0], scale: [0.25, 0.25, 0.25] }, // 2 - TODO: Adjust
-  { position: [0.24, 0.5, -0.32], rotation: [0.3, 1.2, 0], scale: [0.25, 0.25, 0.25] },// 3 - TODO: Adjust
-  { position: [-0.24, 0.5, -0.32], rotation: [0.3, -1.2, 0], scale: [0.25, 0.25, 0.25] },// 4 - TODO: Adjust
-  { position: [-0.38, 0.5, 0.12], rotation: [0.3, -0.6, 0], scale: [0.25, 0.25, 0.25] },// 5 - TODO: Adjust
-  { position: [0, -0.5, -0.4], rotation: [-0.3, Math.PI, 0], scale: [0.25, 0.25, 0.25] },// 6 - TODO: Adjust
-  { position: [-0.38, -0.5, -0.12], rotation: [-0.3, -2.5, 0], scale: [0.25, 0.25, 0.25] },// 7 - TODO: Adjust
-  { position: [-0.24, -0.5, 0.32], rotation: [-0.3, -1.9, 0], scale: [0.25, 0.25, 0.25] },// 8 - TODO: Adjust
-  { position: [0.24, -0.5, 0.32], rotation: [-0.3, 1.9, 0], scale: [0.25, 0.25, 0.25] },// 9 - TODO: Adjust
-  { position: [0.38, -0.5, -0.12], rotation: [-0.3, 2.5, 0], scale: [0.25, 0.25, 0.25] },// 10 - TODO: Adjust
+  // Upper faces (1-5) - radiating from top vertex at angles 0°, 72°, 144°, 216°, 288°
+  { position: [-0.1, 0.3, 0.3], rotation: [0, 0, -0.2], scale: [0.3, 0.3, 0.3] },           // 1 - 0°
+  { position: [-0.35, 0.3, 0], rotation: [0, Math.PI/2, 0], scale: [-0.3, 0.3, 0.3] }, // 2 - 72°
+  { position: [-0.1, 0.3, -0.3], rotation: [0, 0, -0.1], scale: [-0.3, 0.3, 0.3] },// 3 - 144°
+  { position: [0.35, 0.3, 0.25], rotation: [0, Math.PI/3, 0], scale: [0.3, 0.3, 0.3] },// 4 - 216°
+  { position: [0.35, 0.3, -0.25], rotation: [0, -Math.PI/3, 0], scale: [-0.3, 0.3, 0.3] },// 5 - 288°
+
+  // Lower faces (6-10) - radiating from bottom vertex, same angles
+  { position: [-0.1, -0.3, 0.3], rotation: [0, 0, 0.1], scale: [0.3, 0.3, 0.3] },          // 6 - 0°
+  { position: [-0.35, -0.3, 0], rotation: [0, Math.PI/2, 0], scale: [-0.3, 0.3, 0.3] }, // 7 - 72°
+  { position: [-0.1, -0.3, -0.3], rotation: [0, 0, 0], scale: [-0.3, 0.3, 0.3] },// 8 - 144°
+  { position: [0.35, -0.3, 0.25], rotation: [0, Math.PI/3, 0], scale: [0.3, 0.3, 0.3] },// 9 - 216°
+  { position: [0.35, -0.3, -0.25], rotation: [0, -Math.PI/3, 0], scale: [-0.3, 0.3, 0.3] },// 10 - 288°
 ]
 
 /**
@@ -107,20 +108,21 @@ const FACE_DATA: { position: [number, number, number]; rotation: [number, number
  * -------------------------
  * Each entry is [x, y, z] Euler rotation in radians.
  * Index 0 = roll of 1, Index 9 = roll of 10.
- *
- * TODO: Fill in values manually through testing
  */
 const FACE_UP_ROTATIONS: [number, number, number][] = [
-  [0, 0, 0],                          // 1 - TODO: Adjust
-  [0, -Math.PI * 2 / 5, 0],           // 2 - TODO: Adjust
-  [0, -Math.PI * 4 / 5, 0],           // 3 - TODO: Adjust
-  [0, Math.PI * 4 / 5, 0],            // 4 - TODO: Adjust
-  [0, Math.PI * 2 / 5, 0],            // 5 - TODO: Adjust
-  [Math.PI, 0, 0],                    // 6 - TODO: Adjust
-  [Math.PI, -Math.PI * 2 / 5, 0],     // 7 - TODO: Adjust
-  [Math.PI, -Math.PI * 4 / 5, 0],     // 8 - TODO: Adjust
-  [Math.PI, Math.PI * 4 / 5, 0],      // 9 - TODO: Adjust
-  [Math.PI, Math.PI * 2 / 5, 0],      // 10 - TODO: Adjust
+  // Upper faces (1-5) - slight tilt forward to show face + rotation around Y axis
+  [0.3, Math.PI/12, 0], // 1
+  [0.3, Math.PI/2, 0], // 2
+  [0.3, Math.PI/1.1, 0], // 3
+  [0.3, -Math.PI/3.5, 0], // 4
+  [0.3, -Math.PI/1.5, 0], // 5
+
+  // Lower faces (6-10) - flip dice + rotation around Y axis
+  [-0.6, Math.PI/12, 0], // 6
+  [-0.6, Math.PI/2, 0], // 7
+  [-0.6, Math.PI/1.1, 0], // 8
+  [-0.6, -Math.PI/3.5, 0], // 9
+  [-0.6, -Math.PI/1.5, 0], // 10
 ]
 
 interface D10DiceProps {
@@ -213,6 +215,7 @@ export default function D10Dice({ position = [0, 0, 0], onRollComplete, displayV
 
     setTimeout(() => {
       setIsRolling(false)
+      //HARDCODE DIE HERE
       const result = Math.floor(Math.random() * 10) + 1
       setRollValue(result)
 

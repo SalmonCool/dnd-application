@@ -14,25 +14,23 @@ import { Text, Decal } from '@react-three/drei'
  * Face Data for D12 Decals
  * ------------------------
  * Each entry contains position [x, y, z] and rotation [x, y, z] for placing
- * a number decal on each face. Adjust manually as needed.
+ * a number decal on each face.
  * Index 0 = face showing "1", Index 11 = face showing "12"
- *
- * TODO: Fill in correct positions/rotations through manual testing
  * A dodecahedron has 12 pentagonal faces
  */
 const FACE_DATA: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[] = [
-  { position: [0, 0.75, 0], rotation: [-Math.PI / 2, 0, 0], scale: [0.3, 0.3, 0.3] },         // 1 - TODO: Adjust
-  { position: [0, -0.75, 0], rotation: [Math.PI / 2, 0, 0], scale: [0.3, 0.3, 0.3] },        // 2 - TODO: Adjust
-  { position: [0.6, 0.4, 0.3], rotation: [-0.5, 0.5, 0], scale: [0.3, 0.3, 0.3] },           // 3 - TODO: Adjust
-  { position: [-0.6, 0.4, 0.3], rotation: [-0.5, -0.5, 0], scale: [0.3, 0.3, 0.3] },         // 4 - TODO: Adjust
-  { position: [0.6, 0.4, -0.3], rotation: [-0.5, 0.5, 0], scale: [0.3, 0.3, 0.3] },          // 5 - TODO: Adjust
-  { position: [-0.6, 0.4, -0.3], rotation: [-0.5, -0.5, 0], scale: [0.3, 0.3, 0.3] },        // 6 - TODO: Adjust
-  { position: [0.6, -0.4, 0.3], rotation: [0.5, 0.5, 0], scale: [0.3, 0.3, 0.3] },           // 7 - TODO: Adjust
-  { position: [-0.6, -0.4, 0.3], rotation: [0.5, -0.5, 0], scale: [0.3, 0.3, 0.3] },         // 8 - TODO: Adjust
-  { position: [0.6, -0.4, -0.3], rotation: [0.5, 0.5, 0], scale: [0.3, 0.3, 0.3] },          // 9 - TODO: Adjust
-  { position: [-0.6, -0.4, -0.3], rotation: [0.5, -0.5, 0], scale: [0.3, 0.3, 0.3] },        // 10 - TODO: Adjust
-  { position: [0, 0.3, 0.7], rotation: [0.3, 0, 0], scale: [0.3, 0.3, 0.3] },                // 11 - TODO: Adjust
-  { position: [0, 0.3, -0.7], rotation: [-0.3, Math.PI, 0], scale: [0.3, 0.3, 0.3] },        // 12 - TODO: Adjust
+  { position: [0, 0.5, 0.3], rotation: [-Math.PI / 2, 0, 0], scale: [0.3, 0.3, 0.3] },         // 1
+  { position: [0, 0.5, -0.3], rotation: [Math.PI / 2, 0, 0], scale: [-0.3, 0.3, 0.3] },        // 2
+  { position: [0.55, 0.4, 0], rotation: [1.6, -0.4, Math.PI / 2], scale: [-0.3, 0.3, 0.3] },           // 3
+  { position: [-0.55, 0.4, 0], rotation: [-1.6, -0.4, -Math.PI / 2], scale: [0.3, 0.3, 0.3] },         // 4
+  { position: [0, -0.5, 0.3], rotation: [Math.PI / 2, 0, 0], scale: [0.3, 0.3, 0.3] },          // 5
+  { position: [0, -0.5, -0.3], rotation: [-Math.PI / 2, 0, 0], scale: [-0.3, 0.3, 0.3] },        // 6
+  { position: [0.55, -0.4, 0], rotation: [-1.6, -0.4, -Math.PI / 2], scale: [-0.3, 0.3, 0.3] },           // 7
+  { position: [-0.55, -0.4, 0], rotation: [1.6, -0.4, Math.PI / 2], scale: [-0.3, 0.3, 0.3] },         // 8
+  { position: [0.35, 0, -0.55], rotation: [-0.3, -0.5, 0.12], scale: [-0.3, 0.3, 0.3] },          // 9
+  { position: [-0.35, 0, -0.55], rotation: [-0.3, 0.5, -0.12], scale: [-0.3, 0.3, 0.3] },        // 10
+  { position: [0.35, 0, 0.55], rotation: [0.3, 0.5, 0.12], scale: [0.3, 0.3, 0.3] },                // 11
+  { position: [-0.35, 0, 0.55], rotation: [0.3, -0.5, -0.12], scale: [0.3, 0.3, 0.3] },        // 12
 ]
 
 /**
@@ -40,22 +38,20 @@ const FACE_DATA: { position: [number, number, number]; rotation: [number, number
  * -------------------------
  * Each entry is [x, y, z] Euler rotation in radians.
  * Index 0 = roll of 1, Index 11 = roll of 12.
- *
- * TODO: Fill in values manually through testing
  */
 const FACE_UP_ROTATIONS: [number, number, number][] = [
-  [0, 0, 0],                           // 1 - TODO: Adjust
-  [Math.PI, 0, 0],                     // 2 - TODO: Adjust
-  [0.6, 0.9, 0],                       // 3 - TODO: Adjust
-  [0.6, -0.9, 0],                      // 4 - TODO: Adjust
-  [-0.6, 0.9, 0],                      // 5 - TODO: Adjust
-  [-0.6, -0.9, 0],                     // 6 - TODO: Adjust
-  [2.5, 0.9, 0],                       // 7 - TODO: Adjust
-  [2.5, -0.9, 0],                      // 8 - TODO: Adjust
-  [-2.5, 0.9, 0],                      // 9 - TODO: Adjust
-  [-2.5, -0.9, 0],                     // 10 - TODO: Adjust
-  [Math.PI / 2, 0, 0],                 // 11 - TODO: Adjust
-  [-Math.PI / 2, 0, 0],                // 12 - TODO: Adjust
+  [Math.PI/3, 0, 0],                           // 1
+  [Math.PI/3, Math.PI, 0],                     // 2
+  [0.3, -Math.PI/2, 0],                        // 3
+  [0.3, Math.PI/2, 0],                         // 4
+  [-Math.PI/3, 0, 0],                          // 5
+  [-Math.PI/3, Math.PI, 0],                    // 6
+  [-0.4, -Math.PI/2, 0],                       // 7
+  [-0.4, Math.PI/2, 0],                        // 8
+  [0,-Math.PI / 1.2, 0],                       // 9
+  [0,Math.PI / 1.2, 0],                        // 10
+  [0, -Math.PI / 5.5, 0],                      // 11
+  [0, Math.PI / 5.5, 0],                       // 12
 ]
 
 interface D12DiceProps {
@@ -145,6 +141,7 @@ export default function D12Dice({ position = [0, 0, 0], onRollComplete, displayV
 
     setTimeout(() => {
       setIsRolling(false)
+      //HARDCODE DIE HERE
       const result = Math.floor(Math.random() * 12) + 1
       setRollValue(result)
 

@@ -14,21 +14,19 @@ import { Text, Decal } from '@react-three/drei'
  * Face Data for D8 Decals
  * -----------------------
  * Each entry contains position [x, y, z] and rotation [x, y, z] for placing
- * a number decal on each face. Adjust manually as needed.
+ * a number decal on each face.
  * Index 0 = face showing "1", Index 7 = face showing "8"
- *
- * TODO: Fill in correct positions/rotations through manual testing
  * An octahedron has 8 triangular faces
  */
 const FACE_DATA: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[] = [
-  { position: [0.3, 0.3, 0.3], rotation: [0, 0.8, 0], scale: [0.3, 0.3, 0.3] },      // 1 - TODO: Done
-  { position: [-0.3, 0.3, 0.3], rotation: [0, -0.8, 0], scale: [0.3, 0.3, 0.3] },    // 2 - TODO: Done
-  { position: [0.3, 0.3, -0.3], rotation: [3, 0.8, -3.14], scale: [0.3, 0.3, 0.3] },    // 3 - TODO: Adjust
-  { position: [-0.3, 0.3, -0.3], rotation: [3, -0.8, -3.14], scale: [0.3, 0.3, 0.3] },  // 4 - TODO: Adjust
-  { position: [0.3, -0.3, 0.3], rotation: [0, 0.8, 0], scale: [0.3, 0.3, 0.3] },    // 5 - TODO: Done
-  { position: [-0.3, -0.3, 0.3], rotation: [0, -0.8, 0], scale: [0.3, 0.3, 0.3] },  // 6 - TODO: Done
-  { position: [0.3, -0.3, -0.3], rotation: [1.6, 0.8, -2.2], scale: [0.3, 0.3, 0.3] },    // 7 - TODO: Done
-  { position: [-0.3, -0.3, -0.3], rotation: [1.8, -0.8, 2.25], scale: [-0.3, 0.3, 0.3] },  // 8 - TODO: Done
+  { position: [0.3, 0.3, 0.3], rotation: [0, 0.8, 0], scale: [0.3, 0.3, 0.3] },      // 1
+  { position: [-0.3, 0.3, 0.3], rotation: [0, -0.8, 0], scale: [0.3, 0.3, 0.3] },    // 2
+  { position: [0.3, 0.3, -0.3], rotation: [3, 0.8, -3.14], scale: [0.3, 0.3, 0.3] },    // 3
+  { position: [-0.3, 0.3, -0.3], rotation: [3, -0.8, -3.14], scale: [0.3, 0.3, 0.3] },  // 4
+  { position: [0.3, -0.3, 0.3], rotation: [0, 0.8, 0], scale: [0.3, 0.3, 0.3] },    // 5
+  { position: [-0.3, -0.3, 0.3], rotation: [0, -0.8, 0], scale: [0.3, 0.3, 0.3] },  // 6
+  { position: [0.3, -0.3, -0.3], rotation: [1.6, 0.8, -2.2], scale: [0.3, 0.3, 0.3] },    // 7
+  { position: [-0.3, -0.3, -0.3], rotation: [1.8, -0.8, 2.25], scale: [-0.3, 0.3, 0.3] },  // 8
 ]
 
 /**
@@ -36,18 +34,16 @@ const FACE_DATA: { position: [number, number, number]; rotation: [number, number
  * ------------------------
  * Each entry is [x, y, z] Euler rotation in radians.
  * Index 0 = roll of 1, Index 7 = roll of 8.
- *
- * TODO: Fill in values manually through testing
  */
 const FACE_UP_ROTATIONS: [number, number, number][] = [
-  [0.5, -Math.PI/4, 0],          // 1 - TODO: Done
-  [0.5, Math.PI/4, 0],          // 2 - TODO: Done
-  [0.5, -3*(Math.PI/4), 0],              // 3 - TODO: Done
-  [0.5, 3*(Math.PI/4), 0],         // 4 - TODO: Done
-  [-0.5, -Math.PI/4, 0],              // 5 - TODO: Done
-  [-0.5, Math.PI/4, 0],    // 6 - TODO: Done
-  [-0.5, -3*(Math.PI/4), 0],        // 7 - TODO: Done
-  [-0.5, 3*(Math.PI/4), 0],   // 8 - TODO: Done
+  [0.5, -Math.PI/4, 0],          // 1
+  [0.5, Math.PI/4, 0],           // 2
+  [0.5, -3*(Math.PI/4), 0],      // 3
+  [0.5, 3*(Math.PI/4), 0],       // 4
+  [-0.5, -Math.PI/4, 0],         // 5
+  [-0.5, Math.PI/4, 0],          // 6
+  [-0.5, -3*(Math.PI/4), 0],     // 7
+  [-0.5, 3*(Math.PI/4), 0],      // 8
 ]
 
 interface D8DiceProps {
@@ -137,8 +133,8 @@ export default function D8Dice({ position = [0, 0, 0], onRollComplete, displayVa
 
     setTimeout(() => {
       setIsRolling(false)
-      //HARDCODE DICE RESULT
-      const result = 8//Math.floor(Math.random() * 8) + 1
+      //HARDCODE DIE HERE
+      const result = Math.floor(Math.random() * 8) + 1
       setRollValue(result)
 
       // Notify parent of roll result

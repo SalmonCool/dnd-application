@@ -14,16 +14,14 @@ import { Text, Decal } from '@react-three/drei'
  * Face Data for D4 Decals
  * -----------------------
  * Each entry contains position [x, y, z] and rotation [x, y, z] for placing
- * a number decal on each face. Adjust manually as needed.
+ * a number decal on each face.
  * Index 0 = face showing "1", Index 3 = face showing "4"
- *
- * TODO: Fill in correct positions/rotations through manual testing
  */
 const FACE_DATA: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[] = [
-  { position: [-0.18, 0.15, 0.1], rotation: [0, 0, 0.9], scale: [0.35, 0.35, 0.35] }, // 1 - TODO: Done
-  { position: [0.18, 0.15, -0.1], rotation: [0, 0, -0.8], scale: [-0.35, 0.35, 0.35] }, // 2 - TODO: Adjust
-  { position: [0.18, -0.15, 0.1], rotation: [0, 0, 0.8], scale: [0.35, 0.35, .35] }, // 3 - TODO: Adjust
-  { position: [-0.18, -0.15, -0.15], rotation: [0, 0, -0.8], scale: [-0.35, 0.35, 0.35] }, // 4 - TODO: Adjust
+  { position: [-0.18, 0.15, 0.1], rotation: [0, 0, 0.9], scale: [0.35, 0.35, 0.35] }, // 1
+  { position: [0.18, 0.15, -0.1], rotation: [0, 0, -0.8], scale: [-0.35, 0.35, 0.35] }, // 2
+  { position: [0.18, -0.15, 0.1], rotation: [0, 0, 0.8], scale: [0.35, 0.35, .35] }, // 3
+  { position: [-0.18, -0.15, -0.15], rotation: [0, 0, -0.8], scale: [-0.35, 0.35, 0.35] }, // 4
 ]
 
 /**
@@ -31,15 +29,13 @@ const FACE_DATA: { position: [number, number, number]; rotation: [number, number
  * ------------------------
  * Each entry is [x, y, z] Euler rotation in radians.
  * Index 0 = roll of 1, Index 3 = roll of 4.
- *
- * TODO: Fill in values manually through testing
  * Note: D4 dice typically show the result at the top point or on the base faces
  */
 const FACE_UP_ROTATIONS: [number, number, number][] = [
-  [0, 0.8, 0],              // 1 - TODO: Adjust
-  [0, -2.4, 0],        // 2 - TODO: Adjust
-  [0, -0.8, 0],    // 3 - TODO: Adjust
-  [0, 2.4, 0],   // 4 - TODO: Adjust
+  [0, 0.8, 0],              // 1
+  [0, -2.4, 0],             // 2
+  [0, -0.8, 0],             // 3
+  [0, 2.4, 0],              // 4
 ]
 
 interface D4DiceProps {
@@ -129,7 +125,7 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayVa
 
     setTimeout(() => {
       setIsRolling(false)
-      //HARDCODE DICE RESULT HERE
+      //HARDCODE DIE HERE
       const result = Math.floor(Math.random() * 4) + 1
       setRollValue(result)
 
