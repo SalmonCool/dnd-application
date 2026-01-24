@@ -5,7 +5,7 @@
  * when rolled and displays the result.
  */
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Mesh, MathUtils } from 'three'
 import { Text, Decal } from '@react-three/drei'
@@ -47,10 +47,13 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
 interface D6DiceProps {
   position?: [number, number, number]
   onRollComplete?: (value: number) => void
+  onStartRoll?: () => void
   displayValue?: number | null
+  rollTrigger?: number
+  instructionText?: string
 }
 
-export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayValue }: D6DiceProps) {
+export default function D6Dice({ position = [0, 0, 0], onRollComplete, onStartRoll, displayValue, rollTrigger = 0, instructionText = 'Click to roll' }: D6DiceProps) {
   const meshRef = useRef<Mesh>(null)
 
   /**
@@ -69,21 +72,24 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
    */
   const [isSettling, setIsSettling] = useState(false)
   const targetRotation = useRef<[number, number, number]>([0, 0, 0])
+  const lastRollTrigger = useRef(rollTrigger)
 
-  /**
-   * Animation Loop
-   */
+  useEffect(() => {
+    if (rollTrigger > 0 && rollTrigger !== lastRollTrigger.current && !isRolling) {
+      lastRollTrigger.current = rollTrigger
+      triggerRoll()
+    }
+  }, [rollTrigger])
+
   useFrame((_, delta) => {
     if (!meshRef.current) return
 
-    // Rolling animation - tumble on all axes
     if (isRolling) {
       meshRef.current.rotation.x += delta * 5
       meshRef.current.rotation.y += delta * 7
       meshRef.current.rotation.z += delta * 3
     }
 
-    // Settling animation - ease into final position
     if (isSettling) {
       const [tx, ty, tz] = targetRotation.current
       const lerpFactor = 25 * delta
@@ -92,7 +98,6 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
       meshRef.current.rotation.y = MathUtils.lerp(meshRef.current.rotation.y, ty, lerpFactor)
       meshRef.current.rotation.z = MathUtils.lerp(meshRef.current.rotation.z, tz, lerpFactor)
 
-      // Check if close enough to snap and stop settling
       const threshold = 0.1
       const dx = Math.abs(meshRef.current.rotation.x - tx)
       const dy = Math.abs(meshRef.current.rotation.y - ty)
@@ -102,7 +107,6 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
         meshRef.current.rotation.set(tx, ty, tz)
         setIsSettling(false)
 
-        // Play settle sound
         if (!settleSound.current) {
           settleSound.current = new Audio(SETTLE_SOUND_PATH)
         }
@@ -113,13 +117,9 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
     }
   })
 
-  /**
-   * Click Handler
-   */
-  const handleClick = () => {
+  const triggerRoll = () => {
     if (isRolling) return
 
-    // Play roll sound
     if (!rollSound.current) {
       rollSound.current = new Audio(ROLL_SOUND_PATH)
     }
@@ -134,16 +134,24 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
       const result = Math.floor(Math.random() * 6) + 1
       setRollValue(result)
 
-      // Notify parent of roll result
       if (onRollComplete) {
         onRollComplete(result)
       }
 
-      // Start settling animation
       const rotationIndex = result - 1
       targetRotation.current = FACE_UP_ROTATIONS[rotationIndex]
       setIsSettling(true)
     }, 1500)
+  }
+
+  const handleClick = () => {
+    if (isRolling) return
+
+    if (onStartRoll) {
+      onStartRoll()
+    } else {
+      triggerRoll()
+    }
   }
 
   return (
@@ -200,12 +208,12 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
       {rollValue && !isRolling && (
         <Text
           position={[0, 2, 0]}
-          fontSize={0.5}
+          fontSize={0.25}
           color={rollValue === 6 ? '#00ff00' : rollValue === 1 ? '#ff0000' : '#ffffff'}
           anchorX="center"
           anchorY="middle"
         >
-          {rollValue === 6 ? 'MAX ROLL!' : rollValue === 1 ? 'MIN ROLL!' : `Rolled: ${displayValue ?? rollValue}`}
+          {rollValue === 6 ? 'MAX!' : rollValue === 1 ? 'MIN!' : `${displayValue ?? rollValue}`}
         </Text>
       )}
 
@@ -217,7 +225,7 @@ export default function D6Dice({ position = [0, 0, 0], onRollComplete, displayVa
         anchorX="center"
         anchorY="middle"
       >
-        Click to roll
+        {instructionText}
       </Text>
     </group>
   )

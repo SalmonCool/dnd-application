@@ -28,7 +28,7 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll, onMultiplier }:
   })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, clearMessages } = useChat()
-  const { isAuthenticated, verifyPassword, error: authError, isFirstTimeSetup } = useAuth()
+  const { isAuthenticated, verifyPassword, logout, error: authError, isFirstTimeSetup } = useAuth()
 
   // Expose sendDiceRoll to parent via useEffect
   useEffect(() => {
@@ -51,12 +51,19 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll, onMultiplier }:
       console.log('⚠️ Username not set yet, window functions not registered')
     }
 
-    // Expose clearMessages regardless of username state
+    // Expose clearMessages and logout regardless of username state
     (window as any).__clearMessages = () => {
       console.log('🗑️ Clearing all messages')
       clearMessages()
     }
-  }, [username, sendDiceRoll, sendMultiplier, clearMessages])
+
+    (window as any).__logout = () => {
+      console.log('🚪 Logging out')
+      logout()
+      localStorage.removeItem(USERNAME_KEY)
+      setUsername(null)
+    }
+  }, [username, sendDiceRoll, sendMultiplier, clearMessages, logout])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

@@ -68,9 +68,50 @@ import D20Dice from './D20Dice'
  * Scene Props Interface
  */
 interface SceneProps {
-  onRollComplete?: (value: number) => void
+  onRollComplete?: (value: number, diceIndex: number) => void
+  onStartRoll?: () => void
   displayValue?: number | null
   selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
+  diceCount?: number
+  rollTrigger?: number
+  diceResetKey?: number
+}
+
+/**
+ * Calculate positions for multiple dice
+ * Arranges dice in up to 2 rows (5 per row) with spacing
+ * Moves camera back when multiple dice are shown
+ */
+function calculateDicePositions(count: number): [number, number, number][] {
+  const spacing = 2 // Horizontal spacing between dice
+  const rowSpacing = 2.3 // Vertical spacing between rows
+  var secondRowYAdjust = 0
+
+  // Move dice back when there are multiple
+  const baseZ = count > 1 ? -3.5 : 0
+
+  return Array.from({ length: count }, (_, i) => {
+    const row = Math.floor(i / 5) // 0 for first 5, 1 for next 5
+    const col = i % 5 // Position within row (0-4)
+
+    // Calculate how many dice are in this row
+    const diceInThisRow = row === 0
+      ? Math.min(count, 5)
+      : count - 5
+
+    // Center the row horizontally
+    const rowWidth = (diceInThisRow - 1) * spacing
+    const startX = -rowWidth / 2
+
+    const x = startX + col * spacing
+    if(count > 5) {
+      secondRowYAdjust = 1.4 //Move second row down when count of dice higher than 5
+    }
+    const y = -0.5 - (row * rowSpacing) + secondRowYAdjust // Second row is lower which gets handled by (row * rowspacing)
+    const z = baseZ
+
+    return [x, y, z] as [number, number, number]
+  })
 }
 
 /**
@@ -83,7 +124,16 @@ interface SceneProps {
  * - Our D20 dice
  * - A ground plane for shadows
  */
-export default function Scene({ onRollComplete, displayValue, selectedDice = 'd20' }: SceneProps) {
+export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', diceCount = 1, rollTrigger = 0, diceResetKey = 0 }: SceneProps) {
+  // Calculate positions for all dice
+  const positions = calculateDicePositions(diceCount)
+
+  // Create wrapper for onRollComplete that includes index
+  const createRollHandler = (index: number) => (value: number) => {
+    if (onRollComplete) {
+      onRollComplete(value, index)
+    }
+  }
   return (
     /**
      * Canvas Component
@@ -128,9 +178,9 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
        */}
       <OrbitControls
         //1-2-2026 Disabled Orbital Controls
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
+        enablePan={false}
+        enableZoom={false}
+        enableRotate={false}
       />
 
       {/**
@@ -180,55 +230,80 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
          *
          * This makes metallic/reflective materials look much better!
          */}
-        <Environment preset="sunset" />
+        <Environment preset="night" />
 
         {/**
          * Dice Components
          * ---------------
-         * Renders the selected dice type.
+         * Renders the selected dice type. Supports multiple dice
+         * spread horizontally with calculated positions.
          */}
-        {selectedDice === 'd4' && (
+        {selectedDice === 'd4' && positions.map((pos, index) => (
           <D4Dice
-            position={[0, -0.5, 0]}
-            onRollComplete={onRollComplete}
-            displayValue={displayValue}
+            key={`d4-${index}-${diceResetKey}`}
+            position={pos}
+            onRollComplete={createRollHandler(index)}
+            onStartRoll={index === 0 ? onStartRoll : undefined}
+            displayValue={diceCount === 1 ? displayValue : null}
+            rollTrigger={rollTrigger}
+            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
-        )}
-        {selectedDice === 'd6' && (
+        ))}
+        {selectedDice === 'd6' && positions.map((pos, index) => (
           <D6Dice
-            position={[0, -0.5, 0]}
-            onRollComplete={onRollComplete}
-            displayValue={displayValue}
+            key={`d6-${index}-${diceResetKey}`}
+            position={pos}
+            onRollComplete={createRollHandler(index)}
+            onStartRoll={index === 0 ? onStartRoll : undefined}
+            displayValue={diceCount === 1 ? displayValue : null}
+            rollTrigger={rollTrigger}
+            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
-        )}
-        {selectedDice === 'd8' && (
+        ))}
+        {selectedDice === 'd8' && positions.map((pos, index) => (
           <D8Dice
-            position={[0, -0.5, 0]}
-            onRollComplete={onRollComplete}
-            displayValue={displayValue}
+            key={`d8-${index}-${diceResetKey}`}
+            position={pos}
+            onRollComplete={createRollHandler(index)}
+            onStartRoll={index === 0 ? onStartRoll : undefined}
+            displayValue={diceCount === 1 ? displayValue : null}
+            rollTrigger={rollTrigger}
+            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
-        )}
-        {selectedDice === 'd10' && (
+        ))}
+        {selectedDice === 'd10' && positions.map((pos, index) => (
           <D10Dice
-            position={[0, -0.5, 0]}
-            onRollComplete={onRollComplete}
-            displayValue={displayValue}
+            key={`d10-${index}-${diceResetKey}`}
+            position={pos}
+            onRollComplete={createRollHandler(index)}
+            onStartRoll={index === 0 ? onStartRoll : undefined}
+            displayValue={diceCount === 1 ? displayValue : null}
+            rollTrigger={rollTrigger}
+            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
-        )}
-        {selectedDice === 'd12' && (
+        ))}
+        {selectedDice === 'd12' && positions.map((pos, index) => (
           <D12Dice
-            position={[0, -0.5, 0]}
-            onRollComplete={onRollComplete}
-            displayValue={displayValue}
+            key={`d12-${index}-${diceResetKey}`}
+            position={pos}
+            onRollComplete={createRollHandler(index)}
+            onStartRoll={index === 0 ? onStartRoll : undefined}
+            displayValue={diceCount === 1 ? displayValue : null}
+            rollTrigger={rollTrigger}
+            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
-        )}
-        {selectedDice === 'd20' && (
+        ))}
+        {selectedDice === 'd20' && positions.map((pos, index) => (
           <D20Dice
-            position={[0, -0.5, 0]}
-            onRollComplete={onRollComplete}
-            displayValue={displayValue}
+            key={`d20-${index}-${diceResetKey}`}
+            position={pos}
+            onRollComplete={createRollHandler(index)}
+            rollTrigger={rollTrigger}
+            onStartRoll={index === 0 ? onStartRoll : undefined}
+            displayValue={diceCount === 1 ? displayValue : null}
+            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
-        )}
+        ))}
 
         {/**
          * Ground Plane
@@ -244,7 +319,7 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
          *
          * receiveShadow: This mesh will show shadows cast onto it.
          */}
-        <mesh rotation={[0, 0, 0]} position={[0, 0, -1]} receiveShadow>
+        <mesh rotation={[0, 0, 0]} position={[0, 0, -5]} receiveShadow>
           {/**
            * planeGeometry
            * -------------
@@ -264,7 +339,7 @@ export default function Scene({ onRollComplete, displayValue, selectedDice = 'd2
            *   - meshLambertMaterial: Matte, non-shiny surface
            *   - meshPhongMaterial: Shiny surface with specular highlights
            */}
-          <meshStandardMaterial color="rgba(0, 0, 0, 0)" />
+          <meshLambertMaterial color="rgba(0, 0, 0, 1)" />
         </mesh>
       </Suspense>
     </Canvas>

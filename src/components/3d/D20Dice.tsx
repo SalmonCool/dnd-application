@@ -25,7 +25,7 @@
  * LEARNING POINT: Hooks are functions that let you "hook into" React features.
  * They all start with "use" and can only be called at the top level of components.
  */
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 /**
  * useFrame Hook
@@ -101,7 +101,10 @@ const FACE_DATA: { position: [number, number, number]; rotation: [number, number
 interface D20DiceProps {
   position?: [number, number, number]
   onRollComplete?: (value: number) => void
+  onStartRoll?: () => void
   displayValue?: number | null
+  rollTrigger?: number
+  instructionText?: string
 }
 
 /**
@@ -116,7 +119,7 @@ interface D20DiceProps {
  *     const position = props.position ?? [0, 0, 0]
  *   }
  */
-export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayValue }: D20DiceProps) {
+export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartRoll, displayValue, rollTrigger = 0, instructionText = 'Click to roll' }: D20DiceProps) {
   /**
    * useRef Hook
    * -----------
@@ -184,6 +187,15 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
    */
   const [isSettling, setIsSettling] = useState(false)
   const targetRotation = useRef<[number, number, number]>([0, 0, 0])
+  const lastRollTrigger = useRef(rollTrigger)
+
+  // Watch for rollTrigger changes to start rolling all dice together
+  useEffect(() => {
+    if (rollTrigger > 0 && rollTrigger !== lastRollTrigger.current && !isRolling) {
+      lastRollTrigger.current = rollTrigger
+      triggerRoll()
+    }
+  }, [rollTrigger])
 
   /**
    * Animation Loop with useFrame
@@ -261,61 +273,52 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, displayV
   })
 
   /**
-   * Click Handler
-   * -------------
-   * Called when user clicks the dice.
-   *
-   * LEARNING POINT: In React, you typically define event handlers inside
-   * the component so they have access to state and props via closure.
+   * Trigger Roll - Core rolling logic
+   * Called by handleClick or by rollTrigger effect
    */
-  const handleClick = () => {
-    // Prevent multiple rolls at once (guard clause)
+  const triggerRoll = () => {
     if (isRolling) return
 
     // Play roll sound
     if (!rollSound.current) {
       rollSound.current = new Audio(ROLL_SOUND_PATH)
     }
-    rollSound.current.currentTime = 0.3 // Reset to start if already playing
-    rollSound.current.play().catch(() => {
-      // Audio play failed (e.g., file not found or autoplay blocked)
-    })
+    rollSound.current.currentTime = 0.3
+    rollSound.current.play().catch(() => {})
 
     // Start the rolling animation
     setIsRolling(true)
-    // Clear any previous result
     setRollValue(null)
 
-    /**
-     * setTimeout
-     * ----------
-     * JavaScript's way to delay code execution.
-     * First argument: function to run
-     * Second argument: delay in milliseconds (1500 = 1.5 seconds)
-     *
-     * After 1.5 seconds of rolling animation:
-     * 1. Stop the animation
-     * 2. Generate random result (1-20)
-     * 3. Snap dice to a valid face-up rotation
-     * 4. Display the result
-     */
     setTimeout(() => {
       setIsRolling(false)
-      // Math.random() returns 0-0.999..., multiply by 20, floor, add 1 = 1-20
-      //HARDCODE DIE HERE
       const result = Math.floor(Math.random() * 20) + 1
       setRollValue(result)
 
-      // Notify parent of roll result
       if (onRollComplete) {
         onRollComplete(result)
       }
 
-      // Start settling animation towards the target face-up rotation
-      const rotationIndex = result - 1 // Convert 1-20 to 0-19 index
+      const rotationIndex = result - 1
       targetRotation.current = FACE_UP_ROTATIONS[rotationIndex]
       setIsSettling(true)
     }, 1500)
+  }
+
+  /**
+   * Click Handler - Called when user clicks the dice
+   * Notifies parent to trigger all dice, then rolls this one
+   */
+  const handleClick = () => {
+    if (isRolling) return
+
+    // Notify parent that rolling is starting (triggers all dice via rollTrigger)
+    if (onStartRoll) {
+      onStartRoll()
+    } else {
+      // If no onStartRoll (single die), just roll directly
+      triggerRoll()
+    }
   }
 
   /**
@@ -463,18 +466,12 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
       {rollValue && !isRolling && (
         <Text
           position={[0, 2, 0]}
-          fontSize={0.5}
+          fontSize={0.25}
           color={rollValue === 20 ? '#00ff00' : rollValue === 1 ? '#ff0000' : '#ffffff'}
           anchorX="center"
           anchorY="middle"
         >
-          {/**
-           * Dynamic Text Content
-           * --------------------
-           * Uses displayValue (which can be multiplied) if provided, otherwise rollValue.
-           * Shows special messages for natural 20 and 1.
-           */}
-          {rollValue === 20 ? 'NATURAL 20!' : rollValue === 1 ? 'CRITICAL FAIL!' : `Rolled: ${displayValue ?? rollValue}`}
+          {rollValue === 20 ? 'NAT 20!' : rollValue === 1 ? 'NAT 1!' : `${displayValue ?? rollValue}`}
         </Text>
       )}
 
@@ -490,7 +487,7 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
         anchorX="center"
         anchorY="middle"
       >
-        Click to roll
+        {instructionText}
       </Text>
     </group>
   )

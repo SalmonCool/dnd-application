@@ -5,7 +5,7 @@
  * when rolled and displays the result.
  */
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Mesh, MathUtils } from 'three'
 import { Text, Decal } from '@react-three/drei'
@@ -41,10 +41,13 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
 interface D4DiceProps {
   position?: [number, number, number]
   onRollComplete?: (value: number) => void
+  onStartRoll?: () => void
   displayValue?: number | null
+  rollTrigger?: number
+  instructionText?: string
 }
 
-export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayValue }: D4DiceProps) {
+export default function D4Dice({ position = [0, 0, 0], onRollComplete, onStartRoll, displayValue, rollTrigger = 0, instructionText = 'Click to roll' }: D4DiceProps) {
   const meshRef = useRef<Mesh>(null)
 
   /**
@@ -63,6 +66,15 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayVa
    */
   const [isSettling, setIsSettling] = useState(false)
   const targetRotation = useRef<[number, number, number]>([0, 0, 0])
+  const lastRollTrigger = useRef(rollTrigger)
+
+  // Watch for rollTrigger changes to start rolling all dice together
+  useEffect(() => {
+    if (rollTrigger > 0 && rollTrigger !== lastRollTrigger.current && !isRolling) {
+      lastRollTrigger.current = rollTrigger
+      triggerRoll()
+    }
+  }, [rollTrigger])
 
   /**
    * Animation Loop
@@ -108,12 +120,11 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayVa
   })
 
   /**
-   * Click Handler
+   * Trigger Roll - Core rolling logic
    */
-  const handleClick = () => {
+  const triggerRoll = () => {
     if (isRolling) return
 
-    // Play roll sound
     if (!rollSound.current) {
       rollSound.current = new Audio(ROLL_SOUND_PATH)
     }
@@ -125,20 +136,30 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayVa
 
     setTimeout(() => {
       setIsRolling(false)
-      //HARDCODE DIE HERE
       const result = Math.floor(Math.random() * 4) + 1
       setRollValue(result)
 
-      // Notify parent of roll result
       if (onRollComplete) {
         onRollComplete(result)
       }
 
-      // Start settling animation
       const rotationIndex = result - 1
       targetRotation.current = FACE_UP_ROTATIONS[rotationIndex]
       setIsSettling(true)
     }, 1500)
+  }
+
+  /**
+   * Click Handler
+   */
+  const handleClick = () => {
+    if (isRolling) return
+
+    if (onStartRoll) {
+      onStartRoll()
+    } else {
+      triggerRoll()
+    }
   }
 
   return (
@@ -195,12 +216,12 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayVa
       {rollValue && !isRolling && (
         <Text
           position={[0, 2, 0]}
-          fontSize={0.5}
+          fontSize={0.25}
           color={rollValue === 4 ? '#00ff00' : rollValue === 1 ? '#ff0000' : '#ffffff'}
           anchorX="center"
           anchorY="middle"
         >
-          {rollValue === 4 ? 'MAX ROLL!' : rollValue === 1 ? 'MIN ROLL!' : `Rolled: ${displayValue ?? rollValue}`}
+          {rollValue === 4 ? 'MAX!' : rollValue === 1 ? 'MIN!' : `${displayValue ?? rollValue}`}
         </Text>
       )}
 
@@ -212,7 +233,7 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, displayVa
         anchorX="center"
         anchorY="middle"
       >
-        Click to roll
+        {instructionText}
       </Text>
     </group>
   )

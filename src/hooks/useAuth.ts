@@ -9,9 +9,13 @@ import { database, ref, onValue, set } from '../config/firebase'
 import bcrypt from 'bcryptjs'
 
 const PASSWORD_PATH = 'config/appPassword'
+const AUTH_SESSION_KEY = 'dnd_auth_session'
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Check localStorage for existing session on mount
+    return localStorage.getItem(AUTH_SESSION_KEY) === 'true'
+  })
   const [hashedPassword, setHashedPassword] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +56,7 @@ export function useAuth() {
     if (!hashedPassword) {
       await setMasterPassword(password)
       setIsAuthenticated(true)
+      localStorage.setItem(AUTH_SESSION_KEY, 'true')
       return true
     }
 
@@ -60,6 +65,7 @@ export function useAuth() {
       const isValid = await bcrypt.compare(password, hashedPassword)
       if (isValid) {
         setIsAuthenticated(true)
+        localStorage.setItem(AUTH_SESSION_KEY, 'true')
         setError(null)
         return true
       } else {
@@ -102,6 +108,7 @@ export function useAuth() {
    */
   const logout = () => {
     setIsAuthenticated(false)
+    localStorage.removeItem(AUTH_SESSION_KEY)
   }
 
   return {
