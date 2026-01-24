@@ -17,7 +17,7 @@ export function useChat() {
     const messagesRef = ref(database, 'messages')
 
     // Subscribe to real-time updates
-    const unsubscribe = onValue(
+    onValue(
       messagesRef,
       (snapshot) => {
         const data = snapshot.val()

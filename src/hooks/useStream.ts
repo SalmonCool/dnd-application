@@ -67,7 +67,7 @@ export function useStream() {
   // Key is peerId, value is array of candidates
   const iceCandidateQueueRef = useRef<Map<string, RTCIceCandidate[]>>(new Map())
   // Reconnection timer reference
-  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Track the streamer ID we're connected to (for reconnection)
   const connectedStreamerIdRef = useRef<string | null>(null)
 
@@ -77,7 +77,7 @@ export function useStream() {
   useEffect(() => {
     const streamStateRef = ref(database, STREAM_STATE_PATH)
 
-    const unsubscribe = onValue(streamStateRef, (snapshot) => {
+    onValue(streamStateRef, (snapshot) => {
       const data = snapshot.val()
       if (data && data.active) {
         setActiveStream(data as StreamState)
@@ -97,7 +97,7 @@ export function useStream() {
   useEffect(() => {
     const signalingRef = ref(database, SIGNALING_PATH)
 
-    const unsubscribe = onValue(signalingRef, async (snapshot) => {
+    onValue(signalingRef, async (snapshot) => {
       const data = snapshot.val()
       if (!data) return
 

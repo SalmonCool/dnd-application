@@ -11,7 +11,8 @@
  */
 
 // React imports
-import { StrictMode } from 'react'
+// StrictMode import removed - currently disabled for debugging
+// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 /**

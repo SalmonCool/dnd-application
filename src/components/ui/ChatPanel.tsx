@@ -20,7 +20,7 @@ interface ChatPanelProps {
   onMultiplier?: (multiplier: number, newValue: number) => void
 }
 
-export default function ChatPanel({ isOpen, onClose, onDiceRoll, onMultiplier }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, onMultiplier: _onMultiplier }: ChatPanelProps) {
   const [inputValue, setInputValue] = useState('')
   const [username, setUsername] = useState<string | null>(() => {
     // Initialize username from localStorage
