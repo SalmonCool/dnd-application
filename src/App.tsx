@@ -39,7 +39,7 @@ import './App.css'
  * making imports cleaner: './components/3d' instead of './components/3d/Scene'
  */
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel } from './components/ui'
 import { useStream } from './hooks/useStream'
 
 /**
@@ -65,9 +65,10 @@ function App() {
   // State for roll value display and multiplier
   const [displayValue, setDisplayValue] = useState<number | null>(null)
   const [multiplier, setMultiplier] = useState(1)
-  const [selectedDice, setSelectedDice] = useState<DiceType>('d20')
+  const [selectedDice, setSelectedDice] = useState<DiceType | null>(null)
   const [chatOpen, setChatOpen] = useState(false)
   const [streamOpen, setStreamOpen] = useState(false)
+  const [playlistOpen, setPlaylistOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
 
   // Multiple dice state
@@ -86,7 +87,12 @@ function App() {
   }
 
   const handleDiceTypeChange = (type: DiceType) => {
-    setSelectedDice(type)
+    // Toggle: clicking same dice deselects it, clicking different dice selects it
+    if (selectedDice === type) {
+      setSelectedDice(null)
+    } else {
+      setSelectedDice(type)
+    }
     setDiceResetKey(prev => prev + 1)
     setDisplayValue(null)
     setDiceResults([])
@@ -347,7 +353,7 @@ function App() {
           {/* Chat Button */}
           <button
             className={`dice-icon ${chatOpen ? 'selected' : ''}`}
-            onClick={() => setChatOpen(!chatOpen)}
+            onClick={() => { setChatOpen(!chatOpen); setSelectedDice(null) }}
             title="Open chat"
           >
             <span className="dice-label">💬</span>
@@ -356,10 +362,19 @@ function App() {
           {/* Stream Button */}
           <button
             className={`dice-icon ${streamOpen ? 'selected' : ''}`}
-            onClick={handleStartStreamClick}
+            onClick={() => { handleStartStreamClick(); setSelectedDice(null) }}
             title={isStreaming ? "Manage stream" : "Start screen share"}
           >
             <span className="dice-label">📺</span>
+          </button>
+
+          {/* Playlist Button */}
+          <button
+            className={`dice-icon ${playlistOpen ? 'selected' : ''}`}
+            onClick={() => { setPlaylistOpen(!playlistOpen); setSelectedDice(null) }}
+            title="Music Playlist"
+          >
+            <span className="dice-label">🎵</span>
           </button>
         </aside>
 
@@ -443,6 +458,9 @@ function App() {
         attachVideo={attachVideo}
         error={streamError}
       />
+
+      {/* Playlist Panel */}
+      <PlaylistPanel isOpen={playlistOpen} onClose={() => setPlaylistOpen(false)} />
 
       {/* Screen Select Modal */}
       {showStreamModal && (

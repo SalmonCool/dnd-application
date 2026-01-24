@@ -277,6 +277,7 @@
   gap: 10px;
   padding: 15px 10px;
   background: rgba(0, 0, 0, 1);
+  z-index: 2;
   border-right: 2px solid #e00606;
 }
 
@@ -939,7 +940,7 @@
 .dice-count-bar {
   position: fixed;
   left: 0;
-  top: 50%;
+  top: 35%;
   transform: translateX(-100%) translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -949,13 +950,15 @@
   border: 2px solid #e00606;
   border-left: none;
   border-radius: 0 8px 8px 0;
-  transition: transform 0.3s ease-out;
-  z-index: 100;
+  transition: transform 0.3s ease-out, z-index 0s 0.3s;
+  z-index: 1;
   margin-left: 72px; /* Width of dice sidebar */
 }
 
 .dice-count-bar.visible {
   transform: translateX(0) translateY(-50%);
+  z-index: 1;
+  transition: transform 0.3s ease-out, z-index 0s 0s;
 }
 
 .count-label {
@@ -997,4 +1000,459 @@
   border-color: #e00606;
   box-shadow: 0 0 8px rgba(224, 6, 6, 0.6);
   color: #ffd700;
+}
+
+/**
+ * Playlist Panel
+ * --------------
+ * Slide-in panel from RIGHT side for YouTube playlist
+ */
+.playlist-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  border-left: 3px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(400px);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.playlist-panel.open {
+  transform: translateX(0);
+}
+
+.playlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+}
+
+.playlist-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.playlist-player-container {
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid #e00606;
+  min-height: 200px;
+}
+
+.now-playing {
+  padding: 10px 15px;
+  background: rgba(139, 0, 0, 0.3);
+  border-bottom: 1px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.now-playing-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.now-playing-title {
+  font-size: 14px;
+  color: #ffd700;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+}
+
+.playlist-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.playlist-items::-webkit-scrollbar {
+  width: 8px;
+}
+
+.playlist-items::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.playlist-items::-webkit-scrollbar-thumb {
+  background: #e00606;
+  border-radius: 4px;
+}
+
+.playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(139, 0, 0, 0.2);
+  border-left: 3px solid #555;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.playlist-item.playing {
+  border-left-color: #ffd700;
+  background: rgba(139, 0, 0, 0.4);
+}
+
+.playlist-item:hover {
+  background: rgba(139, 0, 0, 0.3);
+}
+
+.play-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 50%;
+  color: #ffd700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.play-button:hover {
+  background: #8b0000;
+  transform: scale(1.1);
+}
+
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.item-title {
+  color: white;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-added {
+  font-size: 11px;
+  color: #888;
+}
+
+.item-reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reorder-button {
+  width: 20px;
+  height: 16px;
+  background: transparent;
+  border: 1px solid #555;
+  color: #888;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.reorder-button:hover:not(:disabled) {
+  border-color: #ffd700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.reorder-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.remove-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: 1px solid #666;
+  color: #666;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.remove-button:hover {
+  border-color: #e00606;
+  color: #e00606;
+  background: rgba(224, 6, 6, 0.1);
+}
+
+.add-track-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 1);
+  border-top: 2px solid #e00606;
+}
+
+.url-input,
+.title-input {
+  padding: 10px 12px;
+  background: rgba(139, 0, 0, 0.3);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.url-input:focus,
+.title-input:focus {
+  outline: none;
+  border-color: #e00606;
+  background: rgba(139, 0, 0, 0.4);
+}
+
+.url-input::placeholder,
+.title-input::placeholder {
+  color: #888;
+}
+
+.url-input.invalid {
+  border-color: #ff4444;
+}
+
+.url-error {
+  font-size: 12px;
+  color: #ff4444;
+  margin-top: -4px;
+}
+
+.add-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: scale(1.02);
+}
+
+.add-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.playlist-status {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+}
+
+.playlist-error {
+  text-align: center;
+  color: #e00606;
+  padding: 15px;
+  background: rgba(224, 6, 6, 0.1);
+  border: 1px solid #e00606;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.clear-playlist-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: transparent;
+  color: #e00606;
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-playlist-button:hover:not(:disabled) {
+  background-color: #e00606;
+  color: white;
+}
+
+.clear-playlist-button:disabled {
+  border-color: #666;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Playlist Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: rgba(20, 20, 20, 0.98);
+  border: 2px solid #e00606;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 16px 0;
+  color: #e00606;
+  font-family: 'Georgia', serif;
+  font-size: 1.4rem;
+}
+
+.modal-content p {
+  margin: 0 0 24px 0;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-cancel {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  background: transparent;
+  color: #888;
+  border: 2px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-cancel:hover {
+  border-color: #888;
+  color: #fff;
+}
+
+.modal-confirm {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  background: #e00606;
+  color: white;
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-confirm:hover {
+  background: #b00505;
+  border-color: #b00505;
+}
+
+.import-playlist-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.import-playlist-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: scale(1.02);
+}
+
+.import-playlist-button:disabled {
+  border-color: #666;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.import-modal {
+  max-width: 450px;
+}
+
+.import-url-input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(139, 0, 0, 0.3);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.import-url-input:focus {
+  outline: none;
+  border-color: #ffd700;
+}
+
+.import-url-input:disabled {
+  opacity: 0.6;
+}
+
+.import-error {
+  display: block;
+  color: #ff4444;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.import-progress {
+  color: #ffd700;
+  font-size: 14px;
+  margin-bottom: 12px;
+  font-style: italic;
 }

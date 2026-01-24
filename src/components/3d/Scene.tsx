@@ -71,7 +71,7 @@ interface SceneProps {
   onRollComplete?: (value: number, diceIndex: number) => void
   onStartRoll?: () => void
   displayValue?: number | null
-  selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
+  selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | null
   diceCount?: number
   rollTrigger?: number
   diceResetKey?: number
@@ -328,7 +328,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
            * LEARNING POINT: In R3F, constructor arguments go in the 'args' prop.
            * new THREE.PlaneGeometry(20, 20) becomes <planeGeometry args={[20, 20]} />
            */}
-          <planeGeometry args={[20, 20]} />
+          <planeGeometry args={[100, 100]} />
 
           {/**
            * meshStandardMaterial

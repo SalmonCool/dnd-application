@@ -94,7 +94,7 @@
      * - Importing assets (import logo from './logo.png')
      * - Hot Module Replacement APIs
      */
-    "types": ["vite/client"],
+    "types": ["vite/client","youtube"],
 
     /**
      * skipLibCheck
