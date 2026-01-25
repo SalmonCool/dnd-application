@@ -166,5 +166,47 @@ export function useChat() {
     }
   }
 
-  return { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, clearMessages }
+  const sendRollModifier = async (
+    username: string,
+    flatModifier: number,
+    bonusDie: string | null,
+    bonusDieResult: number | null,
+    newTotal: number
+  ): Promise<void> => {
+    if (!username.trim()) return
+
+    try {
+      const messagesRef = ref(database, 'messages')
+
+      // Build the text description
+      let text = 'added '
+      const parts: string[] = []
+
+      if (flatModifier !== 0) {
+        parts.push(flatModifier > 0 ? `+${flatModifier}` : `${flatModifier}`)
+      }
+
+      if (bonusDie && bonusDieResult !== null) {
+        parts.push(`${bonusDie.toUpperCase()} (${bonusDieResult})`)
+      }
+
+      text += parts.join(' and ') + ` = ${newTotal}`
+
+      await push(messagesRef, {
+        type: 'roll_modifier',
+        text,
+        username: username.trim(),
+        flatModifier,
+        bonusDie,
+        bonusDieResult,
+        result: newTotal,
+        timestamp: Date.now(),
+      })
+    } catch (err) {
+      console.error('Error sending roll modifier:', err)
+      setError(err instanceof Error ? err.message : 'Failed to send roll modifier')
+    }
+  }
+
+  return { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, clearMessages }
 }

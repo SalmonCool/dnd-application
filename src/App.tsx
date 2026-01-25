@@ -64,6 +64,10 @@ function App() {
   const lastSeenCountRef = useRef(-1) // -1 means not initialized yet
   const chatOpenRef = useRef(false)
 
+  // Roll modifiers
+  const [flatModifier, setFlatModifier] = useState<string>('')
+  const [bonusDie, setBonusDie] = useState<DiceType | ''>('')
+
   // Track message count changes for unread badge
   const handleMessageCountChange = useCallback((count: number) => {
     // Initialize lastSeenCount on first message load
@@ -169,6 +173,11 @@ function App() {
     setRollTrigger(prev => prev + 1) // Trigger all dice to roll
   }
 
+  // Dice max values for bonus die rolling
+  const DICE_MAX: Record<DiceType, number> = {
+    d4: 4, d6: 6, d8: 8, d10: 10, d12: 12, d20: 20,
+  }
+
   // Called when a single die completes its roll
   const handleRollComplete = (value: number, diceIndex: number) => {
     console.log('🎲 handleRollComplete called!', {
@@ -197,6 +206,31 @@ function App() {
           const diceNotation = diceCount > 1 ? `${diceCount}${selectedDice}` : selectedDice
           console.log('✅ Calling __sendDiceRoll with:', diceNotation, sum)
           ;(window as any).__sendDiceRoll(diceNotation, sum)
+
+          // Check if we have modifiers to apply
+          const flatMod = parseInt(flatModifier) || 0
+          const hasBonusDie = bonusDie !== ''
+
+          if (flatMod !== 0 || hasBonusDie) {
+            // Roll bonus die if selected
+            let bonusDieResult: number | null = null
+            if (hasBonusDie && bonusDie) {
+              bonusDieResult = Math.floor(Math.random() * DICE_MAX[bonusDie as DiceType]) + 1
+            }
+
+            // Calculate new total
+            const newTotal = sum + flatMod + (bonusDieResult || 0)
+            setDisplayValue(newTotal)
+
+            // Send modifier message
+            if ((window as any).__sendRollModifier) {
+              ;(window as any).__sendRollModifier(flatMod, hasBonusDie ? bonusDie : null, bonusDieResult, newTotal)
+            }
+
+            // Reset modifiers after use
+            setFlatModifier('')
+            setBonusDie('')
+          }
         } else {
           console.warn('⚠️ __sendDiceRoll not available yet')
         }
@@ -502,6 +536,38 @@ function App() {
               x{factor}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Roll Modifier Bar - Bottom Center */}
+      <div className="modifier-bar">
+        <div className="modifier-input-group">
+          <label htmlFor="flat-modifier">Add to next roll:</label>
+          <input
+            id="flat-modifier"
+            type="number"
+            className="flat-modifier-input"
+            placeholder="+0"
+            value={flatModifier}
+            onChange={(e) => setFlatModifier(e.target.value)}
+          />
+        </div>
+        <div className="modifier-input-group">
+          <label htmlFor="bonus-die">Bonus die:</label>
+          <select
+            id="bonus-die"
+            className="bonus-die-select"
+            value={bonusDie}
+            onChange={(e) => setBonusDie(e.target.value as DiceType | '')}
+          >
+            <option value="">None</option>
+            <option value="d4">D4</option>
+            <option value="d6">D6</option>
+            <option value="d8">D8</option>
+            <option value="d10">D10</option>
+            <option value="d12">D12</option>
+            <option value="d20">D20</option>
+          </select>
         </div>
       </div>
 

@@ -1,0 +1,99 @@
+/**
+ * Roll Modifier Bar
+ * -----------------
+ * Bottom center bar for adding modifiers to rolls
+ */
+.modifier-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #e00606;
+  border-radius: 8px;
+  z-index: 100;
+}
+
+.modifier-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modifier-input-group label {
+  color: #ffd700;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  white-space: nowrap;
+}
+
+.flat-modifier-input {
+  width: 60px;
+  padding: 8px 10px;
+  background: rgba(139, 0, 0, 0.4);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Georgia', serif;
+  transition: border-color 0.2s;
+}
+
+.flat-modifier-input:focus {
+  outline: none;
+  border-color: #ffd700;
+  background: rgba(139, 0, 0, 0.5);
+}
+
+.flat-modifier-input::placeholder {
+  color: #888;
+}
+
+/* Hide number input spinners */
+.flat-modifier-input::-webkit-outer-spin-button,
+.flat-modifier-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.flat-modifier-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.bonus-die-select {
+  padding: 8px 12px;
+  background: rgba(139, 0, 0, 0.4);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ffd700' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.bonus-die-select:focus {
+  outline: none;
+  border-color: #ffd700;
+  background-color: rgba(139, 0, 0, 0.5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ffd700' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.bonus-die-select option {
+  background: #1a1a1a;
+  color: white;
+}

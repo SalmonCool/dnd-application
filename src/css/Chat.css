@@ -188,6 +188,23 @@
 }
 
 /**
+ * Roll Modifier Messages
+ * ----------------------
+ * Special styling for roll modifier additions (light green)
+ */
+.roll-modifier-message {
+  background: rgba(134, 239, 172, 0.25);
+  border-left-color: #86efac;
+}
+
+.modifier-result {
+  font-size: 18px;
+  font-weight: bold;
+  color: #86efac;
+  text-shadow: 0 0 5px rgba(134, 239, 172, 0.5);
+}
+
+/**
  * Chat Status Messages
  * --------------------
  * Loading, error, and empty state messages

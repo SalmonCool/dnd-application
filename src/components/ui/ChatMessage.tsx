@@ -23,7 +23,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const messageClass = `chat-message ${
     message.type === 'dice_roll' ? 'dice-roll-message' :
     message.type === 'multiplier' ? 'multiplier-message' :
-    message.type === 'spell_cast' ? 'spell-cast-message' : ''
+    message.type === 'spell_cast' ? 'spell-cast-message' :
+    message.type === 'roll_modifier' ? 'roll-modifier-message' : ''
   }`
 
   return (
@@ -41,6 +42,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         )}
         {message.type === 'spell_cast' && message.result && (
           <span className="spell-result">📖 {message.result} </span>
+        )}
+        {message.type === 'roll_modifier' && message.result && (
+          <span className="modifier-result">➕ {message.result} </span>
         )}
         {message.text}
       </span>
