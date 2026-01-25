@@ -30,18 +30,9 @@ export default function SpellSoundPlayer() {
 
   // Initialize YouTube API
   useEffect(() => {
-    // Load YouTube IFrame API if not already loaded
-    if (!(window as any).YT) {
-      const tag = document.createElement('script')
-      tag.src = 'https://www.youtube.com/iframe_api'
-      const firstScriptTag = document.getElementsByTagName('script')[0]
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
-    }
-
-    // Set up the callback for when API is ready
-    const onYouTubeIframeAPIReady = () => {
+    const initializePlayer = () => {
       if (containerRef.current && !playerRef.current) {
-        playerRef.current = new (window as any).YT.Player(containerRef.current, {
+        playerRef.current = new window.YT!.Player(containerRef.current, {
           height: '1',
           width: '1',
           playerVars: {
@@ -54,9 +45,9 @@ export default function SpellSoundPlayer() {
           },
           events: {
             onReady: () => setIsReady(true),
-            onStateChange: (event: YT.OnStateChangeEvent) => {
+            onStateChange: (event) => {
               // When video ends, clear the event
-              if (event.data === (window as any).YT.PlayerState.ENDED) {
+              if (event.data === window.YT!.PlayerState.ENDED) {
                 clearSpellCastEvent()
               }
             },
@@ -65,11 +56,26 @@ export default function SpellSoundPlayer() {
       }
     }
 
-    // Check if API is already loaded
-    if ((window as any).YT && (window as any).YT.Player) {
-      onYouTubeIframeAPIReady()
-    } else {
-      (window as any).onYouTubeIframeAPIReady = onYouTubeIframeAPIReady
+    // If API is already fully loaded, initialize directly
+    if (window.YT && window.YT.Player) {
+      initializePlayer()
+      return
+    }
+
+    // Load the script if not already loading
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+    }
+
+    // Chain callbacks instead of overwriting
+    const existingCallback = window.onYouTubeIframeAPIReady
+    window.onYouTubeIframeAPIReady = () => {
+      initializePlayer()
+      // Call any previously registered callback
+      if (existingCallback) existingCallback()
     }
 
     return () => {

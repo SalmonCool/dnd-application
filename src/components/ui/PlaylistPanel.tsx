@@ -170,19 +170,28 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
 
   // Load YouTube IFrame API
   useEffect(() => {
-    if (window.YT) {
+    // If API is already fully loaded, mark ready immediately
+    if (window.YT && window.YT.Player) {
+      debugLog('🎵 YouTube API already loaded')
       setApiReady(true)
       return
     }
 
-    const tag = document.createElement('script')
-    tag.src = 'https://www.youtube.com/iframe_api'
-    const firstScriptTag = document.getElementsByTagName('script')[0]
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+    // Load the script if not already loading
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+    }
 
+    // Chain callbacks instead of overwriting
+    const existingCallback = window.onYouTubeIframeAPIReady
     window.onYouTubeIframeAPIReady = () => {
       debugLog('🎵 YouTube API Ready')
       setApiReady(true)
+      // Call any previously registered callback
+      if (existingCallback) existingCallback()
     }
   }, [])
 
