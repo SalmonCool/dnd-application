@@ -4,6 +4,16 @@
  * Extends the Window interface with custom properties used across the app
  */
 
+// YouTube Player interface
+interface YTPlayer {
+  loadVideoById: (videoId: string) => void
+  playVideo: () => void
+  pauseVideo: () => void
+  destroy: () => void
+  getPlaylist: () => string[]
+  getPlaylistIndex: () => number
+}
+
 declare global {
   interface Window {
     // Chat message tracking
@@ -18,10 +28,32 @@ declare global {
     __clearMessages?: () => void
     __logout?: () => void
 
-    // YouTube API
-    YT?: typeof YT
+    // YouTube IFrame API
+    YT?: {
+      Player: new (
+        elementId: string | HTMLElement,
+        config: {
+          height?: string
+          width?: string
+          videoId?: string
+          playerVars?: Record<string, number | string>
+          events?: {
+            onReady?: (event: { target: YTPlayer }) => void
+            onStateChange?: (event: { data: number; target: YTPlayer }) => void
+            onError?: (event: { data: number }) => void
+          }
+        }
+      ) => YTPlayer
+      PlayerState: {
+        ENDED: number
+        PLAYING: number
+        PAUSED: number
+        BUFFERING: number
+        CUED: number
+      }
+    }
     onYouTubeIframeAPIReady?: () => void
   }
 }
 
-export {}
+export { YTPlayer }

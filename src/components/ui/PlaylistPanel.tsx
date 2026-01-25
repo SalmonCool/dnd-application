@@ -19,42 +19,8 @@ const debugLog = (message: string, ...args: any[]) => {
   }
 }
 
-// YouTube IFrame API types
-declare global {
-  interface Window {
-    YT: {
-      Player: new (
-        elementId: string,
-        config: {
-          height: string
-          width: string
-          videoId: string
-          playerVars?: Record<string, number>
-          events?: {
-            onReady?: (event: { target: YTPlayer }) => void
-            onStateChange?: (event: { data: number; target: YTPlayer }) => void
-            onError?: (event: { data: number }) => void
-          }
-        }
-      ) => YTPlayer
-      PlayerState: {
-        ENDED: number
-        PLAYING: number
-        PAUSED: number
-        BUFFERING: number
-        CUED: number
-      }
-    }
-    onYouTubeIframeAPIReady: () => void
-  }
-}
-
-interface YTPlayer {
-  loadVideoById: (videoId: string) => void
-  playVideo: () => void
-  pauseVideo: () => void
-  destroy: () => void
-}
+// YTPlayer type is defined in src/types/global.d.ts
+import type { YTPlayer } from '../../types/global'
 
 interface PlaylistPanelProps {
   isOpen: boolean
