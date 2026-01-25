@@ -9,6 +9,16 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import type { FormEvent } from 'react'
 import { usePlaylist } from '../../hooks/usePlaylist'
 
+// Debug logging - set VITE_DEBUG_PLAYLISTPANEL =true in .env to enable
+const DEBUG_PLAYLISTPANEL = import.meta.env.VITE_DEBUG_PLAYLISTPANEL === 'true'
+
+// Debug logger helper - only logs when DEBUG_PLAYLISTPANEL is true
+const debugLog = (message: string, ...args: any[]) => {
+  if (DEBUG_PLAYLISTPANEL) {
+    console.log(message, ...args)
+  }
+}
+
 // YouTube IFrame API types
 declare global {
   interface Window {
@@ -147,7 +157,7 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
               reject(new Error('Failed to load playlist'))
             },
           },
-        } satisfies YT.PlayerOptions )
+        } satisfies YT.PlayerOptions)
       })
 
       // Cleanup temp player
@@ -169,7 +179,7 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
 
       setShowImportModal(false)
       setImportUrl('')
-      console.log(`🎵 Imported ${videoIds.length} videos from playlist`)
+      debugLog(`🎵 Imported ${videoIds.length} videos from playlist`)
     } catch (err) {
       console.error('Error importing playlist:', err)
       setImportError(err instanceof Error ? err.message : 'Failed to import playlist')
@@ -183,12 +193,12 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
 
   // Handle video ended - advance to next track
   const handleVideoEnded = useCallback(() => {
-    console.log('🎵 Video ended, currentIndex:', currentIndex, 'items.length:', items.length)
+    debugLog('🎵 Video ended, currentIndex:', currentIndex, 'items.length:', items.length)
     if (currentIndex !== null && currentIndex < items.length - 1) {
       setCurrentIndex(currentIndex + 1)
     } else {
       // End of playlist, stop or loop back to beginning
-      console.log('🎵 End of playlist')
+      debugLog('🎵 End of playlist')
     }
   }, [currentIndex, items.length])
 
@@ -205,7 +215,7 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
     firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
 
     window.onYouTubeIframeAPIReady = () => {
-      console.log('🎵 YouTube API Ready')
+      debugLog('🎵 YouTube API Ready')
       setApiReady(true)
     }
   }, [])
@@ -221,13 +231,13 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
 
     // If player exists, just load new video
     if (playerRef.current) {
-      console.log('🎵 Loading new video:', videoId)
+      debugLog('🎵 Loading new video:', videoId)
       playerRef.current.loadVideoById(videoId)
       return
     }
 
     // Create new player
-    console.log('🎵 Creating player for:', videoId)
+    debugLog('🎵 Creating player for:', videoId)
     playerRef.current = new window.YT.Player('youtube-player', {
       height: '200',
       width: '100%',
@@ -239,11 +249,11 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
       },
       events: {
         onReady: (event) => {
-          console.log('🎵 Player ready')
+          debugLog('🎵 Player ready')
           event.target.playVideo()
         },
         onStateChange: (event) => {
-          console.log('🎵 Player state changed:', event.data)
+          debugLog('🎵 Player state changed:', event.data)
           // 0 = ended
           if (event.data === 0) {
             handleVideoEnded()

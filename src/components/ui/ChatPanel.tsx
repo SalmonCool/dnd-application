@@ -13,6 +13,16 @@ import UsernamePrompt from './UsernamePrompt'
 
 const USERNAME_KEY = 'dnd_chat_username'
 
+// Debug logging - set VITE_DEBUG_CHATPANEL =true in .env to enable
+const DEBUG_CHATPANEL = import.meta.env.VITE_DEBUG_CHATPANEL === 'true'
+
+// Debug logger helper - only logs when DEBUG_WEBCHATPANEL is true
+const debugLog = (message: string, ...args: any[]) => {
+  if (DEBUG_CHATPANEL) {
+    console.log(message, ...args)
+  }
+}
+
 interface ChatPanelProps {
   isOpen: boolean
   onClose: () => void
@@ -33,32 +43,32 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
   // Expose sendDiceRoll to parent via useEffect
   useEffect(() => {
     if (username) {
-      console.log('🔧 Setting up window functions with username:', username);
+      debugLog('🔧 Setting up window functions with username:', username);
 
       // Store the function for parent to call
       (window as any).__sendDiceRoll = (diceType: string, result: number) => {
-        console.log('🎯 window.__sendDiceRoll intercepted:', { diceType, result })
+        debugLog('🎯 window.__sendDiceRoll intercepted:', { diceType, result })
         sendDiceRoll(username, diceType, result)
       }
 
       (window as any).__sendMultiplier = (multiplier: number, newValue: number) => {
-        console.log('🎯 window.__sendMultiplier intercepted:', { multiplier, newValue })
+        debugLog('🎯 window.__sendMultiplier intercepted:', { multiplier, newValue })
         sendMultiplier(username, multiplier, newValue)
       }
 
-      console.log('✅ Window functions registered')
+      debugLog('✅ Window functions registered')
     } else {
-      console.log('⚠️ Username not set yet, window functions not registered')
+      debugLog('⚠️ Username not set yet, window functions not registered')
     }
 
     // Expose clearMessages and logout regardless of username state
     (window as any).__clearMessages = () => {
-      console.log('🗑️ Clearing all messages')
+      debugLog('🗑️ Clearing all messages')
       clearMessages()
     }
 
     (window as any).__logout = () => {
-      console.log('🚪 Logging out')
+      debugLog('🚪 Logging out')
       logout()
       localStorage.removeItem(USERNAME_KEY)
       setUsername(null)
