@@ -1,0 +1,117 @@
+/**
+ * Dice Selection Sidebar
+ * ----------------------
+ * Vertical bar on the left side with dice type icons.
+ */
+.dice-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px 10px;
+  background: rgba(0, 0, 0, 1);
+  z-index: 2;
+  border-right: 2px solid #e00606;
+}
+
+.dice-icon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dice-icon:hover {
+  background: rgba(139, 0, 0, 0.9);
+  border-color: #888;
+  transform: scale(1.05);
+}
+
+.dice-icon.selected {
+  background: #8b0000;
+  border-color: #e00606;
+  box-shadow: 0 0 10px rgba(224, 6, 6, 0.5);
+}
+
+.dice-label {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: 'Georgia', serif;
+}
+
+/**
+ * Dice Count Bar
+ * --------------
+ * Horizontal bar that slides in from the left below the dice sidebar
+ * Contains buttons 1-10 for selecting number of dice to roll
+ */
+.dice-count-bar {
+  position: fixed;
+  left: 0;
+  top: 35%;
+  transform: translateX(-100%) translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #e00606;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  transition: transform 0.3s ease-out, z-index 0s 0.3s;
+  z-index: 1;
+  margin-left: 72px; /* Width of dice sidebar */
+}
+
+.dice-count-bar.visible {
+  transform: translateX(0) translateY(-50%);
+  z-index: 1;
+  transition: transform 0.3s ease-out, z-index 0s 0s;
+}
+
+.count-label {
+  color: #ffd700;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  text-align: center;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e00606;
+  margin-bottom: 2px;
+}
+
+.count-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: 'Georgia', serif;
+}
+
+.count-button:hover {
+  background: rgba(139, 0, 0, 0.9);
+  border-color: #888;
+  transform: scale(1.1);
+}
+
+.count-button.selected {
+  background: #8b0000;
+  border-color: #e00606;
+  box-shadow: 0 0 8px rgba(224, 6, 6, 0.6);
+  color: #ffd700;
+}

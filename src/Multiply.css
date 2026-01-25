@@ -1,0 +1,81 @@
+/**
+ * Multiplier Container
+ * --------------------
+ * Fixed position container in bottom-right corner holding reset and multiply buttons.
+ */
+.multiplier-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.multiply-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.reset-button {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #4b5563;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s, transform 0.1s;
+  align-self: flex-end;
+}
+
+.reset-button:hover:not(:disabled) {
+  background-color: #374151;
+  transform: scale(1.05);
+}
+
+.reset-button:disabled {
+  background-color: #1f2937;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.multiplier-display {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.multiply-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s, transform 0.1s;
+  min-width: 60px;
+}
+
+.multiply-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.multiply-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}

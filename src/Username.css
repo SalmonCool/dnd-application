@@ -1,0 +1,105 @@
+/**
+ * Username Prompt Modal
+ * ---------------------
+ * Modal overlay for username setup on first visit
+ */
+.username-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.username-prompt-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 3px solid #e00606;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(224, 6, 6, 0.3);
+}
+
+.username-prompt-modal h2 {
+  margin: 0 0 10px 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.8rem;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.username-prompt-modal p {
+  margin: 0 0 20px 0;
+  color: #ccc;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-error {
+  background: rgba(224, 6, 6, 0.2);
+  border: 1px solid #e00606;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0 0 15px 0;
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.username-prompt-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.username-input {
+  padding: 12px 16px;
+  background: rgba(139, 0, 0, 0.3);
+  border: 2px solid #555;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.username-input:focus {
+  outline: none;
+  border-color: #e00606;
+  background: rgba(139, 0, 0, 0.4);
+}
+
+.username-input::placeholder {
+  color: #888;
+}
+
+.username-submit-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Georgia', serif;
+}
+
+.username-submit-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.username-submit-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}

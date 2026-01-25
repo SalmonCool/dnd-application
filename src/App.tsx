@@ -15,29 +15,16 @@
  * (The older style was "class components" - but functional is now preferred)
  */
 
-/**
- * CSS Import
- * ----------
- * When you import CSS like this, it's automatically applied to this component
- * and any child components. The styles are NOT scoped by default - they're global.
- *
- * For scoped styles, React offers:
- *   - CSS Modules (Component.module.css)
- *   - Styled-components library
- *   - Tailwind CSS utility classes
- */
+
 import { useState, useEffect } from 'react'
 import './App.css'
-
-/**
- * Named Import
- * ------------
- * Using { Scene } imports a specific export from the module.
- * This is different from "default" imports like: import Scene from './Scene'
- *
- * We set up the index.ts file in components/3d/ to re-export components,
- * making imports cleaner: './components/3d' instead of './components/3d/Scene'
- */
+import './Header.css'
+import './Multiply.css'
+import './Dicebar.css'
+import './Chat.css'
+import './Stream.css'
+import './Playlist.css'
+import './Username.css'
 import { Scene } from './components/3d'
 import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel } from './components/ui'
 import { useStream } from './hooks/useStream'

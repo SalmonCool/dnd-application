@@ -1,0 +1,131 @@
+/**
+ * Header.css - Header Styles
+ * ==================================
+ * This file contains styles for the header at the top of the app
+*/
+
+/**
+ * Header Section
+ * --------------
+ * Contains the app title with a D&D fantasy theme
+ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;     /* rem = relative to root font size (typically 16px) */
+
+  /*
+   * rgba() color with transparency
+   * rgba(red, green, blue, alpha)
+   * alpha: 0 = transparent, 1 = opaque
+   */
+  background: rgba(0, 0, 0, 1);
+
+  /* Bottom border for separation - deep red for D&D theme */
+  border-bottom: 2px solid #e00606;
+  border-right: 2px solid #e00606;
+}
+
+/**
+ * Header Title
+ * ------------
+ * Fantasy-styled title using serif font and gold coloring
+ */
+.header h1 {
+  margin: 0;              /* Remove default heading margin */
+  font-family: 'Georgia', serif;  /* Serif font for medieval/fantasy feel */
+  font-size: 2rem;
+  color: #e00606;
+
+}
+
+/**
+ * Header Buttons Container
+ * -------------------------
+ * Container for buttons in the header (logout, new session)
+ */
+.header-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/**
+ * New Session Button
+ * ------------------
+ * Button to clear chat history and start fresh
+ */
+.new-session-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  background-color: #8b0000;
+  color: #ffd700;
+  border: 2px solid #e00606;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.new-session-button:hover {
+  background-color: #a00000;
+  border-color: #ff0808;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(224, 6, 6, 0.4);
+}
+
+/**
+ * Logout Button
+ * -------------
+ * Button to logout and clear session
+ */
+.logout-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  background-color: #4b4b4b;
+  color: #cccccc;
+  border: 2px solid #666;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.logout-button:hover {
+  background-color: #5a5a5a;
+  border-color: #888;
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/**
+ * Reset Stream Button
+ * -------------------
+ * Button to reset stream state for troubleshooting
+ */
+.reset-stream-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  background-color: #d97706;
+  color: #ffffff;
+  border: 2px solid #f59e0b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.reset-stream-button:hover {
+  background-color: #ea580c;
+  border-color: #fb923c;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(217, 119, 6, 0.4);
+}

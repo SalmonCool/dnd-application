@@ -1,0 +1,259 @@
+/**
+ * Stream Panel
+ * ------------
+ * Fullscreen slide-in panel from left side for screen sharing
+ */
+.stream-panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.98);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100vw);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.stream-panel.open {
+  transform: translateX(0);
+}
+
+/**
+ * Stream Header
+ * -------------
+ * Title bar with close button
+ */
+.stream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+}
+
+.stream-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/**
+ * Stream Content
+ * --------------
+ * Container for video stream or status messages
+ */
+.stream-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+.stream-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+  font-size: 16px;
+}
+
+.join-viewer-button {
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #8b0000;
+  color: #ffd700;
+  border: 2px solid #e00606;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Georgia', serif;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.join-viewer-button:hover {
+  background-color: #a00000;
+  border-color: #ff0808;
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(224, 6, 6, 0.5);
+}
+
+.stream-status-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffd700;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: 2px solid #e00606;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.stream-error {
+  text-align: center;
+  color: #e00606;
+  padding: 15px;
+  background: rgba(224, 6, 6, 0.1);
+  border: 1px solid #e00606;
+  border-radius: 4px;
+  margin: 15px;
+  font-size: 13px;
+}
+
+.stream-video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stream-video {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/**
+ * Stream Controls
+ * ---------------
+ * Controls at bottom of stream panel
+ */
+.stream-controls {
+  padding: 15px;
+  background: rgba(0, 0, 0, 1);
+  border-top: 2px solid #e00606;
+  display: flex;
+  justify-content: center;
+}
+
+.stop-stream-button {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Georgia', serif;
+}
+
+.stop-stream-button:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+/**
+ * Screen Select Modal
+ * -------------------
+ * Modal for starting screen share
+ */
+.screen-select-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.screen-select-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 3px solid #e00606;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(224, 6, 6, 0.3);
+}
+
+.screen-select-modal h2 {
+  margin: 0 0 10px 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.8rem;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.screen-select-modal p {
+  margin: 0 0 20px 0;
+  color: #ccc;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-cancel-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  background-color: #4b4b4b;
+  color: #cccccc;
+  border: 2px solid #666;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-cancel-button:hover {
+  background-color: #5a5a5a;
+  border-color: #888;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.modal-start-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  background-color: #8b0000;
+  color: #ffd700;
+  border: 2px solid #e00606;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-start-button:hover {
+  background-color: #a00000;
+  border-color: #ff0808;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(224, 6, 6, 0.4);
+}
