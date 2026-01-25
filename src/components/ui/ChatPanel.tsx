@@ -37,7 +37,7 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
     return localStorage.getItem(USERNAME_KEY)
   })
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, clearMessages } = useChat()
+  const { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, clearMessages } = useChat()
   const { isAuthenticated, verifyPassword, logout, error: authError, isFirstTimeSetup } = useAuth()
 
   // Expose sendDiceRoll to parent via useEffect
@@ -54,6 +54,11 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
       (window as any).__sendMultiplier = (multiplier: number, newValue: number) => {
         debugLog('🎯 window.__sendMultiplier intercepted:', { multiplier, newValue })
         sendMultiplier(username, multiplier, newValue)
+      }
+
+      ;(window as any).__sendSpellCast = (spellName: string, diceNotation: string, total: number, description?: string) => {
+        debugLog('🎯 window.__sendSpellCast intercepted:', { spellName, diceNotation, total, description })
+        sendSpellCast(username, spellName, diceNotation, total, description)
       }
 
       debugLog('✅ Window functions registered')
@@ -73,12 +78,29 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
       localStorage.removeItem(USERNAME_KEY)
       setUsername(null)
     }
-  }, [username, sendDiceRoll, sendMultiplier, clearMessages, logout])
+  }, [username, sendDiceRoll, sendMultiplier, sendSpellCast, clearMessages, logout])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Notify parent of message count changes
+  useEffect(() => {
+    // Store current count on window for App.tsx to access
+    window.__currentMessageCount = messages.length
+
+    if (window.__onMessageCountChange) {
+      window.__onMessageCountChange(messages.length)
+    }
+  }, [messages.length])
+
+  // Also notify when chat panel opens/closes
+  useEffect(() => {
+    if (window.__onChatOpenChange) {
+      window.__onChatOpenChange(isOpen, messages.length)
+    }
+  }, [isOpen, messages.length])
 
   const handleUsernameSubmit = async (newUsername: string, password: string) => {
     // Verify password first

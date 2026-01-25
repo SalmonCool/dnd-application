@@ -16,10 +16,10 @@
  */
 
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer } from './components/ui'
 import { useStream } from './hooks/useStream'
 
 /**
@@ -49,6 +49,7 @@ function App() {
   const [chatOpen, setChatOpen] = useState(false)
   const [streamOpen, setStreamOpen] = useState(false)
   const [playlistOpen, setPlaylistOpen] = useState(false)
+  const [spellbookOpen, setSpellbookOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
 
   // Multiple dice state
@@ -57,6 +58,75 @@ function App() {
   const [_isRolling, setIsRolling] = useState(false)
   const [rollTrigger, setRollTrigger] = useState(0)
   const [diceResetKey, setDiceResetKey] = useState(0)
+
+  // Unread chat messages
+  const [unreadCount, setUnreadCount] = useState(0)
+  const lastSeenCountRef = useRef(-1) // -1 means not initialized yet
+  const chatOpenRef = useRef(false)
+
+  // Track message count changes for unread badge
+  const handleMessageCountChange = useCallback((count: number) => {
+    // Initialize lastSeenCount on first message load
+    if (lastSeenCountRef.current === -1) {
+      lastSeenCountRef.current = count
+      return
+    }
+
+    if (chatOpenRef.current) {
+      // Chat is open, update last seen count
+      lastSeenCountRef.current = count
+      setUnreadCount(0)
+    } else {
+      // Chat is closed, calculate unread
+      const unread = count - lastSeenCountRef.current
+      if (unread > 0) {
+        setUnreadCount(unread)
+      }
+    }
+  }, [])
+
+  // Handle chat open/close events from ChatPanel
+  const handleChatOpenChange = useCallback((isOpen: boolean, messageCount: number) => {
+    if (isOpen) {
+      // Chat opened - mark all as seen
+      lastSeenCountRef.current = messageCount
+      setUnreadCount(0)
+    }
+    chatOpenRef.current = isOpen
+  }, [])
+
+  // Set up message count callbacks
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    window.__onMessageCountChange = handleMessageCountChange
+    window.__onChatOpenChange = handleChatOpenChange
+
+    // Check if there's already a message count available
+    if (window.__currentMessageCount !== undefined && lastSeenCountRef.current === -1) {
+      lastSeenCountRef.current = window.__currentMessageCount
+    }
+
+    return () => {
+      delete window.__onMessageCountChange
+      delete window.__onChatOpenChange
+    }
+  }, [handleMessageCountChange, handleChatOpenChange])
+
+  // Handle chat open/close
+  const handleChatToggle = useCallback(() => {
+    const newOpen = !chatOpen
+    setChatOpen(newOpen)
+    setSelectedDice(null)
+    chatOpenRef.current = newOpen
+
+    if (newOpen) {
+      // Opening chat - reset unread count and update last seen
+      const currentCount = window.__currentMessageCount || 0
+      lastSeenCountRef.current = currentCount
+      setUnreadCount(0)
+    }
+  }, [chatOpen])
 
   // Reset dice when count or type changes
   const handleDiceCountChange = (count: number) => {
@@ -264,7 +334,7 @@ function App() {
        * "this is the header section of the page"
        */}
       <header className="header">
-        <h1>D&D Application</h1>
+        <h1>DragonStack</h1>
         <div className="header-buttons">
           <button className="new-session-button" onClick={handleNewSession}>
             Start New Session
@@ -333,10 +403,13 @@ function App() {
           {/* Chat Button */}
           <button
             className={`dice-icon ${chatOpen ? 'selected' : ''}`}
-            onClick={() => { setChatOpen(!chatOpen); setSelectedDice(null) }}
+            onClick={handleChatToggle}
             title="Open chat"
           >
             <span className="dice-label">💬</span>
+            {unreadCount > 0 && (
+              <span className="chat-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+            )}
           </button>
 
           {/* Stream Button */}
@@ -355,6 +428,15 @@ function App() {
             title="Music Playlist"
           >
             <span className="dice-label">🎵</span>
+          </button>
+
+          {/* Spellbook Button */}
+          <button
+            className={`dice-icon ${spellbookOpen ? 'selected' : ''}`}
+            onClick={() => { setSpellbookOpen(!spellbookOpen); setSelectedDice(null) }}
+            title="Spellbook"
+          >
+            <span className="dice-label">📙</span>
           </button>
         </aside>
 
@@ -442,6 +524,9 @@ function App() {
       {/* Playlist Panel */}
       <PlaylistPanel isOpen={playlistOpen} onClose={() => setPlaylistOpen(false)} />
 
+      {/* Spellbook Panel */}
+      <SpellbookPanel isOpen={spellbookOpen} onClose={() => setSpellbookOpen(false)} />
+
       {/* Screen Select Modal */}
       {showStreamModal && (
         <ScreenSelectModal
@@ -450,6 +535,9 @@ function App() {
           error={streamError}
         />
       )}
+
+      {/* Hidden spell sound player for all players */}
+      <SpellSoundPlayer />
     </div>
   )
 }

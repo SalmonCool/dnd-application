@@ -1,0 +1,342 @@
+/**
+ * Spellbook Panel
+ * ---------------
+ * Slide-in panel from RIGHT side for spell management
+ */
+.spellbook-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  border-left: 3px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(400px);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.spellbook-panel.open {
+  transform: translateX(0);
+}
+
+.spellbook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+}
+
+.spellbook-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Spell List */
+.spell-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spell-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.spell-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.spell-list::-webkit-scrollbar-thumb {
+  background: #e00606;
+  border-radius: 4px;
+}
+
+.spell-status {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+}
+
+.spell-error {
+  text-align: center;
+  color: #e00606;
+  padding: 15px;
+  background: rgba(224, 6, 6, 0.1);
+  border: 1px solid #e00606;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Spell Card */
+.spell-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(139, 0, 0, 0.2);
+  border-left: 3px solid #ffd700;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.spell-card:hover {
+  background: rgba(139, 0, 0, 0.35);
+}
+
+.spell-card.casting {
+  animation: spell-shake 0.5s ease-in-out;
+}
+
+@keyframes spell-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.spell-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.spell-name {
+  color: #ffd700;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spell-dice {
+  color: #e00606;
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.spell-description {
+  color: #aaa;
+  font-size: 12px;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spell-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cast-button {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  background: linear-gradient(180deg, #8b0000 0%, #5c0000 100%);
+  color: #ffd700;
+  border: 2px solid #ffd700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cast-button:hover {
+  background: linear-gradient(180deg, #a00000 0%, #700000 100%);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.delete-spell-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: 1px solid #666;
+  color: #666;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.delete-spell-button:hover {
+  border-color: #e00606;
+  color: #e00606;
+  background: rgba(224, 6, 6, 0.1);
+}
+
+/* Footer */
+.spellbook-footer {
+  padding: 15px;
+  background: rgba(0, 0, 0, 1);
+  border-top: 2px solid #e00606;
+}
+
+.add-spell-button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-spell-button:hover {
+  background-color: #b91c1c;
+  transform: scale(1.02);
+}
+
+/* Spell Modal */
+.spell-modal {
+  max-width: 420px;
+  text-align: left;
+}
+
+.spell-modal h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.spell-modal .form-group {
+  margin-bottom: 16px;
+}
+
+.spell-modal label {
+  display: block;
+  color: #ccc;
+  font-size: 13px;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.spell-modal .form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.spell-modal .form-row .form-group {
+  flex: 1;
+}
+
+.spell-input,
+.spell-select,
+.spell-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(139, 0, 0, 0.3);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.spell-input:focus,
+.spell-select:focus,
+.spell-textarea:focus {
+  outline: none;
+  border-color: #ffd700;
+  background: rgba(139, 0, 0, 0.4);
+}
+
+.spell-input::placeholder,
+.spell-textarea::placeholder {
+  color: #888;
+}
+
+.spell-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ffd700' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.spell-select option {
+  background: #1a1a1a;
+  color: white;
+}
+
+.spell-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.spell-preview {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid #ffd700;
+  border-radius: 4px;
+  color: #ffd700;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  margin-bottom: 16px;
+}
+
+.spell-modal .modal-buttons {
+  margin-top: 20px;
+}
+
+.spell-modal .modal-confirm:disabled {
+  background: #666;
+  border-color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.spell-hint {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Sound indicator on spell card */
+.spell-sound-indicator {
+  color: #ffd700;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* Hidden spell sound player */
+.spell-sound-player {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  z-index: -9999;
+  pointer-events: none;
+  opacity: 0;
+}

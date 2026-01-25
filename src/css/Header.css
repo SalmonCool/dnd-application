@@ -114,9 +114,9 @@
   font-size: 14px;
   font-weight: bold;
   font-family: 'Georgia', serif;
-  background-color: #d97706;
-  color: #ffffff;
-  border: 2px solid #f59e0b;
+  background-color: #8b0000;
+  color: #ffd700;
+  border: 2px solid #e00606;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
@@ -124,8 +124,8 @@
 }
 
 .reset-stream-button:hover {
-  background-color: #ea580c;
-  border-color: #fb923c;
+  background-color: #a00000;
+  border-color: #ff0808;
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(217, 119, 6, 0.4);
+  box-shadow: 0 4px 8px rgba(224, 6, 6, 0.4);
 }

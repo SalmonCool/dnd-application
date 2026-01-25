@@ -134,5 +134,37 @@ export function useChat() {
     }
   }
 
-  return { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, clearMessages }
+  const sendSpellCast = async (
+    username: string,
+    spellName: string,
+    diceNotation: string,
+    total: number,
+    description?: string
+  ): Promise<void> => {
+    if (!username.trim()) return
+
+    try {
+      const messagesRef = ref(database, 'messages')
+      let text = `cast ${spellName} and rolled ${diceNotation} = ${total}`
+      if (description) {
+        text += ` - ${description}`
+      }
+
+      await push(messagesRef, {
+        type: 'spell_cast',
+        text,
+        username: username.trim(),
+        spellName,
+        diceNotation,
+        result: total,
+        description: description || null,
+        timestamp: Date.now(),
+      })
+    } catch (err) {
+      console.error('Error sending spell cast:', err)
+      setError(err instanceof Error ? err.message : 'Failed to send spell cast')
+    }
+  }
+
+  return { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, clearMessages }
 }
