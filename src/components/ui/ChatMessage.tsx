@@ -22,7 +22,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   // Apply different styling based on message type
   const messageClass = `chat-message ${
     message.type === 'dice_roll' ? 'dice-roll-message' :
-    message.type === 'multiplier' ? 'multiplier-message' : ''
+    message.type === 'multiplier' ? 'multiplier-message' :
+    message.type === 'spell_cast' ? 'spell-cast-message' : ''
   }`
 
   return (
@@ -37,6 +38,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         )}
         {message.type === 'multiplier' && message.result && (
           <span className="multiplier-result">✨ {message.result} </span>
+        )}
+        {message.type === 'spell_cast' && message.result && (
+          <span className="spell-result">📖 {message.result} </span>
         )}
         {message.text}
       </span>

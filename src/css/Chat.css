@@ -171,6 +171,23 @@
 }
 
 /**
+ * Spell Cast Messages
+ * -------------------
+ * Special styling for spell cast announcements
+ */
+.spell-cast-message {
+  background: rgba(59, 130, 246, 0.2);
+  border-left-color: #3b82f6;
+}
+
+.spell-result {
+  font-size: 18px;
+  font-weight: bold;
+  color: #3b82f6;
+  text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+}
+
+/**
  * Chat Status Messages
  * --------------------
  * Loading, error, and empty state messages
