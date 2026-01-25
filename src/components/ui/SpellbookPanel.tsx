@@ -43,6 +43,11 @@ export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps)
     }
   }
 
+  // Dice max values for bonus die rolling
+  const DICE_MAX: Record<DiceType, number> = {
+    d4: 4, d6: 6, d8: 8, d10: 10, d12: 12, d20: 20,
+  }
+
   const handleCastSpell = (spellId: string) => {
     const spell = spells.find(s => s.id === spellId)
     if (!spell) return
@@ -63,8 +68,29 @@ export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps)
     }
 
     // Send to chat via global function
-    if ((window as any).__sendSpellCast) {
-      (window as any).__sendSpellCast(spell.name, diceNotation, total, spell.description)
+    if (window.__sendSpellCast) {
+      window.__sendSpellCast(spell.name, diceNotation, total, spell.description)
+
+      // Check if we have modifiers to apply
+      const modifiers = window.__getModifiers?.()
+      if (modifiers && (modifiers.flatModifier !== 0 || modifiers.bonusDie)) {
+        // Roll bonus die if selected
+        let bonusDieResult: number | null = null
+        if (modifiers.bonusDie) {
+          bonusDieResult = Math.floor(Math.random() * DICE_MAX[modifiers.bonusDie as DiceType]) + 1
+        }
+
+        // Calculate new total
+        const newTotal = total + modifiers.flatModifier + (bonusDieResult || 0)
+
+        // Send modifier message
+        if (window.__sendRollModifier) {
+          window.__sendRollModifier(modifiers.flatModifier, modifiers.bonusDie, bonusDieResult, newTotal)
+        }
+
+        // Clear modifiers after use
+        window.__clearModifiers?.()
+      }
     } else {
       console.log('Spell cast:', message)
     }

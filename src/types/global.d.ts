@@ -25,8 +25,13 @@ declare global {
     __sendDiceRoll?: (diceType: string, result: number) => void
     __sendMultiplier?: (multiplier: number, newValue: number) => void
     __sendSpellCast?: (spellName: string, diceNotation: string, total: number, description?: string) => void
+    __sendRollModifier?: (flatMod: number, bonusDie: string | null, bonusDieResult: number | null, newTotal: number) => void
     __clearMessages?: () => void
     __logout?: () => void
+
+    // Roll modifier functions
+    __getModifiers?: () => { flatModifier: number; bonusDie: string | null }
+    __clearModifiers?: () => void
 
     // YouTube IFrame API
     YT?: {

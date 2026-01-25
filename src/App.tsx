@@ -117,6 +117,26 @@ function App() {
     }
   }, [handleMessageCountChange, handleChatOpenChange])
 
+  // Expose modifier functions for spells to use
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    window.__getModifiers = () => ({
+      flatModifier: parseInt(flatModifier) || 0,
+      bonusDie: bonusDie || null,
+    })
+
+    window.__clearModifiers = () => {
+      setFlatModifier('')
+      setBonusDie('')
+    }
+
+    return () => {
+      delete window.__getModifiers
+      delete window.__clearModifiers
+    }
+  }, [flatModifier, bonusDie])
+
   // Handle chat open/close
   const handleChatToggle = useCallback(() => {
     const newOpen = !chatOpen
