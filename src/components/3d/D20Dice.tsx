@@ -246,7 +246,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartR
           settleSound.current = new Audio(SETTLE_SOUND_PATH)
         }
         settleSound.current.currentTime = 0.05
-        settleSound.current.volume = 0.25
+        settleSound.current.volume = (window.__getVolume?.('dice') ?? 1) * 0.25
         settleSound.current.play().catch(() => {})
 
         // Play NAT1 sound on critical fail
@@ -255,7 +255,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartR
             nat1Sound.current = new Audio(NAT1_SOUND_PATH)
           }
           nat1Sound.current.currentTime = 0
-          nat1Sound.current.volume = 1
+          nat1Sound.current.volume = window.__getVolume?.('dice') ?? 1
           nat1Sound.current.play().catch(() => {})
         }
 
@@ -265,7 +265,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartR
             nat20Sound.current = new Audio(NAT20_SOUND_PATH)
           }
           nat20Sound.current.currentTime = 0
-          nat20Sound.current.volume = 1
+          nat20Sound.current.volume = window.__getVolume?.('dice') ?? 1
           nat20Sound.current.play().catch(() => {})
         }
       }
@@ -284,6 +284,7 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartR
       rollSound.current = new Audio(ROLL_SOUND_PATH)
     }
     rollSound.current.currentTime = 0.3
+    rollSound.current.volume = window.__getVolume?.('dice') ?? 1
     rollSound.current.play().catch(() => {})
 
     // Start the rolling animation

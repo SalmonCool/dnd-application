@@ -48,6 +48,21 @@ export default function StreamPanel({
     }
   }, [isStreaming, isViewing])
 
+  // Update video volume when volume settings change
+  useEffect(() => {
+    const updateVolume = () => {
+      if (videoRef.current && isViewing) {
+        const volume = window.__getVolume?.('stream') ?? 1
+        videoRef.current.volume = volume
+      }
+    }
+
+    // Set initial volume and poll for changes
+    updateVolume()
+    const interval = setInterval(updateVolume, 500)
+    return () => clearInterval(interval)
+  }, [isViewing])
+
   const getStatusMessage = () => {
     if (error) return null
     if (isStreaming) return 'You are sharing your screen'

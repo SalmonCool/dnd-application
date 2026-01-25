@@ -225,6 +225,9 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
       events: {
         onReady: (event) => {
           debugLog('🎵 Player ready')
+          // Set initial volume from settings
+          const volume = window.__getVolume?.('music') ?? 1
+          event.target.setVolume(volume * 100)
           event.target.playVideo()
         },
         onStateChange: (event) => {
@@ -240,6 +243,20 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
       },
     })
   }, [apiReady, currentIndex, items, handleVideoEnded])
+
+  // Update player volume when volume settings change
+  useEffect(() => {
+    const updateVolume = () => {
+      if (playerRef.current) {
+        const volume = window.__getVolume?.('music') ?? 1
+        playerRef.current.setVolume(volume * 100)
+      }
+    }
+
+    // Poll for volume changes (since we can't subscribe to window.__getVolume)
+    const interval = setInterval(updateVolume, 500)
+    return () => clearInterval(interval)
+  }, [])
 
   // Cleanup player on unmount
   useEffect(() => {

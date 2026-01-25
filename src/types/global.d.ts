@@ -12,6 +12,8 @@ interface YTPlayer {
   destroy: () => void
   getPlaylist: () => string[]
   getPlaylistIndex: () => number
+  setVolume: (volume: number) => void
+  getVolume: () => number
 }
 
 declare global {
@@ -32,6 +34,9 @@ declare global {
     // Roll modifier functions
     __getModifiers?: () => { flatModifier: number; bonusDie: string | null }
     __clearModifiers?: () => void
+
+    // Volume functions
+    __getVolume?: (type: string) => number
 
     // YouTube IFrame API
     YT?: {

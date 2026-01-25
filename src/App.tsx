@@ -19,8 +19,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel } from './components/ui'
 import { useStream } from './hooks/useStream'
+import { useVolume } from './hooks/useVolume'
 
 /**
  * App Component
@@ -50,7 +51,11 @@ function App() {
   const [streamOpen, setStreamOpen] = useState(false)
   const [playlistOpen, setPlaylistOpen] = useState(false)
   const [spellbookOpen, setSpellbookOpen] = useState(false)
+  const [volumeOpen, setVolumeOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
+
+  // Volume control hook (exposes __getVolume on window)
+  useVolume()
 
   // Multiple dice state
   const [diceCount, setDiceCount] = useState(1)
@@ -281,9 +286,12 @@ function App() {
   }
 
   const handleNewSession = () => {
-    if (confirm('Are you sure you want to start a new session? This will clear all chat history.')) {
+    if (confirm('Are you sure you want to start a new session? This will clear all chat history and art gallery.')) {
       if ((window as any).__clearMessages) {
         (window as any).__clearMessages()
+      }
+      if ((window as any).__clearArtChannel) {
+        (window as any).__clearArtChannel()
       }
     }
   }
@@ -484,6 +492,15 @@ function App() {
             <span className="dice-label">🎵</span>
           </button>
 
+          {/* Volume Button */}
+          <button
+            className={`dice-icon ${volumeOpen ? 'selected' : ''}`}
+            onClick={() => { setVolumeOpen(!volumeOpen); setSelectedDice(null) }}
+            title="Volume Controls"
+          >
+            <span className="dice-label">🔊</span>
+          </button>
+
           {/* Spellbook Button */}
           <button
             className={`dice-icon ${spellbookOpen ? 'selected' : ''}`}
@@ -609,6 +626,9 @@ function App() {
 
       {/* Playlist Panel */}
       <PlaylistPanel isOpen={playlistOpen} onClose={() => setPlaylistOpen(false)} />
+
+      {/* Volume Panel */}
+      <VolumePanel isOpen={volumeOpen} onClose={() => setVolumeOpen(false)} />
 
       {/* Spellbook Panel */}
       <SpellbookPanel isOpen={spellbookOpen} onClose={() => setSpellbookOpen(false)} />

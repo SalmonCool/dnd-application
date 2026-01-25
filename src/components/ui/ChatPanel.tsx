@@ -10,6 +10,9 @@ import { useChat } from '../../hooks/useChat'
 import { useAuth } from '../../hooks/useAuth'
 import ChatMessage from './ChatMessage'
 import UsernamePrompt from './UsernamePrompt'
+import ArtChannelPanel from './ArtChannelPanel'
+
+type TabType = 'chat' | 'art'
 
 const USERNAME_KEY = 'dnd_chat_username'
 
@@ -36,6 +39,7 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
     // Initialize username from localStorage
     return localStorage.getItem(USERNAME_KEY)
   })
+  const [activeTab, setActiveTab] = useState<TabType>('chat')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, clearMessages } = useChat()
   const { isAuthenticated, verifyPassword, logout, error: authError, isFirstTimeSetup } = useAuth()
@@ -141,41 +145,67 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
   return (
     <div className={`chat-panel ${isOpen ? 'open' : ''}`}>
       <div className="chat-header">
-        <h2>Party Chat</h2>
-        <button className="close-button" onClick={onClose} title="Close chat">
+        <h2>{activeTab === 'chat' ? 'Party Chat' : 'Art Gallery'}</h2>
+        <button className="close-button" onClick={onClose} title="Close panel">
           ✕
         </button>
       </div>
 
-      <div className="chat-messages">
-        {loading && <div className="chat-status">Loading messages...</div>}
-        {error && <div className="chat-error">Error: {error}</div>}
-        {!loading && messages.length === 0 && (
-          <div className="chat-status">No messages yet. Start chatting!</div>
-        )}
-        {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
-        <div ref={messagesEndRef} />
+      {/* Tabs */}
+      <div className="chat-tabs">
+        <button
+          className={`chat-tab ${activeTab === 'chat' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+        >
+          Chat
+        </button>
+        <button
+          className={`chat-tab ${activeTab === 'art' ? 'active' : ''}`}
+          onClick={() => setActiveTab('art')}
+        >
+          Art
+        </button>
       </div>
 
-      <form className="chat-input-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="chat-input"
-          placeholder="Type a message..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          maxLength={500}
-        />
-        <button
-          type="submit"
-          className="send-button"
-          disabled={!inputValue.trim()}
-        >
-          Send
-        </button>
-      </form>
+      {/* Chat Tab Content */}
+      {activeTab === 'chat' && (
+        <>
+          <div className="chat-messages">
+            {loading && <div className="chat-status">Loading messages...</div>}
+            {error && <div className="chat-error">Error: {error}</div>}
+            {!loading && messages.length === 0 && (
+              <div className="chat-status">No messages yet. Start chatting!</div>
+            )}
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form className="chat-input-form" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              className="chat-input"
+              placeholder="Type a message..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              maxLength={500}
+            />
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!inputValue.trim()}
+            >
+              Send
+            </button>
+          </form>
+        </>
+      )}
+
+      {/* Art Tab Content */}
+      {activeTab === 'art' && username && (
+        <ArtChannelPanel username={username} />
+      )}
     </div>
   )
 }

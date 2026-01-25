@@ -103,6 +103,9 @@ export default function SpellSoundPlayer() {
     console.log(`Playing spell sound for "${spellCastEvent.spellName}" cast by ${spellCastEvent.castBy}`)
 
     try {
+      // Set volume from settings before playing
+      const volume = window.__getVolume?.('spells') ?? 1
+      playerRef.current.setVolume(volume * 100)
       playerRef.current.loadVideoById(videoId)
       playerRef.current.playVideo()
     } catch (err) {

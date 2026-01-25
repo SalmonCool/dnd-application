@@ -121,7 +121,7 @@ export default function D12Dice({ position = [0, 0, 0], onRollComplete, onStartR
           settleSound.current = new Audio(SETTLE_SOUND_PATH)
         }
         settleSound.current.currentTime = 0.05
-        settleSound.current.volume = 0.25
+        settleSound.current.volume = (window.__getVolume?.('dice') ?? 1) * 0.25
         settleSound.current.play().catch(() => {})
       }
     }
@@ -134,6 +134,7 @@ export default function D12Dice({ position = [0, 0, 0], onRollComplete, onStartR
       rollSound.current = new Audio(ROLL_SOUND_PATH)
     }
     rollSound.current.currentTime = 0.3
+    rollSound.current.volume = window.__getVolume?.('dice') ?? 1
     rollSound.current.play().catch(() => {})
 
     setIsRolling(true)
