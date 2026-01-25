@@ -17,14 +17,7 @@
 
 
 import { useState, useEffect } from 'react'
-import './App.css'
-import './Header.css'
-import './Multiply.css'
-import './Dicebar.css'
-import './Chat.css'
-import './Stream.css'
-import './Playlist.css'
-import './Username.css'
+import './css/All.css'
 import { Scene } from './components/3d'
 import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel } from './components/ui'
 import { useStream } from './hooks/useStream'

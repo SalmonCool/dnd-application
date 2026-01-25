@@ -21,9 +21,9 @@
  * Contains the 3D scene and any UI panels
  */
 .main {
-  flex: 1;                /* flex: 1 means "take up all remaining space" */
+  flex: 1;  
   display: flex;
-  overflow: hidden;       /* Prevents content from spilling outside */
+  overflow: hidden; 
 }
 
 /**
