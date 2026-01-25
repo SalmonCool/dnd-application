@@ -551,28 +551,31 @@ function App() {
 
       {/* Multiply Buttons - Bottom Right */}
       <div className="multiplier-container">
-        <button
-          className="reset-button"
-          onClick={handleResetMultiplier}
-          disabled={multiplier <= 1}
-          title="Reset multiplier to 1"
-        >
-          Reset
-        </button>
-        <div className="multiply-buttons">
-          {multiplier > 1 && (
-            <span className="multiplier-display">Current: {multiplier}x</span>
-          )}
-          {[2, 3, 4, 5, 6].map((factor) => (
-            <button
-              key={factor}
-              className="multiply-button"
-              onClick={() => handleMultiply(factor)}
-              disabled={displayValue === null}
-            >
-              x{factor}
-            </button>
-          ))}
+        <div className="multiply-label">Multiply</div>
+        <div className="multiply-reset-button-container">
+          <button
+            className="reset-button"
+            onClick={handleResetMultiplier}
+            disabled={multiplier <= 1}
+            title="Reset multiplier to 1"
+          >
+            Reset
+          </button>
+          <div className="multiply-buttons">
+            {multiplier > 1 && (
+              <span className="multiplier-display">Current: {multiplier}x</span>
+            )}
+            {[2, 3, 4, 5, 6].map((factor) => (
+              <button
+                key={factor}
+                className="multiply-button"
+                onClick={() => handleMultiply(factor)}
+                disabled={displayValue === null}
+              >
+                x{factor}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

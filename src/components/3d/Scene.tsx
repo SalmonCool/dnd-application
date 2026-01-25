@@ -39,7 +39,7 @@ import { Canvas } from '@react-three/fiber'
  * Environment - Adds environmental lighting/reflections for realistic materials
  * PerspectiveCamera - A camera with perspective (things get smaller with distance)
  */
-import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei'
+import { OrbitControls, Environment, PerspectiveCamera, useTexture } from '@react-three/drei'
 
 /**
  * React Suspense
@@ -63,6 +63,9 @@ import D8Dice from './D8Dice'
 import D10Dice from './D10Dice'
 import D12Dice from './D12Dice'
 import D20Dice from './D20Dice'
+//import { MeshStandardMaterial } from 'three' (currently not in use, replaced with custom MeshWoodMaterial)
+import * as THREE from 'three'
+
 
 /**
  * Scene Props Interface
@@ -134,6 +137,22 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
       onRollComplete(value, index)
     }
   }
+
+  //Create function for that will load mesh standard material with wood texture
+  function MeshWoodMaterial() {
+    /* Load Wood Texture for later use on mesh materials. */
+    const woodTexture = useTexture('/textures/wood-texture-rectangle.png')
+
+    /* Set texture to be repeating */
+    woodTexture.wrapS = THREE.RepeatWrapping
+    woodTexture.wrapT = THREE.RepeatWrapping
+    woodTexture.repeat.set(3, 3)
+
+    return(
+      <meshStandardMaterial map={woodTexture} color="#916f6f" roughness={0.7} metalness={0}/>
+    )
+  }
+
   return (
     /**
      * Canvas Component
@@ -208,7 +227,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
        *   3. Objects with castShadow (caster) and receiveShadow (receiver)
        */}
       <directionalLight
-        position={[5, 5, 5]}
+        position={[5, 1, 12]}
         intensity={1}
         castShadow
         shadow-mapSize={[1024, 1024]}
@@ -230,7 +249,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
          *
          * This makes metallic/reflective materials look much better!
          */}
-        <Environment preset="night" />
+        <Environment preset="sunset" />
 
         {/**
          * Dice Components
@@ -319,7 +338,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
          *
          * receiveShadow: This mesh will show shadows cast onto it.
          */}
-        <mesh rotation={[0, 0, 0]} position={[0, 0, -5]} receiveShadow>
+        <mesh rotation={[0, 0, 0]} position={[0, 0, -5]} receiveShadow={true}>
           {/**
            * planeGeometry
            * -------------
@@ -328,7 +347,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
            * LEARNING POINT: In R3F, constructor arguments go in the 'args' prop.
            * new THREE.PlaneGeometry(20, 20) becomes <planeGeometry args={[20, 20]} />
            */}
-          <planeGeometry args={[100, 100]} />
+          <planeGeometry args={[64, 34]} />
 
           {/**
            * meshStandardMaterial
@@ -339,7 +358,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
            *   - meshLambertMaterial: Matte, non-shiny surface
            *   - meshPhongMaterial: Shiny surface with specular highlights
            */}
-          <meshLambertMaterial color="rgba(0, 0, 0, 1)" />
+          <MeshWoodMaterial/>
         </mesh>
       </Suspense>
     </Canvas>

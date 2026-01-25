@@ -118,6 +118,7 @@ export default function ArtChannelPanel({ username }: ArtChannelPanelProps) {
         >
           Share Art
         </button>
+        <div className="art-upload-disclaimer">No support for direct image upload. Must use image URL.</div>
       </form>
 
       {/* Expanded Image Modal */}

@@ -271,3 +271,11 @@
   background-color: #b91c1c;
   transform: scale(1.05);
 }
+
+/* Settings for text at the button explaining URL can not be used */
+.art-upload-disclaimer {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 10px 10px;
+}
