@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useSpellbook } from '../../hooks/useSpellbook'
+import type { YTPlayer } from '../../types/global'
 
 // Extract YouTube video ID from various URL formats
 function extractVideoId(url: string): string | null {
@@ -23,7 +24,7 @@ function extractVideoId(url: string): string | null {
 
 export default function SpellSoundPlayer() {
   const { spellCastEvent, clearSpellCastEvent } = useSpellbook()
-  const playerRef = useRef<YT.Player | null>(null)
+  const playerRef = useRef<YTPlayer | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isReady, setIsReady] = useState(false)
   const lastEventIdRef = useRef<string | null>(null)
@@ -45,14 +46,14 @@ export default function SpellSoundPlayer() {
           },
           events: {
             onReady: () => setIsReady(true),
-            onStateChange: (event) => {
+            onStateChange: (event: { data: number }) => {
               // When video ends, clear the event
               if (event.data === window.YT!.PlayerState.ENDED) {
                 clearSpellCastEvent()
               }
             },
           },
-        })
+        }) as unknown as YTPlayer
       }
     }
 
