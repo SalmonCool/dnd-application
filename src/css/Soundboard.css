@@ -1,0 +1,344 @@
+/**
+ * Soundboard Panel Styles
+ * =======================
+ * Slide-in panel from right side for sound effects
+ */
+
+.soundboard-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 380px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  border-left: 3px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(380px);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.soundboard-panel.open {
+  transform: translateX(0);
+}
+
+/* Header */
+.soundboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+  flex-shrink: 0;
+}
+
+.soundboard-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Actions Bar */
+.soundboard-actions {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+}
+
+.soundboard-add-btn {
+  width: 100%;
+  padding: 10px 15px;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 6px;
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.soundboard-add-btn:hover {
+  background: #e00606;
+  color: white;
+}
+
+/* Add Form */
+.soundboard-add-form {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(20, 0, 0, 0.3);
+}
+
+.soundboard-input {
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+}
+
+.soundboard-input:focus {
+  outline: none;
+  border-color: #e00606;
+}
+
+.soundboard-input::placeholder {
+  color: #666;
+}
+
+.soundboard-submit-btn {
+  padding: 10px 15px;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.soundboard-submit-btn:hover:not(:disabled) {
+  background: #e00606;
+}
+
+.soundboard-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sound List */
+.soundboard-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.soundboard-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.soundboard-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.soundboard-list::-webkit-scrollbar-thumb {
+  background: #8b0000;
+  border-radius: 4px;
+}
+
+.soundboard-list::-webkit-scrollbar-thumb:hover {
+  background: #e00606;
+}
+
+/* Sound Item */
+.soundboard-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(139, 0, 0, 0.2);
+  border: 1px solid rgba(224, 6, 6, 0.3);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.soundboard-item:hover {
+  background: rgba(139, 0, 0, 0.4);
+  border-color: #e00606;
+}
+
+.soundboard-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.soundboard-item-title {
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.soundboard-item-added {
+  color: #666;
+  font-size: 11px;
+}
+
+.soundboard-item-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+/* Hotkey Button */
+.soundboard-hotkey-btn {
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #aaa;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 70px;
+  text-align: center;
+}
+
+.soundboard-hotkey-btn:hover {
+  border-color: #e00606;
+  color: #ffd700;
+}
+
+/* Hotkey Select */
+.soundboard-hotkey-select {
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #e00606;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  min-width: 90px;
+}
+
+.soundboard-hotkey-select option {
+  background: #1a1a1a;
+}
+
+.soundboard-hotkey-select option:disabled {
+  color: #666;
+}
+
+/* Play Button */
+.soundboard-play-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.soundboard-play-btn:hover {
+  background: #e00606;
+  transform: scale(1.1);
+}
+
+/* Remove Button */
+.soundboard-remove-btn {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.soundboard-remove-btn:hover {
+  color: #e00606;
+}
+
+/* Status Messages */
+.soundboard-status {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 30px 15px;
+  font-size: 14px;
+}
+
+.soundboard-error {
+  text-align: center;
+  color: #e00606;
+  padding: 10px 15px;
+  font-size: 13px;
+  background: rgba(224, 6, 6, 0.1);
+  margin: 10px;
+  border-radius: 4px;
+}
+
+/* Instructions */
+.soundboard-instructions {
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(224, 6, 6, 0.3);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.soundboard-instructions p {
+  margin: 0;
+  color: #888;
+  font-size: 12px;
+}
+
+.soundboard-instructions strong {
+  color: #ffd700;
+}
+
+/* Login Required State */
+.soundboard-login-required {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+.soundboard-close-button {
+  padding: 10px 30px;
+  background: #dc2626;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.soundboard-close-button:hover {
+  background: #b91c1c;
+}
+
+/* Hidden soundboard player */
+.soundboard-player {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  z-index: -9999;
+  pointer-events: none;
+  opacity: 0;
+}

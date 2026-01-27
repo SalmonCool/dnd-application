@@ -1,0 +1,335 @@
+/**
+ * Notes Panel Styles
+ * ==================
+ * Full-screen note-taking panel
+ */
+
+.notes-panel {
+  position: fixed;
+  left: 72px; /* Width of sidebar */
+  right: 0;
+  bottom: 0;
+  top: 62px; /* Height of header (60px) + border (2px) */
+  background: rgba(0, 0, 0, 0.98);
+  border-top: 2px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.notes-panel.open {
+  transform: translateY(0);
+}
+
+/* Notes Header */
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+  flex-shrink: 0;
+}
+
+.notes-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.4rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Notes Container */
+.notes-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Notes Sidebar (Pages List) */
+.notes-sidebar {
+  width: 250px;
+  background: rgba(20, 0, 0, 0.5);
+  border-right: 2px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.notes-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.notes-add-page-btn {
+  width: 28px;
+  height: 28px;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-add-page-btn:hover {
+  background: #e00606;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* New Page Input */
+.notes-new-page-input {
+  padding: 10px;
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notes-new-page-input input {
+  padding: 8px 10px;
+  background: rgba(139, 0, 0, 0.3);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+}
+
+.notes-new-page-input input:focus {
+  outline: none;
+  border-color: #e00606;
+}
+
+.notes-new-page-input button {
+  padding: 6px 12px;
+  background: rgba(139, 0, 0, 0.6);
+  border: 1px solid #e00606;
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notes-new-page-input button:hover:not(:disabled) {
+  background: #e00606;
+}
+
+.notes-new-page-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Pages List */
+.notes-pages-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.notes-pages-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notes-pages-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.notes-pages-list::-webkit-scrollbar-thumb {
+  background: #e00606;
+  border-radius: 3px;
+}
+
+.notes-page-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  background: rgba(139, 0, 0, 0.2);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notes-page-item:hover {
+  background: rgba(139, 0, 0, 0.4);
+  border-color: rgba(224, 6, 6, 0.3);
+}
+
+.notes-page-item.selected {
+  background: rgba(139, 0, 0, 0.6);
+  border-color: #e00606;
+}
+
+.notes-page-title {
+  flex: 1;
+  color: #ddd;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notes-page-item.selected .notes-page-title {
+  color: #ffd700;
+}
+
+.notes-title-edit {
+  flex: 1;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #e00606;
+  border-radius: 3px;
+  color: white;
+  font-size: 13px;
+}
+
+.notes-delete-page-btn {
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notes-page-item:hover .notes-delete-page-btn {
+  opacity: 1;
+}
+
+.notes-delete-page-btn:hover {
+  color: #e00606;
+}
+
+/* Notes Content Area */
+.notes-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.notes-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+}
+
+.notes-content-header h3 {
+  margin: 0;
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 1.3rem;
+}
+
+.notes-last-updated {
+  color: #666;
+  font-size: 12px;
+}
+
+.notes-editor {
+  flex: 1;
+  width: 100%;
+  padding: 15px;
+  background: rgba(20, 10, 10, 0.5);
+  border: 2px solid #555;
+  border-radius: 6px;
+  color: #ddd;
+  font-size: 14px;
+  font-family: 'Georgia', serif;
+  line-height: 1.6;
+  resize: none;
+  transition: border-color 0.2s;
+}
+
+.notes-editor:focus {
+  outline: none;
+  border-color: #e00606;
+  background: rgba(30, 15, 15, 0.6);
+}
+
+.notes-editor::placeholder {
+  color: #666;
+}
+
+/* No Selection State */
+.notes-no-selection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-style: italic;
+  font-size: 16px;
+}
+
+/* Login Required State */
+.notes-login-required {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+.notes-close-button {
+  padding: 10px 30px;
+  background: #dc2626;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notes-close-button:hover {
+  background: #b91c1c;
+}
+
+/* Status Messages */
+.notes-status {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px 10px;
+  font-size: 13px;
+}
+
+.notes-error {
+  text-align: center;
+  color: #e00606;
+  padding: 10px;
+  font-size: 13px;
+}

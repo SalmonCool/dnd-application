@@ -19,7 +19,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer } from './components/ui'
 import { useStream } from './hooks/useStream'
 import { useVolume } from './hooks/useVolume'
 
@@ -41,17 +41,20 @@ import { useVolume } from './hooks/useVolume'
  */
 // Available dice types
 type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
+type SelectionType = DiceType | 'artifacts'
 
 function App() {
   // State for roll value display and multiplier
   const [displayValue, setDisplayValue] = useState<number | null>(null)
   const [multiplier, setMultiplier] = useState(1)
-  const [selectedDice, setSelectedDice] = useState<DiceType | null>(null)
+  const [selectedDice, setSelectedDice] = useState<SelectionType | null>('artifacts')
   const [chatOpen, setChatOpen] = useState(false)
   const [streamOpen, setStreamOpen] = useState(false)
   const [playlistOpen, setPlaylistOpen] = useState(false)
   const [spellbookOpen, setSpellbookOpen] = useState(false)
   const [volumeOpen, setVolumeOpen] = useState(false)
+  const [notesOpen, setNotesOpen] = useState(false)
+  const [soundboardOpen, setSoundboardOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
 
   // Volume control hook (exposes __getVolume on window)
@@ -165,10 +168,10 @@ function App() {
     setDiceResults([])
   }
 
-  const handleDiceTypeChange = (type: DiceType) => {
-    // Toggle: clicking same dice deselects it, clicking different dice selects it
+  const handleDiceTypeChange = (type: SelectionType) => {
+    // Toggle: clicking same dice deselects it (returns to artifacts), clicking different dice selects it
     if (selectedDice === type) {
-      setSelectedDice(null)
+      setSelectedDice('artifacts')
     } else {
       setSelectedDice(type)
     }
@@ -419,6 +422,17 @@ function App() {
       <main className="main">
         {/* Dice Selection Sidebar */}
         <aside className="dice-sidebar">
+          {/* Artifacts Button - Above dice */}
+          <button
+            className={`dice-icon ${selectedDice === 'artifacts' ? 'selected' : ''}`}
+            onClick={() => handleDiceTypeChange('artifacts')}
+            title="Mystical Artifact"
+          >
+            <span className="dice-label">🔮</span>
+          </button>
+
+          <div className="sidebar-divider" />
+
           <button
             className={`dice-icon ${selectedDice === 'd4' ? 'selected' : ''}`}
             onClick={() => handleDiceTypeChange('d4')}
@@ -509,10 +523,28 @@ function App() {
           >
             <span className="dice-label">📙</span>
           </button>
+
+          {/* Soundboard Button */}
+          <button
+            className={`dice-icon ${soundboardOpen ? 'selected' : ''}`}
+            onClick={() => { setSoundboardOpen(!soundboardOpen); setSelectedDice(null) }}
+            title="Soundboard"
+          >
+            <span className="dice-label">📢</span>
+          </button>
+
+          {/* Notes Button */}
+          <button
+            className={`dice-icon ${notesOpen ? 'selected' : ''}`}
+            onClick={() => { setNotesOpen(!notesOpen); setSelectedDice(null) }}
+            title="Notes"
+          >
+            <span className="dice-label">📝</span>
+          </button>
         </aside>
 
         {/* Dice Count Bar - slides in when dice is selected */}
-        <div className={`dice-count-bar ${selectedDice ? 'visible' : ''}`}>
+        <div className={`dice-count-bar ${selectedDice && selectedDice !== 'artifacts' ? 'visible' : ''}`}>
           <span className="count-label">Roll</span>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
             <button
@@ -636,6 +668,12 @@ function App() {
       {/* Spellbook Panel */}
       <SpellbookPanel isOpen={spellbookOpen} onClose={() => setSpellbookOpen(false)} />
 
+      {/* Soundboard Panel */}
+      <SoundboardPanel isOpen={soundboardOpen} onClose={() => setSoundboardOpen(false)} />
+
+      {/* Notes Panel */}
+      <NotesPanel isOpen={notesOpen} onClose={() => setNotesOpen(false)} />
+
       {/* Screen Select Modal */}
       {showStreamModal && (
         <ScreenSelectModal
@@ -647,6 +685,9 @@ function App() {
 
       {/* Hidden spell sound player for all players */}
       <SpellSoundPlayer />
+
+      {/* Hidden soundboard player for all players */}
+      <SoundboardPlayer />
     </div>
   )
 }

@@ -94,6 +94,20 @@ export default function VolumePanel({ isOpen, onClose }: VolumePanelProps) {
           onChange={handleVolumeChange('spells')}
           icon="📖"
         />
+
+        <VolumeSlider
+          label="Artifacts"
+          value={volumes.artifacts}
+          onChange={handleVolumeChange('artifacts')}
+          icon="🔮"
+        />
+
+        <VolumeSlider
+          label="Soundboard"
+          value={volumes.soundboard}
+          onChange={handleVolumeChange('soundboard')}
+          icon="📢"
+        />
       </div>
     </div>
   )

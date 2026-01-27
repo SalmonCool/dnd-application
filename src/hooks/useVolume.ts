@@ -13,6 +13,8 @@ export interface VolumeSettings {
   music: number
   dice: number
   spells: number
+  artifacts: number
+  soundboard: number
 }
 
 const STORAGE_KEY = 'dnd_volume_settings'
@@ -23,6 +25,8 @@ const DEFAULT_SETTINGS: VolumeSettings = {
   music: 100,
   dice: 100,
   spells: 100,
+  artifacts: 100,
+  soundboard: 100,
 }
 
 export function useVolume() {

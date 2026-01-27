@@ -5,7 +5,7 @@
  */
 
 import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, push, set, remove, onValue, off, query, orderByChild } from 'firebase/database'
+import { getDatabase, ref, push, set, remove, onValue, off, query, orderByChild, update } from 'firebase/database'
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -26,4 +26,4 @@ const app = initializeApp(firebaseConfig)
 const database = getDatabase(app)
 
 // Export database references and utilities
-export { database, ref, push, set, remove, onValue, off, query, orderByChild }
+export { database, ref, push, set, remove, onValue, off, query, orderByChild, update }

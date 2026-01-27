@@ -13,7 +13,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;     /* rem = relative to root font size (typically 16px) */
+  height: 60px;
+  padding: 0 2rem;
 
   /*
    * rgba() color with transparency

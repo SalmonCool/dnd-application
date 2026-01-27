@@ -46,6 +46,13 @@
   font-family: 'Georgia', serif;
 }
 
+.sidebar-divider {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e00606, transparent);
+  margin: 5px 0;
+}
+
 /**
  * Dice Count Bar
  * --------------

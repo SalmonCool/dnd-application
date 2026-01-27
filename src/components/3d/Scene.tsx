@@ -63,6 +63,7 @@ import D8Dice from './D8Dice'
 import D10Dice from './D10Dice'
 import D12Dice from './D12Dice'
 import D20Dice from './D20Dice'
+import ArtifactOrb from './ArtifactOrb'
 //import { MeshStandardMaterial } from 'three' (currently not in use, replaced with custom MeshWoodMaterial)
 import * as THREE from 'three'
 
@@ -74,7 +75,7 @@ interface SceneProps {
   onRollComplete?: (value: number, diceIndex: number) => void
   onStartRoll?: () => void
   displayValue?: number | null
-  selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | null
+  selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'artifacts' | null
   diceCount?: number
   rollTrigger?: number
   diceResetKey?: number
@@ -323,6 +324,11 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
             instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
           />
         ))}
+
+        {/* Artifact Orb - shown when artifacts selected or nothing selected */}
+        {(selectedDice === 'artifacts' || selectedDice === null) && (
+          <ArtifactOrb position={[0, 0.2, 0]} />
+        )}
 
         {/**
          * Ground Plane
