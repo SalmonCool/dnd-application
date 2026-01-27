@@ -55,6 +55,7 @@ function App() {
   const [volumeOpen, setVolumeOpen] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
   const [soundboardOpen, setSoundboardOpen] = useState(false)
+  const [diceMenuOpen, setDiceMenuOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
 
   // Volume control hook (exposes __getVolume on window)
@@ -383,6 +384,24 @@ function App() {
     }
   }
 
+  const handleResetMusicLead = async () => {
+    if (confirm('Are you sure you want to reset the Music Lead? This will clear the current music lead but keep the playlist.')) {
+      try {
+        const { database, ref, remove } = await import('./config/firebase')
+
+        // Clear music lead sync state
+        const syncRef = ref(database, 'playlist/sync')
+        await remove(syncRef)
+
+        console.log('✅ Music Lead reset successfully')
+        alert('Music Lead has been reset successfully')
+      } catch (err) {
+        console.error('Error resetting Music Lead:', err)
+        alert('Failed to reset Music Lead')
+      }
+    }
+  }
+
   return (
     /**
      * The div.app container
@@ -406,6 +425,9 @@ function App() {
           </button>
           <button className="reset-stream-button" onClick={handleResetStream}>
             Reset Stream
+          </button>
+          <button className="reset-music-lead-button" onClick={handleResetMusicLead}>
+            Reset Music Lead
           </button>
           <button className="logout-button" onClick={handleLogout}>
             Logout
@@ -433,48 +455,72 @@ function App() {
 
           <div className="sidebar-divider" />
 
+          {/* Dice Menu Button */}
           <button
-            className={`dice-icon ${selectedDice === 'd4' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('d4')}
-            title="D4 - Four-sided die"
+            className={`dice-icon ${diceMenuOpen || (selectedDice && selectedDice !== 'artifacts') ? 'selected' : ''}`}
+            onClick={() => {
+              if (diceMenuOpen) {
+                // Closing menu - also deselect dice to retract count bar
+                setDiceMenuOpen(false)
+                setSelectedDice('artifacts')
+                setDiceResetKey(prev => prev + 1)
+                setDisplayValue(null)
+                setDiceResults([])
+              } else {
+                // Opening menu
+                setDiceMenuOpen(true)
+              }
+            }}
+            title="Dice Menu"
           >
-            <span className="dice-label">D4</span>
+            <span className="dice-label">🎲</span>
           </button>
-          <button
-            className={`dice-icon ${selectedDice === 'd6' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('d6')}
-            title="D6 - Six-sided die"
-          >
-            <span className="dice-label">D6</span>
-          </button>
-          <button
-            className={`dice-icon ${selectedDice === 'd8' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('d8')}
-            title="D8 - Eight-sided die"
-          >
-            <span className="dice-label">D8</span>
-          </button>
-          <button
-            className={`dice-icon ${selectedDice === 'd10' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('d10')}
-            title="D10 - Ten-sided die"
-          >
-            <span className="dice-label">D10</span>
-          </button>
-          <button
-            className={`dice-icon ${selectedDice === 'd12' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('d12')}
-            title="D12 - Twelve-sided die"
-          >
-            <span className="dice-label">D12</span>
-          </button>
-          <button
-            className={`dice-icon ${selectedDice === 'd20' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('d20')}
-            title="D20 - Twenty-sided die"
-          >
-            <span className="dice-label">D20</span>
-          </button>
+
+          {/* Dice Submenu */}
+          <div className={`dice-submenu ${diceMenuOpen ? 'open' : ''}`}>
+            <button
+              className={`dice-submenu-item ${selectedDice === 'd4' ? 'selected' : ''}`}
+              onClick={() => { handleDiceTypeChange('d4'); setDiceMenuOpen(false); }}
+              title="D4 - Four-sided die"
+            >
+              D4
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedDice === 'd6' ? 'selected' : ''}`}
+              onClick={() => { handleDiceTypeChange('d6'); setDiceMenuOpen(false); }}
+              title="D6 - Six-sided die"
+            >
+              D6
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedDice === 'd8' ? 'selected' : ''}`}
+              onClick={() => { handleDiceTypeChange('d8'); setDiceMenuOpen(false); }}
+              title="D8 - Eight-sided die"
+            >
+              D8
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedDice === 'd10' ? 'selected' : ''}`}
+              onClick={() => { handleDiceTypeChange('d10'); setDiceMenuOpen(false); }}
+              title="D10 - Ten-sided die"
+            >
+              D10
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedDice === 'd12' ? 'selected' : ''}`}
+              onClick={() => { handleDiceTypeChange('d12'); setDiceMenuOpen(false); }}
+              title="D12 - Twelve-sided die"
+            >
+              D12
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedDice === 'd20' ? 'selected' : ''}`}
+              onClick={() => { handleDiceTypeChange('d20'); setDiceMenuOpen(false); }}
+              title="D20 - Twenty-sided die"
+            >
+              D20
+            </button>
+          </div>
 
           {/* Chat Button */}
           <button

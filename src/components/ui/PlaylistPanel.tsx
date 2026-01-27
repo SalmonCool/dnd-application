@@ -35,12 +35,19 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
 
   const playerRef = useRef<YTPlayer | null>(null)
 
-  const { items, loading, error, addItem, removeItem, moveItem, clearPlaylist, isValidYouTubeUrl } = usePlaylist()
+  const {
+    items, loading, error, addItem, removeItem, moveItem, clearPlaylist, isValidYouTubeUrl,
+    syncState, isMusicLead, becomeMusicLead, resignMusicLead, updateSyncState
+  } = usePlaylist()
   const [showClearModal, setShowClearModal] = useState(false)
+  const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const lastSyncRef = useRef<number>(0)
   const [showImportModal, setShowImportModal] = useState(false)
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [loopEnabled, setLoopEnabled] = useState(false)
+  const handleVideoEndedRef = useRef<() => void>(() => {})
 
   // Extract video ID from YouTube URL
   const extractVideoId = (url: string): string => {
@@ -157,16 +164,28 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
     }
   }
 
-  // Handle video ended - advance to next track
+  // Handle video ended - advance to next track or loop
   const handleVideoEnded = useCallback(() => {
-    debugLog('🎵 Video ended, currentIndex:', currentIndex, 'items.length:', items.length)
+    debugLog('🎵 Video ended, currentIndex:', currentIndex, 'items.length:', items.length, 'loopEnabled:', loopEnabled)
+
+    // If loop is enabled, restart the current song
+    if (loopEnabled && playerRef.current) {
+      debugLog('🎵 Looping current track')
+      playerRef.current.seekTo(0, true)
+      playerRef.current.playVideo()
+      return
+    }
+
     if (currentIndex !== null && currentIndex < items.length - 1) {
       setCurrentIndex(currentIndex + 1)
     } else {
       // End of playlist, stop or loop back to beginning
       debugLog('🎵 End of playlist')
     }
-  }, [currentIndex, items.length])
+  }, [currentIndex, items.length, loopEnabled])
+
+  // Keep ref updated with latest handler (to avoid stale closure in YouTube player)
+  handleVideoEndedRef.current = handleVideoEnded
 
   // Load YouTube IFrame API
   useEffect(() => {
@@ -234,7 +253,7 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
           debugLog('🎵 Player state changed:', event.data)
           // 0 = ended
           if (event.data === 0) {
-            handleVideoEnded()
+            handleVideoEndedRef.current()
           }
         },
         onError: (event) => {
@@ -242,7 +261,7 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
         },
       },
     })
-  }, [apiReady, currentIndex, items, handleVideoEnded])
+  }, [apiReady, currentIndex, items])
 
   // Update player volume when volume settings change
   useEffect(() => {
@@ -265,8 +284,115 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
         playerRef.current.destroy()
         playerRef.current = null
       }
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+      }
     }
   }, [])
+
+  // Music Lead: Push playback state to Firebase every 2 seconds
+  useEffect(() => {
+    if (!isMusicLead || !playerRef.current) {
+      // Clear interval if not music lead
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+        syncIntervalRef.current = null
+      }
+      return
+    }
+
+    const pushSyncState = () => {
+      if (!playerRef.current || !isMusicLead) return
+
+      try {
+        const currentTime = playerRef.current.getCurrentTime?.() || 0
+        const playerState = playerRef.current.getPlayerState?.() || -1
+        const isPlaying = playerState === 1 // 1 = playing
+        const currentItem = currentIndex !== null ? items[currentIndex] : null
+
+        updateSyncState(
+          currentItem?.id || null,
+          currentTime,
+          isPlaying,
+          loopEnabled
+        )
+        debugLog('🎵 Music Lead: Pushed sync state', { currentTime, isPlaying, loopEnabled, itemId: currentItem?.id })
+      } catch (err) {
+        console.error('Error pushing sync state:', err)
+      }
+    }
+
+    // Push immediately when becoming music lead
+    pushSyncState()
+
+    // Then push every 2 seconds
+    syncIntervalRef.current = setInterval(pushSyncState, 2000)
+
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+        syncIntervalRef.current = null
+      }
+    }
+  }, [isMusicLead, currentIndex, items, updateSyncState, loopEnabled])
+
+  // Follower: Sync to music lead's playback state
+  useEffect(() => {
+    // Don't sync if we are the music lead or if there's no sync state
+    if (isMusicLead || !syncState || !syncState.musicLead) return
+    if (!apiReady) return
+
+    // Sync loop state from music lead
+    if (syncState.loopEnabled !== undefined && syncState.loopEnabled !== loopEnabled) {
+      debugLog('🎵 Follower: Syncing loop state', syncState.loopEnabled)
+      setLoopEnabled(syncState.loopEnabled)
+    }
+
+    // Find the index of the current item
+    const syncItemIndex = syncState.currentItemId
+      ? items.findIndex(item => item.id === syncState.currentItemId)
+      : null
+
+    // If synced item is different from current, switch to it
+    if (syncItemIndex !== null && syncItemIndex !== -1 && syncItemIndex !== currentIndex) {
+      debugLog('🎵 Follower: Switching to synced track', syncItemIndex)
+      setCurrentIndex(syncItemIndex)
+      lastSyncRef.current = syncState.updatedAt
+      return // Let the track change effect handle loading
+    }
+
+    // For time/play state sync, we need an active player
+    if (!playerRef.current) return
+
+    // Only sync time if this is a newer update
+    if (syncState.updatedAt <= lastSyncRef.current) return
+    lastSyncRef.current = syncState.updatedAt
+
+    // Sync playback time (with tolerance of 3 seconds to avoid constant seeking)
+    try {
+      const currentTime = playerRef.current.getCurrentTime?.() || 0
+      const timeDiff = Math.abs(currentTime - syncState.currentTime)
+
+      if (timeDiff > 3) {
+        debugLog('🎵 Follower: Syncing time', { currentTime, syncTime: syncState.currentTime, diff: timeDiff })
+        playerRef.current.seekTo(syncState.currentTime, true)
+      }
+
+      // Sync play/pause state
+      const playerState = playerRef.current.getPlayerState?.() || -1
+      const isCurrentlyPlaying = playerState === 1
+
+      if (syncState.isPlaying && !isCurrentlyPlaying) {
+        debugLog('🎵 Follower: Starting playback')
+        playerRef.current.playVideo()
+      } else if (!syncState.isPlaying && isCurrentlyPlaying) {
+        debugLog('🎵 Follower: Pausing playback')
+        playerRef.current.pauseVideo()
+      }
+    } catch (err) {
+      console.error('Error syncing playback:', err)
+    }
+  }, [syncState, isMusicLead, apiReady, items, currentIndex, loopEnabled])
 
   // Get username from localStorage (same as chat)
   const username = localStorage.getItem('dnd_chat_username') || 'Anonymous'
@@ -323,6 +449,27 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
         </button>
       </div>
 
+      {/* Music Lead Controls */}
+      <div className="music-lead-controls">
+        {syncState?.musicLead ? (
+          <div className="music-lead-status">
+            <span className="music-lead-indicator">♪</span>
+            <span className="music-lead-name">
+              {isMusicLead ? 'You are the Music Lead' : `Music Lead: ${syncState.musicLead}`}
+            </span>
+            {isMusicLead && (
+              <button className="resign-lead-btn" onClick={resignMusicLead}>
+                Resign
+              </button>
+            )}
+          </div>
+        ) : (
+          <button className="become-lead-btn" onClick={becomeMusicLead}>
+            Become Music Lead
+          </button>
+        )}
+      </div>
+
       {/* YouTube Player */}
       <div className="playlist-player-container">
         {currentIndex !== null && items[currentIndex] ? (
@@ -337,8 +484,17 @@ export default function PlaylistPanel({ isOpen, onClose }: PlaylistPanelProps) {
       {/* Now Playing */}
       {currentIndex !== null && items[currentIndex] && (
         <div className="now-playing">
-          <span className="now-playing-label">Now Playing</span>
-          <span className="now-playing-title">{items[currentIndex].title}</span>
+          <div className="now-playing-info">
+            <span className="now-playing-label">Now Playing</span>
+            <span className="now-playing-title">{items[currentIndex].title}</span>
+          </div>
+          <button
+            className={`loop-toggle-btn ${loopEnabled ? 'active' : ''}`}
+            onClick={() => setLoopEnabled(!loopEnabled)}
+            title={loopEnabled ? 'Loop enabled - click to disable' : 'Click to enable loop'}
+          >
+            🔁
+          </button>
         </div>
       )}
 

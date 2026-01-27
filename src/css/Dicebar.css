@@ -54,6 +54,66 @@
 }
 
 /**
+ * Dice Submenu
+ * ------------
+ * Slide-out submenu for dice selection
+ */
+.dice-submenu {
+  position: fixed;
+  left: 72px;
+  top: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #e00606;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.dice-submenu.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dice-submenu-item {
+  width: 50px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #555;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dice-submenu-item:hover {
+  background: rgba(139, 0, 0, 0.9);
+  border-color: #888;
+  transform: scale(1.05);
+}
+
+.dice-submenu-item.selected {
+  background: #8b0000;
+  border-color: #ffd700;
+  color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/**
  * Dice Count Bar
  * --------------
  * Horizontal bar that slides in from the left below the dice sidebar

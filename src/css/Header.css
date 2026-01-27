@@ -130,3 +130,29 @@
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(224, 6, 6, 0.4);
 }
+
+/**
+ * Reset Music Lead Button
+ * -----------------------
+ * Button to reset music lead state
+ */
+.reset-music-lead-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  background-color: #8b0000;
+  color: #ffd700;
+  border: 2px solid #e00606;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.reset-music-lead-button:hover {
+  background-color: #a00000;
+  border-color: #ff0808;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(224, 6, 6, 0.4);
+}

@@ -4,14 +4,19 @@
  * Custom hook for real-time playlist synchronization with Firebase
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { database, ref, push, remove, onValue, off, set } from '../config/firebase'
-import type { PlaylistItem } from '../types/playlist'
+import type { PlaylistItem, PlaylistSyncState } from '../types/playlist'
+
+const USERNAME_KEY = 'dnd_chat_username'
 
 export function usePlaylist() {
   const [items, setItems] = useState<PlaylistItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [syncState, setSyncState] = useState<PlaylistSyncState | null>(null)
+
+  const username = typeof window !== 'undefined' ? localStorage.getItem(USERNAME_KEY) : null
 
   useEffect(() => {
     const itemsRef = ref(database, 'playlist/items')
@@ -52,6 +57,90 @@ export function usePlaylist() {
       off(itemsRef)
     }
   }, [])
+
+  // Subscribe to sync state
+  useEffect(() => {
+    const syncRef = ref(database, 'playlist/sync')
+
+    onValue(
+      syncRef,
+      (snapshot) => {
+        const data = snapshot.val()
+        if (data) {
+          setSyncState(data as PlaylistSyncState)
+        } else {
+          setSyncState(null)
+        }
+      },
+      (err) => {
+        console.error('Firebase playlist sync error:', err)
+      }
+    )
+
+    return () => {
+      off(syncRef)
+    }
+  }, [])
+
+  // Check if current user is the music lead
+  const isMusicLead = syncState?.musicLead === username
+
+  // Become the music lead
+  const becomeMusicLead = useCallback(async (): Promise<void> => {
+    if (!username) return
+
+    try {
+      const syncRef = ref(database, 'playlist/sync')
+      await set(syncRef, {
+        musicLead: username,
+        currentItemId: null,
+        currentTime: 0,
+        isPlaying: false,
+        loopEnabled: false,
+        updatedAt: Date.now(),
+      })
+    } catch (err) {
+      console.error('Error becoming music lead:', err)
+      setError(err instanceof Error ? err.message : 'Failed to become music lead')
+    }
+  }, [username])
+
+  // Resign as music lead
+  const resignMusicLead = useCallback(async (): Promise<void> => {
+    if (!isMusicLead) return
+
+    try {
+      const syncRef = ref(database, 'playlist/sync')
+      await remove(syncRef)
+    } catch (err) {
+      console.error('Error resigning as music lead:', err)
+      setError(err instanceof Error ? err.message : 'Failed to resign as music lead')
+    }
+  }, [isMusicLead])
+
+  // Update sync state (only music lead should call this)
+  const updateSyncState = useCallback(async (
+    currentItemId: string | null,
+    currentTime: number,
+    isPlaying: boolean,
+    loopEnabled: boolean
+  ): Promise<void> => {
+    if (!isMusicLead || !username) return
+
+    try {
+      const syncRef = ref(database, 'playlist/sync')
+      await set(syncRef, {
+        musicLead: username,
+        currentItemId,
+        currentTime,
+        isPlaying,
+        loopEnabled,
+        updatedAt: Date.now(),
+      })
+    } catch (err) {
+      console.error('Error updating sync state:', err)
+    }
+  }, [isMusicLead, username])
 
   const addItem = async (url: string, title: string, addedBy: string): Promise<void> => {
     if (!url.trim()) return
@@ -134,5 +223,11 @@ export function usePlaylist() {
     moveItem,
     clearPlaylist,
     isValidYouTubeUrl,
+    // Sync-related
+    syncState,
+    isMusicLead,
+    becomeMusicLead,
+    resignMusicLead,
+    updateSyncState,
   }
 }

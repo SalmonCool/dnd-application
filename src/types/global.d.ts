@@ -14,6 +14,9 @@ interface YTPlayer {
   getPlaylistIndex: () => number
   setVolume: (volume: number) => void
   getVolume: () => number
+  seekTo: (seconds: number, allowSeekAhead?: boolean) => void
+  getCurrentTime: () => number
+  getPlayerState: () => number
 }
 
 declare global {

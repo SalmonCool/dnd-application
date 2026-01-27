@@ -51,8 +51,17 @@
   background: rgba(139, 0, 0, 0.3);
   border-bottom: 1px solid #e00606;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.now-playing-info {
+  display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .now-playing-label {
@@ -66,6 +75,37 @@
   color: #ffd700;
   font-weight: bold;
   font-family: 'Georgia', serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loop-toggle-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid #555;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.loop-toggle-btn:hover {
+  border-color: #ffd700;
+  opacity: 1;
+}
+
+.loop-toggle-btn.active {
+  background: rgba(139, 0, 0, 0.6);
+  border-color: #ffd700;
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }
 
 .playlist-items {
@@ -451,4 +491,71 @@
   font-size: 14px;
   margin-bottom: 12px;
   font-style: italic;
+}
+
+/* Music Lead Controls */
+.music-lead-controls {
+  padding: 10px 15px;
+  background: rgba(20, 10, 10, 0.6);
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-lead-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffd700;
+  font-size: 13px;
+}
+
+.music-lead-indicator {
+  font-size: 18px;
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; text-shadow: 0 0 8px #ffd700; }
+  50% { opacity: 0.6; text-shadow: 0 0 4px #ffd700; }
+}
+
+.music-lead-name {
+  font-family: 'Georgia', serif;
+}
+
+.become-lead-btn {
+  padding: 8px 16px;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.become-lead-btn:hover {
+  background: #e00606;
+  color: white;
+  transform: scale(1.02);
+}
+
+.resign-lead-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #888;
+  border-radius: 4px;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.resign-lead-btn:hover {
+  border-color: #e00606;
+  color: #e00606;
 }
