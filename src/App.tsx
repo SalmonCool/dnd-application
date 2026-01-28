@@ -19,10 +19,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel, NoteInputModal } from './components/ui'
 import { useStream } from './hooks/useStream'
 import { useVolume } from './hooks/useVolume'
 import { useCharacter } from './hooks/useCharacter'
+import { useSceneNotes } from './hooks/useSceneNotes'
 import { calculateModifier, calculateProficiencyBonus } from './types/character'
 
 /**
@@ -90,6 +91,12 @@ function App() {
 
   // Character stats for modifier calculations
   const { stats: characterStats } = useCharacter()
+
+  // Scene notes state
+  const { notes: sceneNotes, connections: sceneConnections, addNote: addSceneNote, removeNote: removeSceneNote, addConnection: addSceneConnection, clearAllNotes: clearSceneNotes } = useSceneNotes()
+  const [showNoteModal, setShowNoteModal] = useState(false)
+  const [noteClickPosition, setNoteClickPosition] = useState<{ x: number; y: number; z: number } | null>(null)
+  const [connectingFromNoteId, setConnectingFromNoteId] = useState<string | null>(null)
 
   // Track message count changes for unread badge
   const handleMessageCountChange = useCallback((count: number) => {
@@ -352,14 +359,34 @@ function App() {
     }
   }
 
+  // Handle thumbtack click for connecting notes
+  const handleThumbtackClick = useCallback((noteId: string) => {
+    if (connectingFromNoteId === null) {
+      // Not currently connecting - ask if user wants to start
+      if (confirm('Do you want to connect this note to another?')) {
+        setConnectingFromNoteId(noteId)
+      }
+    } else if (connectingFromNoteId === noteId) {
+      // Clicked the same note - cancel connection mode
+      setConnectingFromNoteId(null)
+    } else {
+      // Clicked a different note - create connection
+      const username = localStorage.getItem('dnd_chat_username') || 'Anonymous'
+      addSceneConnection(connectingFromNoteId, noteId, username)
+      setConnectingFromNoteId(null)
+    }
+  }, [connectingFromNoteId, addSceneConnection])
+
   const handleNewSession = () => {
-    if (confirm('Are you sure you want to start a new session? This will clear all chat history and art gallery.')) {
+    if (confirm('Are you sure you want to start a new session? This will clear all chat history, art gallery, and scene notes.')) {
       if ((window as any).__clearMessages) {
         (window as any).__clearMessages()
       }
       if ((window as any).__clearArtChannel) {
         (window as any).__clearArtChannel()
       }
+      // Clear scene notes
+      clearSceneNotes()
     }
   }
 
@@ -532,16 +559,23 @@ function App() {
             <button
               className={`dice-submenu-item ${selectedArtifact === 'orb' ? 'selected' : ''}`}
               onClick={() => { setSelectedArtifact('orb'); setArtifactMenuOpen(false); }}
-              title="Mystical Orb"
+              title="Orb Of Oddlings"
             >
-              Orb
+              🔮
             </button>
             <button
               className={`dice-submenu-item ${selectedArtifact === 'skull' ? 'selected' : ''}`}
               onClick={() => { setSelectedArtifact('skull'); setArtifactMenuOpen(false); }}
-              title="Skull of Doom"
+              title="Skull of Chattering"
             >
-              Skull
+              💀
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedArtifact === null ? 'selected' : ''}`}
+              onClick={() => { setSelectedArtifact(null); setArtifactMenuOpen(false); }}
+              title="Cloak of Invisibility"
+            >
+              👻
             </button>
           </div>
 
@@ -725,7 +759,7 @@ function App() {
          * <Scene /> - Self-closing tag because we're not passing children.
          * Could also write: <Scene></Scene>
          */}
-        <div className="scene-container">
+        <div className="scene-container" onContextMenu={(e) => e.preventDefault()}>
           <Scene
             onRollComplete={handleRollComplete}
             onStartRoll={handleStartRoll}
@@ -735,6 +769,15 @@ function App() {
             diceCount={diceCount}
             rollTrigger={rollTrigger}
             diceResetKey={diceResetKey}
+            notes={sceneNotes}
+            connections={sceneConnections}
+            onBackgroundClick={(pos) => {
+              setNoteClickPosition(pos)
+              setShowNoteModal(true)
+            }}
+            onNoteRemove={removeSceneNote}
+            onThumbtackClick={handleThumbtackClick}
+            connectingFromNoteId={connectingFromNoteId}
           />
         </div>
       </main>
@@ -875,6 +918,24 @@ function App() {
           onStartStream={handleStartStream}
           onClose={() => setShowStreamModal(false)}
           error={streamError}
+        />
+      )}
+
+      {/* Note Input Modal */}
+      {showNoteModal && noteClickPosition && (
+        <NoteInputModal
+          position={noteClickPosition}
+          onSubmit={(text, color, imageUrl) => {
+            // Get username from localStorage
+            const username = localStorage.getItem('dnd_chat_username') || 'Anonymous'
+            addSceneNote({ text, position: noteClickPosition, color, imageUrl }, username)
+            setShowNoteModal(false)
+            setNoteClickPosition(null)
+          }}
+          onClose={() => {
+            setShowNoteModal(false)
+            setNoteClickPosition(null)
+          }}
         />
       )}
 

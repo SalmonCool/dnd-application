@@ -65,8 +65,11 @@ import D12Dice from './D12Dice'
 import D20Dice from './D20Dice'
 import ArtifactOrb from './ArtifactOrb'
 import SkullArtifact from './SkullArtifact'
+import StickyNote3D from './StickyNote3D'
+import NoteConnectionLine from './NoteConnectionLine'
 //import { MeshStandardMaterial } from 'three' (currently not in use, replaced with custom MeshWoodMaterial)
 import * as THREE from 'three'
+import type { Note3D, NoteConnection } from '../../types/note'
 
 
 /**
@@ -86,6 +89,12 @@ interface SceneProps {
   diceCount?: number
   rollTrigger?: number
   diceResetKey?: number
+  notes?: Note3D[]
+  connections?: NoteConnection[]
+  onBackgroundClick?: (position: { x: number; y: number; z: number }) => void
+  onNoteRemove?: (noteId: string) => void
+  onThumbtackClick?: (noteId: string) => void
+  connectingFromNoteId?: string | null
 }
 
 /**
@@ -158,7 +167,7 @@ function calculateDiceLayouts(count: number): DiceLayout[] {
  * - Our D20 dice
  * - A ground plane for shadows
  */
-export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0 }: SceneProps) {
+export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0, notes = [], connections = [], onBackgroundClick, onNoteRemove, onThumbtackClick, connectingFromNoteId }: SceneProps) {
   // Calculate positions and rotations for all dice
   const layouts = calculateDiceLayouts(diceCount)
 
@@ -228,9 +237,9 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
        */}
       <OrbitControls
         //1-2-2026 Disabled Orbital Controls
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
+        enablePan={false}
+        enableZoom={false}
+        enableRotate={false}
       />
 
       {/**
@@ -373,38 +382,71 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
          * Ground Plane
          * ------------
          * A flat surface to catch shadows and give visual grounding.
-         *
-         * <mesh> is the basic 3D object in Three.js, combining:
-         *   - geometry (shape)
-         *   - material (appearance)
-         *
-         * rotation: [x, y, z] in radians. -Math.PI/2 = -90 degrees on X axis
-         *           This rotates the plane from vertical to horizontal.
-         *
-         * receiveShadow: This mesh will show shadows cast onto it.
+         * Clicking on it allows users to add notes.
          */}
-        <mesh rotation={[0, 0, 0]} position={[0, 0, -5]} receiveShadow={true}>
-          {/**
-           * planeGeometry
-           * -------------
-           * A flat 2D shape. args={[width, height]}
-           *
-           * LEARNING POINT: In R3F, constructor arguments go in the 'args' prop.
-           * new THREE.PlaneGeometry(20, 20) becomes <planeGeometry args={[20, 20]} />
-           */}
+        <mesh
+          rotation={[0, 0, 0]}
+          position={[0, 0, -5]}
+          receiveShadow={true}
+          onContextMenu={(e) => {
+            e.stopPropagation()
+            // Prevent browser context menu
+            if (e.nativeEvent) {
+              e.nativeEvent.preventDefault()
+            }
+            if (onBackgroundClick) {
+              // Get the intersection point in world coordinates
+              const point = e.point
+              onBackgroundClick({
+                x: point.x,
+                y: point.y,
+                z: point.z + 0.1, // Slightly in front of background
+              })
+            }
+          }}
+        >
           <planeGeometry args={[64, 34]} />
-
-          {/**
-           * meshStandardMaterial
-           * --------------------
-           * A physically-based material that responds realistically to lights.
-           * Other common materials:
-           *   - meshBasicMaterial: No lighting, flat color
-           *   - meshLambertMaterial: Matte, non-shiny surface
-           *   - meshPhongMaterial: Shiny surface with specular highlights
-           */}
           <MeshWoodMaterial/>
         </mesh>
+
+        {/* Render 3D Sticky Notes */}
+        {notes.map((note) => (
+          <StickyNote3D
+            key={note.id}
+            note={note}
+            onRemove={onNoteRemove}
+            onThumbtackClick={onThumbtackClick}
+            isConnecting={connectingFromNoteId !== null && connectingFromNoteId !== undefined}
+            isConnectionSource={connectingFromNoteId === note.id}
+          />
+        ))}
+
+        {/* Render Note Connections */}
+        {connections.map((connection) => {
+          const fromNote = notes.find((n) => n.id === connection.fromNoteId)
+          const toNote = notes.find((n) => n.id === connection.toNoteId)
+          if (!fromNote || !toNote) return null
+          // Calculate thumbtack Y offset based on note height (taller if has image)
+          const fromNoteHeight = fromNote.imageUrl ? 1.8 : 1
+          const toNoteHeight = toNote.imageUrl ? 1.8 : 1
+          const fromThumbY = fromNoteHeight / 2 - 0.08
+          const toThumbY = toNoteHeight / 2 - 0.08
+          return (
+            <NoteConnectionLine
+              key={connection.id}
+              from={{
+                x: fromNote.position.x,
+                y: fromNote.position.y + fromThumbY,
+                z: fromNote.position.z + 0.05,
+              }}
+              to={{
+                x: toNote.position.x,
+                y: toNote.position.y + toThumbY,
+                z: toNote.position.z + 0.05,
+              }}
+            />
+          )
+        })}
       </Suspense>
     </Canvas>
   )
