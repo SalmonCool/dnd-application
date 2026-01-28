@@ -41,7 +41,7 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
   })
   const [activeTab, setActiveTab] = useState<TabType>('chat')
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, clearMessages } = useChat()
+  const { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, sendInitiativeTurn, clearMessages } = useChat()
   const { isAuthenticated, verifyPassword, logout, error: authError, isFirstTimeSetup } = useAuth()
 
   // Expose sendDiceRoll to parent via useEffect
@@ -65,9 +65,22 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
         sendSpellCast(username, spellName, diceNotation, total, description)
       }
 
-      ;(window as any).__sendRollModifier = (flatMod: number, bonusDie: string | null, bonusDieResult: number | null, newTotal: number) => {
-        debugLog('🎯 window.__sendRollModifier intercepted:', { flatMod, bonusDie, bonusDieResult, newTotal })
-        sendRollModifier(username, flatMod, bonusDie, bonusDieResult, newTotal)
+      ;(window as any).__sendRollModifier = (
+        statName: string | null,
+        statModifier: number,
+        proficiencyBonus: number,
+        flatMod: number,
+        bonusDie: string | null,
+        bonusDieResult: number | null,
+        newTotal: number
+      ) => {
+        debugLog('🎯 window.__sendRollModifier intercepted:', { statName, statModifier, proficiencyBonus, flatMod, bonusDie, bonusDieResult, newTotal })
+        sendRollModifier(username, statName, statModifier, proficiencyBonus, flatMod, bonusDie, bonusDieResult, newTotal)
+      }
+
+      ;(window as any).__sendInitiativeTurn = (characterName: string) => {
+        debugLog('🎯 window.__sendInitiativeTurn intercepted:', { characterName })
+        sendInitiativeTurn(characterName)
       }
 
       debugLog('✅ Window functions registered')
@@ -87,7 +100,7 @@ export default function ChatPanel({ isOpen, onClose, onDiceRoll: _onDiceRoll, on
       localStorage.removeItem(USERNAME_KEY)
       setUsername(null)
     }
-  }, [username, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, clearMessages, logout])
+  }, [username, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, sendInitiativeTurn, clearMessages, logout])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

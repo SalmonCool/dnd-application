@@ -64,9 +64,15 @@ import D10Dice from './D10Dice'
 import D12Dice from './D12Dice'
 import D20Dice from './D20Dice'
 import ArtifactOrb from './ArtifactOrb'
+import SkullArtifact from './SkullArtifact'
 //import { MeshStandardMaterial } from 'three' (currently not in use, replaced with custom MeshWoodMaterial)
 import * as THREE from 'three'
 
+
+/**
+ * Artifact type
+ */
+type ArtifactType = 'orb' | 'skull' | null
 
 /**
  * Scene Props Interface
@@ -76,19 +82,29 @@ interface SceneProps {
   onStartRoll?: () => void
   displayValue?: number | null
   selectedDice?: 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'artifacts' | null
+  selectedArtifact?: ArtifactType
   diceCount?: number
   rollTrigger?: number
   diceResetKey?: number
 }
 
 /**
- * Calculate positions for multiple dice
- * Arranges dice in up to 2 rows (5 per row) with spacing
- * Moves camera back when multiple dice are shown
+ * Dice layout data including position and rotation toward focal point
  */
-function calculateDicePositions(count: number): [number, number, number][] {
+interface DiceLayout {
+  position: [number, number, number]
+  rotation: [number, number, number] // Y rotation to face toward center
+}
+
+/**
+ * Calculate positions and rotations for multiple dice
+ * Arranges dice in up to 2 rows (5 per row) with spacing
+ * Dice on left rotate right, dice on right rotate left (toward focal point)
+ */
+function calculateDiceLayouts(count: number): DiceLayout[] {
   const spacing = 2 // Horizontal spacing between dice
   const rowSpacing = 2.3 // Vertical spacing between rows
+  const maxRotation = 0.25 // Maximum Y rotation in radians (~14 degrees)
   var secondRowYAdjust = 0
 
   // Move dice back when there are multiple
@@ -114,7 +130,21 @@ function calculateDicePositions(count: number): [number, number, number][] {
     const y = -0.5 - (row * rowSpacing) + secondRowYAdjust // Second row is lower which gets handled by (row * rowspacing)
     const z = baseZ
 
-    return [x, y, z] as [number, number, number]
+    // Calculate Y rotation toward focal point (center)
+    // Only rotate if there's more than one dice
+    let rotationY = 0
+    if (count > 1 && diceInThisRow > 1) {
+      // Calculate normalized position from center (-1 to 1)
+      const centerCol = (diceInThisRow - 1) / 2
+      const normalizedPos = (col - centerCol) / centerCol
+      // Negative rotation for dice on right (positive x), positive for left (negative x)
+      rotationY = -normalizedPos * maxRotation
+    }
+
+    return {
+      position: [x, y, z] as [number, number, number],
+      rotation: [0, rotationY, 0] as [number, number, number]
+    }
   })
 }
 
@@ -128,9 +158,9 @@ function calculateDicePositions(count: number): [number, number, number][] {
  * - Our D20 dice
  * - A ground plane for shadows
  */
-export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', diceCount = 1, rollTrigger = 0, diceResetKey = 0 }: SceneProps) {
-  // Calculate positions for all dice
-  const positions = calculateDicePositions(diceCount)
+export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0 }: SceneProps) {
+  // Calculate positions and rotations for all dice
+  const layouts = calculateDiceLayouts(diceCount)
 
   // Create wrapper for onRollComplete that includes index
   const createRollHandler = (index: number) => (value: number) => {
@@ -198,9 +228,9 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
        */}
       <OrbitControls
         //1-2-2026 Disabled Orbital Controls
-        enablePan={false}
-        enableZoom={false}
-        enableRotate={false}
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
       />
 
       {/**
@@ -258,76 +288,85 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
          * Renders the selected dice type. Supports multiple dice
          * spread horizontally with calculated positions.
          */}
-        {selectedDice === 'd4' && positions.map((pos, index) => (
-          <D4Dice
-            key={`d4-${index}-${diceResetKey}`}
-            position={pos}
-            onRollComplete={createRollHandler(index)}
-            onStartRoll={index === 0 ? onStartRoll : undefined}
-            displayValue={diceCount === 1 ? displayValue : null}
-            rollTrigger={rollTrigger}
-            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
-          />
+        {selectedDice === 'd4' && layouts.map((layout, index) => (
+          <group key={`d4-group-${index}-${diceResetKey}`} position={layout.position} rotation={layout.rotation}>
+            <D4Dice
+              position={[0, 0, 0]}
+              onRollComplete={createRollHandler(index)}
+              onStartRoll={index === 0 ? onStartRoll : undefined}
+              displayValue={diceCount === 1 ? displayValue : null}
+              rollTrigger={rollTrigger}
+              instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
+            />
+          </group>
         ))}
-        {selectedDice === 'd6' && positions.map((pos, index) => (
-          <D6Dice
-            key={`d6-${index}-${diceResetKey}`}
-            position={pos}
-            onRollComplete={createRollHandler(index)}
-            onStartRoll={index === 0 ? onStartRoll : undefined}
-            displayValue={diceCount === 1 ? displayValue : null}
-            rollTrigger={rollTrigger}
-            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
-          />
+        {selectedDice === 'd6' && layouts.map((layout, index) => (
+          <group key={`d6-group-${index}-${diceResetKey}`} position={layout.position} rotation={layout.rotation}>
+            <D6Dice
+              position={[0, 0, 0]}
+              onRollComplete={createRollHandler(index)}
+              onStartRoll={index === 0 ? onStartRoll : undefined}
+              displayValue={diceCount === 1 ? displayValue : null}
+              rollTrigger={rollTrigger}
+              instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
+            />
+          </group>
         ))}
-        {selectedDice === 'd8' && positions.map((pos, index) => (
-          <D8Dice
-            key={`d8-${index}-${diceResetKey}`}
-            position={pos}
-            onRollComplete={createRollHandler(index)}
-            onStartRoll={index === 0 ? onStartRoll : undefined}
-            displayValue={diceCount === 1 ? displayValue : null}
-            rollTrigger={rollTrigger}
-            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
-          />
+        {selectedDice === 'd8' && layouts.map((layout, index) => (
+          <group key={`d8-group-${index}-${diceResetKey}`} position={layout.position} rotation={layout.rotation}>
+            <D8Dice
+              position={[0, 0, 0]}
+              onRollComplete={createRollHandler(index)}
+              onStartRoll={index === 0 ? onStartRoll : undefined}
+              displayValue={diceCount === 1 ? displayValue : null}
+              rollTrigger={rollTrigger}
+              instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
+            />
+          </group>
         ))}
-        {selectedDice === 'd10' && positions.map((pos, index) => (
-          <D10Dice
-            key={`d10-${index}-${diceResetKey}`}
-            position={pos}
-            onRollComplete={createRollHandler(index)}
-            onStartRoll={index === 0 ? onStartRoll : undefined}
-            displayValue={diceCount === 1 ? displayValue : null}
-            rollTrigger={rollTrigger}
-            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
-          />
+        {selectedDice === 'd10' && layouts.map((layout, index) => (
+          <group key={`d10-group-${index}-${diceResetKey}`} position={layout.position} rotation={layout.rotation}>
+            <D10Dice
+              position={[0, 0, 0]}
+              onRollComplete={createRollHandler(index)}
+              onStartRoll={index === 0 ? onStartRoll : undefined}
+              displayValue={diceCount === 1 ? displayValue : null}
+              rollTrigger={rollTrigger}
+              instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
+            />
+          </group>
         ))}
-        {selectedDice === 'd12' && positions.map((pos, index) => (
-          <D12Dice
-            key={`d12-${index}-${diceResetKey}`}
-            position={pos}
-            onRollComplete={createRollHandler(index)}
-            onStartRoll={index === 0 ? onStartRoll : undefined}
-            displayValue={diceCount === 1 ? displayValue : null}
-            rollTrigger={rollTrigger}
-            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
-          />
+        {selectedDice === 'd12' && layouts.map((layout, index) => (
+          <group key={`d12-group-${index}-${diceResetKey}`} position={layout.position} rotation={layout.rotation}>
+            <D12Dice
+              position={[0, 0, 0]}
+              onRollComplete={createRollHandler(index)}
+              onStartRoll={index === 0 ? onStartRoll : undefined}
+              displayValue={diceCount === 1 ? displayValue : null}
+              rollTrigger={rollTrigger}
+              instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
+            />
+          </group>
         ))}
-        {selectedDice === 'd20' && positions.map((pos, index) => (
-          <D20Dice
-            key={`d20-${index}-${diceResetKey}`}
-            position={pos}
-            onRollComplete={createRollHandler(index)}
-            rollTrigger={rollTrigger}
-            onStartRoll={index === 0 ? onStartRoll : undefined}
-            displayValue={diceCount === 1 ? displayValue : null}
-            instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
-          />
+        {selectedDice === 'd20' && layouts.map((layout, index) => (
+          <group key={`d20-group-${index}-${diceResetKey}`} position={layout.position} rotation={layout.rotation}>
+            <D20Dice
+              position={[0, 0, 0]}
+              onRollComplete={createRollHandler(index)}
+              rollTrigger={rollTrigger}
+              onStartRoll={index === 0 ? onStartRoll : undefined}
+              displayValue={diceCount === 1 ? displayValue : null}
+              instructionText={index === 0 && diceCount > 1 ? 'Click to roll all' : 'Click to roll'}
+            />
+          </group>
         ))}
 
-        {/* Artifact Orb - shown when artifacts selected or nothing selected */}
-        {(selectedDice === 'artifacts' || selectedDice === null) && (
+        {/* Artifacts - shown when artifacts selected or nothing selected */}
+        {(selectedDice === 'artifacts' || selectedDice === null) && selectedArtifact === 'orb' && (
           <ArtifactOrb position={[0, 0.2, 0]} />
+        )}
+        {(selectedDice === 'artifacts' || selectedDice === null) && selectedArtifact === 'skull' && (
+          <SkullArtifact position={[0, 0.2, 0]} />
         )}
 
         {/**

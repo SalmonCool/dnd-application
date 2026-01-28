@@ -342,7 +342,7 @@ export default function ArtifactOrb({ position = [0, 0, 0] }: ArtifactOrbProps) 
         anchorX="center"
         anchorY="middle"
       >
-        Click the orb
+        Ponder the Orb!
       </Text>
     </group>
   )

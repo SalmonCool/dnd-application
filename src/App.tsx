@@ -19,9 +19,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel } from './components/ui'
 import { useStream } from './hooks/useStream'
 import { useVolume } from './hooks/useVolume'
+import { useCharacter } from './hooks/useCharacter'
+import { calculateModifier, calculateProficiencyBonus } from './types/character'
 
 /**
  * App Component
@@ -41,7 +43,10 @@ import { useVolume } from './hooks/useVolume'
  */
 // Available dice types
 type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
+type StatType = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma' | ''
+type SkillLevel = 'none' | 'proficient' | 'expert'
 type SelectionType = DiceType | 'artifacts'
+type ArtifactType = 'orb' | 'skull' | null
 
 function App() {
   // State for roll value display and multiplier
@@ -56,6 +61,10 @@ function App() {
   const [notesOpen, setNotesOpen] = useState(false)
   const [soundboardOpen, setSoundboardOpen] = useState(false)
   const [diceMenuOpen, setDiceMenuOpen] = useState(false)
+  const [artifactMenuOpen, setArtifactMenuOpen] = useState(false)
+  const [selectedArtifact, setSelectedArtifact] = useState<ArtifactType>('orb')
+  const [initiativeOpen, setInitiativeOpen] = useState(false)
+  const [characterOpen, setCharacterOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
 
   // Volume control hook (exposes __getVolume on window)
@@ -76,6 +85,11 @@ function App() {
   // Roll modifiers
   const [flatModifier, setFlatModifier] = useState<string>('')
   const [bonusDie, setBonusDie] = useState<DiceType | ''>('')
+  const [selectedStat, setSelectedStat] = useState<StatType>('')
+  const [skillLevel, setSkillLevel] = useState<SkillLevel>('none')
+
+  // Character stats for modifier calculations
+  const { stats: characterStats } = useCharacter()
 
   // Track message count changes for unread badge
   const handleMessageCountChange = useCallback((count: number) => {
@@ -126,6 +140,28 @@ function App() {
     }
   }, [handleMessageCountChange, handleChatOpenChange])
 
+  // Calculate total stat and proficiency modifier
+  const getStatAndProficiencyModifier = useCallback(() => {
+    let total = 0
+
+    // Add stat modifier if a stat is selected
+    if (selectedStat && characterStats[selectedStat] !== undefined) {
+      total += calculateModifier(characterStats[selectedStat])
+    }
+
+    // Add proficiency bonus based on skill level
+    if (skillLevel !== 'none') {
+      const profBonus = calculateProficiencyBonus(characterStats.level)
+      if (skillLevel === 'proficient') {
+        total += profBonus
+      } else if (skillLevel === 'expert') {
+        total += profBonus * 2
+      }
+    }
+
+    return total
+  }, [selectedStat, skillLevel, characterStats])
+
   // Expose modifier functions for spells to use
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -133,18 +169,21 @@ function App() {
     window.__getModifiers = () => ({
       flatModifier: parseInt(flatModifier) || 0,
       bonusDie: bonusDie || null,
+      statModifier: getStatAndProficiencyModifier(),
     })
 
     window.__clearModifiers = () => {
       setFlatModifier('')
       setBonusDie('')
+      setSelectedStat('')
+      setSkillLevel('none')
     }
 
     return () => {
       delete window.__getModifiers
       delete window.__clearModifiers
     }
-  }, [flatModifier, bonusDie])
+  }, [flatModifier, bonusDie, getStatAndProficiencyModifier])
 
   // Handle chat open/close
   const handleChatToggle = useCallback(() => {
@@ -240,7 +279,21 @@ function App() {
           const flatMod = parseInt(flatModifier) || 0
           const hasBonusDie = bonusDie !== ''
 
-          if (flatMod !== 0 || hasBonusDie) {
+          // Calculate individual components
+          let statMod = 0
+          if (selectedStat && characterStats[selectedStat] !== undefined) {
+            statMod = calculateModifier(characterStats[selectedStat])
+          }
+
+          let profBonus = 0
+          if (skillLevel !== 'none') {
+            const baseProfBonus = calculateProficiencyBonus(characterStats.level)
+            profBonus = skillLevel === 'expert' ? baseProfBonus * 2 : baseProfBonus
+          }
+
+          const totalMod = flatMod + statMod + profBonus
+
+          if (totalMod !== 0 || hasBonusDie) {
             // Roll bonus die if selected
             let bonusDieResult: number | null = null
             if (hasBonusDie && bonusDie) {
@@ -248,17 +301,27 @@ function App() {
             }
 
             // Calculate new total
-            const newTotal = sum + flatMod + (bonusDieResult || 0)
+            const newTotal = sum + totalMod + (bonusDieResult || 0)
             setDisplayValue(newTotal)
 
-            // Send modifier message
+            // Send modifier message with individual components
             if ((window as any).__sendRollModifier) {
-              ;(window as any).__sendRollModifier(flatMod, hasBonusDie ? bonusDie : null, bonusDieResult, newTotal)
+              ;(window as any).__sendRollModifier(
+                selectedStat || null,
+                statMod,
+                profBonus,
+                flatMod,
+                hasBonusDie ? bonusDie : null,
+                bonusDieResult,
+                newTotal
+              )
             }
 
             // Reset modifiers after use
             setFlatModifier('')
             setBonusDie('')
+            setSelectedStat('')
+            setSkillLevel('none')
           }
         } else {
           console.warn('⚠️ __sendDiceRoll not available yet')
@@ -344,9 +407,12 @@ function App() {
   }
 
   const handleCloseStreamPanel = () => {
-    if (isViewing) {
-      leaveAsViewer()
-    }
+    // Just close the panel - don't disconnect viewer
+    setStreamOpen(false)
+  }
+
+  const handleLeaveStream = () => {
+    leaveAsViewer()
     setStreamOpen(false)
   }
 
@@ -446,12 +512,38 @@ function App() {
         <aside className="dice-sidebar">
           {/* Artifacts Button - Above dice */}
           <button
-            className={`dice-icon ${selectedDice === 'artifacts' ? 'selected' : ''}`}
-            onClick={() => handleDiceTypeChange('artifacts')}
-            title="Mystical Artifact"
+            className={`dice-icon ${selectedDice === 'artifacts' || artifactMenuOpen ? 'selected' : ''}`}
+            onClick={() => {
+              if (artifactMenuOpen) {
+                setArtifactMenuOpen(false)
+              } else {
+                setArtifactMenuOpen(true)
+                setDiceMenuOpen(false)
+                handleDiceTypeChange('artifacts')
+              }
+            }}
+            title="Mystical Artifacts"
           >
             <span className="dice-label">🔮</span>
           </button>
+
+          {/* Artifact Submenu */}
+          <div className={`dice-submenu artifact-submenu ${artifactMenuOpen ? 'open' : ''}`}>
+            <button
+              className={`dice-submenu-item ${selectedArtifact === 'orb' ? 'selected' : ''}`}
+              onClick={() => { setSelectedArtifact('orb'); setArtifactMenuOpen(false); }}
+              title="Mystical Orb"
+            >
+              Orb
+            </button>
+            <button
+              className={`dice-submenu-item ${selectedArtifact === 'skull' ? 'selected' : ''}`}
+              onClick={() => { setSelectedArtifact('skull'); setArtifactMenuOpen(false); }}
+              title="Skull of Doom"
+            >
+              Skull
+            </button>
+          </div>
 
           <div className="sidebar-divider" />
 
@@ -467,8 +559,9 @@ function App() {
                 setDisplayValue(null)
                 setDiceResults([])
               } else {
-                // Opening menu
+                // Opening menu - close artifact menu
                 setDiceMenuOpen(true)
+                setArtifactMenuOpen(false)
               }
             }}
             title="Dice Menu"
@@ -521,6 +614,15 @@ function App() {
               D20
             </button>
           </div>
+
+          {/* Initiative Button */}
+          <button
+            className={`dice-icon ${initiativeOpen ? 'selected' : ''}`}
+            onClick={() => { setInitiativeOpen(!initiativeOpen); setSelectedDice(null) }}
+            title="Initiative Order"
+          >
+            <span className="dice-label">⚔</span>
+          </button>
 
           {/* Chat Button */}
           <button
@@ -587,6 +689,15 @@ function App() {
           >
             <span className="dice-label">📝</span>
           </button>
+
+          {/* Character Sheet Button */}
+          <button
+            className={`dice-icon ${characterOpen ? 'selected' : ''}`}
+            onClick={() => { setCharacterOpen(!characterOpen); setSelectedDice(null) }}
+            title="Character Stats"
+          >
+            <span className="dice-label">👤</span>
+          </button>
         </aside>
 
         {/* Dice Count Bar - slides in when dice is selected */}
@@ -620,6 +731,7 @@ function App() {
             onStartRoll={handleStartRoll}
             displayValue={displayValue}
             selectedDice={selectedDice}
+            selectedArtifact={selectedArtifact}
             diceCount={diceCount}
             rollTrigger={rollTrigger}
             diceResetKey={diceResetKey}
@@ -660,7 +772,37 @@ function App() {
       {/* Roll Modifier Bar - Bottom Center */}
       <div className="modifier-bar">
         <div className="modifier-input-group">
-          <label htmlFor="flat-modifier">Add to next roll:</label>
+          <label htmlFor="stat-select">Stat:</label>
+          <select
+            id="stat-select"
+            className="bonus-die-select"
+            value={selectedStat}
+            onChange={(e) => setSelectedStat(e.target.value as StatType)}
+          >
+            <option value="">None</option>
+            <option value="strength">STR</option>
+            <option value="dexterity">DEX</option>
+            <option value="constitution">CON</option>
+            <option value="intelligence">INT</option>
+            <option value="wisdom">WIS</option>
+            <option value="charisma">CHA</option>
+          </select>
+        </div>
+        <div className="modifier-input-group">
+          <label htmlFor="skill-level">Skill:</label>
+          <select
+            id="skill-level"
+            className="bonus-die-select"
+            value={skillLevel}
+            onChange={(e) => setSkillLevel(e.target.value as SkillLevel)}
+          >
+            <option value="none">Not Skilled</option>
+            <option value="proficient">Proficient</option>
+            <option value="expert">Expert</option>
+          </select>
+        </div>
+        <div className="modifier-input-group">
+          <label htmlFor="flat-modifier">Flat +/-:</label>
           <input
             id="flat-modifier"
             type="number"
@@ -701,6 +843,7 @@ function App() {
         onClose={handleCloseStreamPanel}
         onStopStream={handleStopStream}
         onJoinAsViewer={handleJoinAsViewer}
+        onLeaveStream={handleLeaveStream}
         attachVideo={attachVideo}
         error={streamError}
       />
@@ -719,6 +862,12 @@ function App() {
 
       {/* Notes Panel */}
       <NotesPanel isOpen={notesOpen} onClose={() => setNotesOpen(false)} />
+
+      {/* Initiative Panel */}
+      <InitiativePanel isOpen={initiativeOpen} onClose={() => setInitiativeOpen(false)} />
+
+      {/* Character Panel */}
+      <CharacterPanel isOpen={characterOpen} onClose={() => setCharacterOpen(false)} />
 
       {/* Screen Select Modal */}
       {showStreamModal && (

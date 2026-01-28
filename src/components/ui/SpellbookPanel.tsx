@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSpellbook } from '../../hooks/useSpellbook'
-import type { DiceType } from '../../types/spell'
+import type { DiceType, Spell } from '../../types/spell'
 
 interface SpellbookPanelProps {
   isOpen: boolean
@@ -18,6 +18,8 @@ const DICE_TYPES: DiceType[] = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20']
 
 export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps) {
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingSpell, setEditingSpell] = useState<Spell | null>(null)
   const [spellName, setSpellName] = useState('')
   const [spellDiceType, setSpellDiceType] = useState<DiceType>('d6')
   const [spellDiceCount, setSpellDiceCount] = useState(1)
@@ -25,7 +27,7 @@ export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps)
   const [spellSoundUrl, setSpellSoundUrl] = useState('')
   const [castingSpellId, setCastingSpellId] = useState<string | null>(null)
 
-  const { spells, loading, error, addSpell, removeSpell, castSpell, broadcastSpellCast } = useSpellbook()
+  const { spells, loading, error, addSpell, updateSpell, removeSpell, castSpell, broadcastSpellCast } = useSpellbook()
 
   // Get username from localStorage (same as chat)
   const username = localStorage.getItem('dnd_chat_username') || 'Anonymous'
@@ -41,6 +43,40 @@ export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps)
       setSpellSoundUrl('')
       setShowAddModal(false)
     }
+  }
+
+  const openEditModal = (spell: Spell) => {
+    setEditingSpell(spell)
+    setSpellName(spell.name)
+    setSpellDiceType(spell.diceType)
+    setSpellDiceCount(spell.diceCount)
+    setSpellDescription(spell.description || '')
+    setSpellSoundUrl(spell.soundUrl || '')
+    setShowEditModal(true)
+  }
+
+  const handleEditSpell = async (e: FormEvent) => {
+    e.preventDefault()
+    if (editingSpell && spellName.trim()) {
+      await updateSpell(editingSpell.id, spellName, spellDiceType, spellDiceCount, spellDescription, spellSoundUrl)
+      setEditingSpell(null)
+      setSpellName('')
+      setSpellDiceType('d6')
+      setSpellDiceCount(1)
+      setSpellDescription('')
+      setSpellSoundUrl('')
+      setShowEditModal(false)
+    }
+  }
+
+  const closeEditModal = () => {
+    setShowEditModal(false)
+    setEditingSpell(null)
+    setSpellName('')
+    setSpellDiceType('d6')
+    setSpellDiceCount(1)
+    setSpellDescription('')
+    setSpellSoundUrl('')
   }
 
   // Dice max values for bonus die rolling
@@ -136,6 +172,13 @@ export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps)
                 title="Cast spell"
               >
                 Cast
+              </button>
+              <button
+                className="edit-spell-button"
+                onClick={() => openEditModal(spell)}
+                title="Edit spell"
+              >
+                ✎
               </button>
               <button
                 className="delete-spell-button"
@@ -259,6 +302,106 @@ export default function SpellbookPanel({ isOpen, onClose }: SpellbookPanelProps)
                   disabled={!spellName.trim()}
                 >
                   Add Spell
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Spell Modal */}
+      {showEditModal && editingSpell && (
+        <div className="modal-overlay" onClick={closeEditModal}>
+          <div className="modal-content spell-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Edit Spell</h3>
+            <form onSubmit={handleEditSpell}>
+              <div className="form-group">
+                <label>Spell Name *</label>
+                <input
+                  type="text"
+                  className="spell-input"
+                  placeholder="Fireball, Magic Missile..."
+                  value={spellName}
+                  onChange={(e) => setSpellName(e.target.value)}
+                  maxLength={50}
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Dice Type</label>
+                  <select
+                    className="spell-select"
+                    value={spellDiceType}
+                    onChange={(e) => setSpellDiceType(e.target.value as DiceType)}
+                  >
+                    {DICE_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Number of Dice</label>
+                  <select
+                    className="spell-select"
+                    value={spellDiceCount}
+                    onChange={(e) => setSpellDiceCount(parseInt(e.target.value))}
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="spell-preview">
+                Roll: {spellDiceCount}{spellDiceType}
+              </div>
+
+              <div className="form-group">
+                <label>Description (optional)</label>
+                <textarea
+                  className="spell-textarea"
+                  placeholder="Brief description of the spell effect..."
+                  value={spellDescription}
+                  onChange={(e) => setSpellDescription(e.target.value)}
+                  maxLength={200}
+                  rows={3}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Sound Effect URL (optional)</label>
+                <input
+                  type="text"
+                  className="spell-input"
+                  placeholder="https://youtube.com/watch?v=..."
+                  value={spellSoundUrl}
+                  onChange={(e) => setSpellSoundUrl(e.target.value)}
+                />
+                <span className="spell-hint">YouTube URL to play when spell is cast</span>
+              </div>
+
+              <div className="modal-buttons">
+                <button
+                  type="button"
+                  className="modal-cancel"
+                  onClick={closeEditModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="modal-confirm"
+                  disabled={!spellName.trim()}
+                >
+                  Save Changes
                 </button>
               </div>
             </form>

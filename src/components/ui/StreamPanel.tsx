@@ -15,6 +15,7 @@ interface StreamPanelProps {
   onClose: () => void
   onStopStream: () => void
   onJoinAsViewer: () => void
+  onLeaveStream: () => void
   attachVideo: (videoElement: HTMLVideoElement | null) => void
   error?: string | null
 }
@@ -27,6 +28,7 @@ export default function StreamPanel({
   onClose,
   onStopStream,
   onJoinAsViewer,
+  onLeaveStream,
   attachVideo,
   error,
 }: StreamPanelProps) {
@@ -122,6 +124,14 @@ export default function StreamPanel({
         <div className="stream-controls">
           <button className="stop-stream-button" onClick={onStopStream}>
             Stop Streaming
+          </button>
+        </div>
+      )}
+
+      {isViewing && (
+        <div className="stream-controls">
+          <button className="leave-stream-button" onClick={onLeaveStream}>
+            Leave Stream
           </button>
         </div>
       )}

@@ -2,11 +2,15 @@
  * useSpellbook Hook
  * =================
  * Custom hook for real-time spellbook synchronization with Firebase
+ * Each user has their own spellbook stored under their username
+ * Spell cast sounds are broadcast to all users
  */
 
 import { useState, useEffect, useCallback } from 'react'
 import { database, ref, push, remove, onValue, off, set } from '../config/firebase'
 import type { Spell, DiceType, SpellCastEvent } from '../types/spell'
+
+const USERNAME_KEY = 'dnd_chat_username'
 
 // Dice max values
 const DICE_MAX: Record<DiceType, number> = {
@@ -24,8 +28,18 @@ export function useSpellbook() {
   const [error, setError] = useState<string | null>(null)
   const [spellCastEvent, setSpellCastEvent] = useState<SpellCastEvent | null>(null)
 
+  // Get current username
+  const username = typeof window !== 'undefined' ? localStorage.getItem(USERNAME_KEY) : null
+
   useEffect(() => {
-    const spellsRef = ref(database, 'spellbook/spells')
+    if (!username) {
+      setLoading(false)
+      setSpells([])
+      return
+    }
+
+    // Each user has their own spellbook
+    const spellsRef = ref(database, `spellbook/users/${username}/spells`)
 
     // Subscribe to real-time updates
     onValue(
@@ -65,7 +79,7 @@ export function useSpellbook() {
     return () => {
       off(spellsRef)
     }
-  }, [])
+  }, [username])
 
   // Listen for spell cast events (for playing sounds)
   useEffect(() => {
@@ -94,10 +108,11 @@ export function useSpellbook() {
     createdBy: string,
     soundUrl?: string
   ): Promise<void> => {
-    if (!name.trim()) return
+    if (!name.trim() || !username) return
 
     try {
-      const spellsRef = ref(database, 'spellbook/spells')
+      // Store spell under the user's own spellbook
+      const spellsRef = ref(database, `spellbook/users/${username}/spells`)
       await push(spellsRef, {
         name: name.trim(),
         diceType,
@@ -140,12 +155,45 @@ export function useSpellbook() {
   }, [])
 
   const removeSpell = async (spellId: string): Promise<void> => {
+    if (!username) return
+
     try {
-      const spellRef = ref(database, `spellbook/spells/${spellId}`)
+      const spellRef = ref(database, `spellbook/users/${username}/spells/${spellId}`)
       await remove(spellRef)
     } catch (err) {
       console.error('Error removing spell:', err)
       setError(err instanceof Error ? err.message : 'Failed to remove spell')
+    }
+  }
+
+  const updateSpell = async (
+    spellId: string,
+    name: string,
+    diceType: DiceType,
+    diceCount: number,
+    description: string,
+    soundUrl?: string
+  ): Promise<void> => {
+    if (!name.trim() || !username) return
+
+    try {
+      const spellRef = ref(database, `spellbook/users/${username}/spells/${spellId}`)
+      // Get current spell to preserve createdBy and createdAt
+      const currentSpell = spells.find(s => s.id === spellId)
+      if (!currentSpell) return
+
+      await set(spellRef, {
+        name: name.trim(),
+        diceType,
+        diceCount,
+        description: description.trim() || null,
+        soundUrl: soundUrl?.trim() || null,
+        createdBy: currentSpell.createdBy,
+        createdAt: currentSpell.createdAt,
+      })
+    } catch (err) {
+      console.error('Error updating spell:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update spell')
     }
   }
 
@@ -168,6 +216,7 @@ export function useSpellbook() {
     error,
     spellCastEvent,
     addSpell,
+    updateSpell,
     removeSpell,
     castSpell,
     broadcastSpellCast,

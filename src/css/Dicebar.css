@@ -83,6 +83,11 @@
   pointer-events: auto;
 }
 
+/* Artifact submenu positioned higher than dice submenu */
+.dice-submenu.artifact-submenu {
+  top: 65px;
+}
+
 .dice-submenu-item {
   width: 50px;
   height: 40px;

@@ -1,0 +1,253 @@
+/**
+ * Character Panel Styles
+ * ======================
+ * Styling for the D&D character stats panel
+ * Slides up from the bottom like the notes panel
+ */
+
+.character-panel {
+  position: fixed;
+  left: 72px;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  background: rgba(0, 0, 0, 0.95);
+  border-top: 2px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+  z-index: 101;
+}
+
+.character-panel.open {
+  transform: translateY(0);
+}
+
+.character-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(139, 0, 0, 0.3);
+  border-bottom: 1px solid #e00606;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.character-header h2 {
+  margin: 0;
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 18px;
+}
+
+.character-header .close-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.character-header .close-button:hover {
+  color: #e00606;
+}
+
+.character-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px 20px;
+  overflow: hidden;
+}
+
+.character-status {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 20px;
+}
+
+.character-error {
+  color: #ff4444;
+  padding: 10px;
+  text-align: center;
+}
+
+/* Stats Row - contains stats grid and level */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Divider between stats and level */
+.stats-divider {
+  width: 2px;
+  height: 90px;
+  background: linear-gradient(180deg, transparent, #e00606, transparent);
+  margin: 0 10px;
+}
+
+.stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 70px;
+}
+
+.stat-label {
+  color: #ffd700;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-modifier {
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.stat-modifier.positive {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.stat-modifier.negative {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.stat-modifier.neutral {
+  color: #888;
+  background: rgba(136, 136, 136, 0.1);
+}
+
+.stat-input {
+  width: 60px;
+  padding: 8px;
+  background: rgba(60, 60, 60, 0.8);
+  border: 2px solid #555;
+  border-radius: 6px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Georgia', serif;
+}
+
+.stat-input:focus {
+  outline: none;
+  border-color: #ffd700;
+  background: rgba(80, 80, 80, 0.9);
+}
+
+.stat-input::-webkit-inner-spin-button,
+.stat-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stat-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Footer */
+.character-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.reset-stats-button {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #666;
+  border-radius: 4px;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-stats-button:hover {
+  border-color: #e00606;
+  color: #e00606;
+}
+
+/* Level Block */
+.level-block {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.level-section,
+.proficiency-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.level-input {
+  width: 50px;
+  padding: 8px;
+  background: rgba(60, 60, 60, 0.8);
+  border: 2px solid #555;
+  border-radius: 6px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Georgia', serif;
+}
+
+.level-input:focus {
+  outline: none;
+  border-color: #ffd700;
+  background: rgba(80, 80, 80, 0.9);
+}
+
+.level-input::-webkit-inner-spin-button,
+.level-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.level-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.proficiency-bonus {
+  width: 50px;
+  padding: 8px;
+  background: rgba(139, 0, 0, 0.4);
+  border: 2px solid #ffd700;
+  border-radius: 6px;
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Georgia', serif;
+}

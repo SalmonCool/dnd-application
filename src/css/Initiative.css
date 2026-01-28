@@ -1,0 +1,318 @@
+/**
+ * Initiative Panel Styles
+ * =======================
+ * Styling for the D&D initiative order tracking panel
+ */
+
+.initiative-panel {
+  position: fixed;
+  left: 72px;
+  top: 62px;
+  bottom: 0;
+  width: 320px;
+  background: rgba(0, 0, 0, 0.95);
+  border-right: 2px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-out;
+  z-index: 1;
+}
+
+.initiative-panel.open {
+  transform: translateX(0);
+}
+
+.initiative-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 2px solid #e00606;
+  background: rgba(139, 0, 0, 0.3);
+}
+
+.initiative-header h2 {
+  margin: 0;
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 18px;
+}
+
+.initiative-header .close-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.initiative-header .close-button:hover {
+  color: #e00606;
+}
+
+/* Current Turn Display */
+.current-turn-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.6), rgba(139, 0, 0, 0.3));
+  border-bottom: 1px solid #e00606;
+}
+
+.current-turn-label {
+  color: #888;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.current-turn-name {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 16px;
+  font-family: 'Georgia', serif;
+  flex: 1;
+}
+
+.current-turn-initiative {
+  color: #e00606;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Turn Controls */
+.turn-controls {
+  padding: 10px 15px;
+  border-bottom: 1px solid #333;
+}
+
+.next-turn-button,
+.start-combat-button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #8b0000, #5c0000);
+  border: 2px solid #e00606;
+  border-radius: 6px;
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 16px;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.next-turn-button:hover:not(:disabled),
+.start-combat-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a00000, #700000);
+  box-shadow: 0 0 15px rgba(224, 6, 6, 0.5);
+  transform: scale(1.02);
+}
+
+.next-turn-button:disabled,
+.start-combat-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Initiative List */
+.initiative-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.initiative-status {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+  font-style: italic;
+}
+
+.initiative-error {
+  color: #ff4444;
+  padding: 10px;
+  text-align: center;
+}
+
+.initiative-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: rgba(60, 60, 60, 0.5);
+  border: 2px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.initiative-entry:hover {
+  background: rgba(80, 80, 80, 0.6);
+  border-color: #666;
+}
+
+.initiative-entry.current-turn {
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.7), rgba(100, 0, 0, 0.5));
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.initiative-entry.current-turn .entry-name {
+  color: #ffd700;
+}
+
+.entry-position {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  color: #888;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.initiative-entry.current-turn .entry-position {
+  background: #ffd700;
+  color: #000;
+}
+
+.entry-initiative {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.entry-name {
+  flex: 1;
+  color: white;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-entry-button {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.initiative-entry:hover .remove-entry-button {
+  opacity: 1;
+}
+
+.remove-entry-button:hover {
+  color: #e00606;
+}
+
+/* Add Entry Form */
+.add-initiative-form {
+  padding: 15px;
+  border-top: 2px solid #e00606;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.name-input {
+  flex: 1;
+  padding: 10px;
+  background: rgba(60, 60, 60, 0.8);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+}
+
+.initiative-input {
+  width: 70px;
+  padding: 10px;
+  background: rgba(60, 60, 60, 0.8);
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  text-align: center;
+}
+
+.name-input:focus,
+.initiative-input:focus {
+  outline: none;
+  border-color: #e00606;
+}
+
+.name-input::placeholder,
+.initiative-input::placeholder {
+  color: #666;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.add-entry-button {
+  flex: 1;
+  padding: 10px;
+  background: linear-gradient(135deg, #8b0000, #5c0000);
+  border: 2px solid #e00606;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-entry-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a00000, #700000);
+}
+
+.add-entry-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clear-initiative-button {
+  padding: 10px 15px;
+  background: transparent;
+  border: 2px solid #666;
+  border-radius: 4px;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-initiative-button:hover:not(:disabled) {
+  border-color: #e00606;
+  color: #e00606;
+}
+
+.clear-initiative-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

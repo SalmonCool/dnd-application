@@ -167,6 +167,26 @@
   transform: scale(1.05);
 }
 
+.leave-stream-button {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #4b4b4b;
+  color: #cccccc;
+  border: 2px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Georgia', serif;
+}
+
+.leave-stream-button:hover {
+  background-color: #5a5a5a;
+  border-color: #888;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
 /**
  * Screen Select Modal
  * -------------------

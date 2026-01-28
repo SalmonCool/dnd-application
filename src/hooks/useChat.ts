@@ -168,6 +168,9 @@ export function useChat() {
 
   const sendRollModifier = async (
     username: string,
+    statName: string | null,
+    statModifier: number,
+    proficiencyBonus: number,
     flatModifier: number,
     bonusDie: string | null,
     bonusDieResult: number | null,
@@ -178,24 +181,38 @@ export function useChat() {
     try {
       const messagesRef = ref(database, 'messages')
 
-      // Build the text description
+      // Build the text description with each component
       let text = 'added '
       const parts: string[] = []
 
+      if (statName && statModifier !== 0) {
+        const statStr = statModifier > 0 ? `+${statModifier}` : `${statModifier}`
+        parts.push(`${statName.toUpperCase()} (${statStr})`)
+      }
+
+      if (proficiencyBonus !== 0) {
+        const profStr = proficiencyBonus > 0 ? `+${proficiencyBonus}` : `${proficiencyBonus}`
+        parts.push(`Prof (${profStr})`)
+      }
+
       if (flatModifier !== 0) {
-        parts.push(flatModifier > 0 ? `+${flatModifier}` : `${flatModifier}`)
+        const flatStr = flatModifier > 0 ? `+${flatModifier}` : `${flatModifier}`
+        parts.push(`Flat (${flatStr})`)
       }
 
       if (bonusDie && bonusDieResult !== null) {
         parts.push(`${bonusDie.toUpperCase()} (${bonusDieResult})`)
       }
 
-      text += parts.join(' and ') + ` = ${newTotal}`
+      text += parts.join(', ') + ` = ${newTotal}`
 
       await push(messagesRef, {
         type: 'roll_modifier',
         text,
         username: username.trim(),
+        statName,
+        statModifier,
+        proficiencyBonus,
         flatModifier,
         bonusDie,
         bonusDieResult,
@@ -208,5 +225,23 @@ export function useChat() {
     }
   }
 
-  return { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, clearMessages }
+  const sendInitiativeTurn = async (
+    characterName: string
+  ): Promise<void> => {
+    try {
+      const messagesRef = ref(database, 'messages')
+      await push(messagesRef, {
+        type: 'initiative_turn',
+        text: `It's ${characterName}'s turn!`,
+        username: 'Initiative',
+        characterName,
+        timestamp: Date.now(),
+      })
+    } catch (err) {
+      console.error('Error sending initiative turn:', err)
+      setError(err instanceof Error ? err.message : 'Failed to send initiative turn')
+    }
+  }
+
+  return { messages, loading, error, sendMessage, sendDiceRoll, sendMultiplier, sendSpellCast, sendRollModifier, sendInitiativeTurn, clearMessages }
 }
