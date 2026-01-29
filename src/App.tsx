@@ -24,6 +24,7 @@ import { useStream } from './hooks/useStream'
 import { useVolume } from './hooks/useVolume'
 import { useCharacter } from './hooks/useCharacter'
 import { useSceneNotes } from './hooks/useSceneNotes'
+import { useSceneDaggers } from './hooks/useSceneDaggers'
 import { calculateModifier, calculateProficiencyBonus } from './types/character'
 
 /**
@@ -93,10 +94,13 @@ function App() {
   const { stats: characterStats } = useCharacter()
 
   // Scene notes state
-  const { notes: sceneNotes, connections: sceneConnections, addNote: addSceneNote, removeNote: removeSceneNote, addConnection: addSceneConnection, clearAllNotes: clearSceneNotes } = useSceneNotes()
+  const { notes: sceneNotes, connections: sceneConnections, addNote: addSceneNote, removeNote: removeSceneNote, addConnection: addSceneConnection, removeConnection: removeSceneConnection, clearAllNotes: clearSceneNotes } = useSceneNotes()
   const [showNoteModal, setShowNoteModal] = useState(false)
   const [noteClickPosition, setNoteClickPosition] = useState<{ x: number; y: number; z: number } | null>(null)
   const [connectingFromNoteId, setConnectingFromNoteId] = useState<string | null>(null)
+
+  // Scene daggers state
+  const { daggers: sceneDaggers, addDagger: addSceneDagger, removeDagger: removeSceneDagger, clearAllDaggers: clearSceneDaggers } = useSceneDaggers()
 
   // Track message count changes for unread badge
   const handleMessageCountChange = useCallback((count: number) => {
@@ -378,15 +382,16 @@ function App() {
   }, [connectingFromNoteId, addSceneConnection])
 
   const handleNewSession = () => {
-    if (confirm('Are you sure you want to start a new session? This will clear all chat history, art gallery, and scene notes.')) {
+    if (confirm('Are you sure you want to start a new session? This will clear all chat history, art gallery, scene notes, and daggers.')) {
       if ((window as any).__clearMessages) {
         (window as any).__clearMessages()
       }
       if ((window as any).__clearArtChannel) {
         (window as any).__clearArtChannel()
       }
-      // Clear scene notes
+      // Clear scene notes and daggers
       clearSceneNotes()
+      clearSceneDaggers()
     }
   }
 
@@ -771,11 +776,18 @@ function App() {
             diceResetKey={diceResetKey}
             notes={sceneNotes}
             connections={sceneConnections}
+            daggers={sceneDaggers}
             onBackgroundClick={(pos) => {
               setNoteClickPosition(pos)
               setShowNoteModal(true)
             }}
+            onBackgroundLeftClick={(pos) => {
+              const username = localStorage.getItem('dnd_chat_username') || 'Anonymous'
+              addSceneDagger({ position: pos }, username)
+            }}
             onNoteRemove={removeSceneNote}
+            onConnectionRemove={removeSceneConnection}
+            onDaggerRemove={removeSceneDagger}
             onThumbtackClick={handleThumbtackClick}
             connectingFromNoteId={connectingFromNoteId}
           />

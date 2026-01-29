@@ -263,7 +263,8 @@ export default function ArtifactOrb({ position = [0, 0, 0] }: ArtifactOrbProps) 
     }
   })
 
-  const handleClick = () => {
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Prevent dagger from being thrown
     if (animation) return // Don't interrupt ongoing animation
 
     // Spawn star particles

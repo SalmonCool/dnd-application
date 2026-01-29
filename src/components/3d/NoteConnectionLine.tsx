@@ -10,10 +10,10 @@ import * as THREE from 'three'
 interface NoteConnectionLineProps {
   from: { x: number; y: number; z: number }
   to: { x: number; y: number; z: number }
-  onClick?: () => void
+  onRemove?: () => void
 }
 
-export default function NoteConnectionLine({ from, to, onClick }: NoteConnectionLineProps) {
+export default function NoteConnectionLine({ from, to, onRemove }: NoteConnectionLineProps) {
   // Calculate the cylinder position, rotation, and length
   const { position, rotation, length } = useMemo(() => {
     const start = new THREE.Vector3(from.x, from.y, from.z)
@@ -46,14 +46,19 @@ export default function NoteConnectionLine({ from, to, onClick }: NoteConnection
     }
   }, [from, to])
 
+  const handleRightClick = (e: any) => {
+    e.stopPropagation()
+    // Only delete on shift+right click
+    if (e.nativeEvent?.shiftKey && onRemove && confirm('Delete this connection?')) {
+      onRemove()
+    }
+  }
+
   return (
     <mesh
       position={position}
       rotation={rotation}
-      onClick={(e) => {
-        e.stopPropagation()
-        if (onClick) onClick()
-      }}
+      onContextMenu={handleRightClick}
     >
       <cylinderGeometry args={[0.03, 0.03, length, 8]} />
       <meshStandardMaterial

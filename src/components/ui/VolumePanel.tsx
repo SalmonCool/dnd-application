@@ -108,6 +108,13 @@ export default function VolumePanel({ isOpen, onClose }: VolumePanelProps) {
           onChange={handleVolumeChange('soundboard')}
           icon="📢"
         />
+
+        <VolumeSlider
+          label="Daggers"
+          value={volumes.daggers}
+          onChange={handleVolumeChange('daggers')}
+          icon="🗡️"
+        />
       </div>
     </div>
   )

@@ -280,7 +280,8 @@ export default function SkullArtifact({ position = [0, 0, 0] }: SkullArtifactPro
     }
   })
 
-  const handleClick = () => {
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Prevent dagger from being thrown
     if (animation) return
 
     // Spawn star particles

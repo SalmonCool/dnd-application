@@ -23,9 +23,10 @@ export default function StickyNote3D({
   isConnecting = false,
   isConnectionSource = false,
 }: StickyNote3DProps) {
-  const handleNoteClick = (e: any) => {
+  const handleNoteRightClick = (e: any) => {
     e.stopPropagation()
-    if (onRemove && confirm(`Delete note from ${note.createdBy}?`)) {
+    // Only delete on shift+right click
+    if (e.nativeEvent?.shiftKey && onRemove && confirm(`Delete note from ${note.createdBy}?`)) {
       onRemove(note.id)
     }
   }
@@ -85,7 +86,7 @@ export default function StickyNote3D({
       </group>
 
       {/* Note background */}
-      <mesh onClick={handleNoteClick}>
+      <mesh onContextMenu={handleNoteRightClick}>
         <planeGeometry args={[noteWidth, noteHeight]} />
         <meshStandardMaterial
           color={note.color}

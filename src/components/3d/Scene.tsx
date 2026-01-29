@@ -67,9 +67,11 @@ import ArtifactOrb from './ArtifactOrb'
 import SkullArtifact from './SkullArtifact'
 import StickyNote3D from './StickyNote3D'
 import NoteConnectionLine from './NoteConnectionLine'
+import Dagger3D from './Dagger3D'
 //import { MeshStandardMaterial } from 'three' (currently not in use, replaced with custom MeshWoodMaterial)
 import * as THREE from 'three'
 import type { Note3D, NoteConnection } from '../../types/note'
+import type { Dagger3D as DaggerType } from '../../types/dagger'
 
 
 /**
@@ -91,8 +93,12 @@ interface SceneProps {
   diceResetKey?: number
   notes?: Note3D[]
   connections?: NoteConnection[]
+  daggers?: DaggerType[]
   onBackgroundClick?: (position: { x: number; y: number; z: number }) => void
+  onBackgroundLeftClick?: (position: { x: number; y: number; z: number }) => void
   onNoteRemove?: (noteId: string) => void
+  onConnectionRemove?: (connectionId: string) => void
+  onDaggerRemove?: (daggerId: string) => void
   onThumbtackClick?: (noteId: string) => void
   connectingFromNoteId?: string | null
 }
@@ -167,7 +173,7 @@ function calculateDiceLayouts(count: number): DiceLayout[] {
  * - Our D20 dice
  * - A ground plane for shadows
  */
-export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0, notes = [], connections = [], onBackgroundClick, onNoteRemove, onThumbtackClick, connectingFromNoteId }: SceneProps) {
+export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0, notes = [], connections = [], daggers = [], onBackgroundClick, onBackgroundLeftClick, onNoteRemove, onConnectionRemove, onDaggerRemove, onThumbtackClick, connectingFromNoteId }: SceneProps) {
   // Calculate positions and rotations for all dice
   const layouts = calculateDiceLayouts(diceCount)
 
@@ -388,6 +394,17 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
           rotation={[0, 0, 0]}
           position={[0, 0, -5]}
           receiveShadow={true}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (onBackgroundLeftClick) {
+              const point = e.point
+              onBackgroundLeftClick({
+                x: point.x,
+                y: point.y,
+                z: point.z + 0.1, // Slightly in front of background
+              })
+            }
+          }}
           onContextMenu={(e) => {
             e.stopPropagation()
             // Prevent browser context menu
@@ -444,9 +461,19 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
                 y: toNote.position.y + toThumbY,
                 z: toNote.position.z + 0.05,
               }}
+              onRemove={onConnectionRemove ? () => onConnectionRemove(connection.id) : undefined}
             />
           )
         })}
+
+        {/* Render 3D Daggers */}
+        {daggers.map((dagger) => (
+          <Dagger3D
+            key={dagger.id}
+            dagger={dagger}
+            onRemove={onDaggerRemove}
+          />
+        ))}
       </Suspense>
     </Canvas>
   )
