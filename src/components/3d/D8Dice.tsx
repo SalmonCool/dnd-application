@@ -147,7 +147,8 @@ export default function D8Dice({ position = [0, 0, 0], onRollComplete, onStartRo
     }, 1500)
   }
 
-  const handleClick = () => {
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Prevent dagger from being thrown
     if (isRolling) return
 
     if (onStartRoll) {

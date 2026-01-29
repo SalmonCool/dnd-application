@@ -153,7 +153,8 @@ export default function D4Dice({ position = [0, 0, 0], onRollComplete, onStartRo
   /**
    * Click Handler
    */
-  const handleClick = () => {
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Prevent dagger from being thrown
     if (isRolling) return
 
     if (onStartRoll) {

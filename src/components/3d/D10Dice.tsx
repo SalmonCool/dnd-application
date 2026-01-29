@@ -229,7 +229,8 @@ export default function D10Dice({ position = [0, 0, 0], onRollComplete, onStartR
     }, 1500)
   }
 
-  const handleClick = () => {
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Prevent dagger from being thrown
     if (isRolling) return
 
     if (onStartRoll) {

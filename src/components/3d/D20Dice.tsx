@@ -310,7 +310,8 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartR
    * Click Handler - Called when user clicks the dice
    * Notifies parent to trigger all dice, then rolls this one
    */
-  const handleClick = () => {
+  const handleClick = (e: any) => {
+    e.stopPropagation() // Prevent dagger from being thrown
     if (isRolling) return
 
     // Notify parent that rolling is starting (triggers all dice via rollTrigger)
