@@ -20,11 +20,6 @@ function easeOutQuad(t: number): number {
   return t * (2 - t)
 }
 
-function easeOutElastic(t: number): number {
-  const p = 0.4
-  return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1
-}
-
 export default function Dagger3D({ dagger, onRemove }: Dagger3DProps) {
   const textRef = useRef<THREE.Group>(null)
   const groupRef = useRef<THREE.Group>(null)
