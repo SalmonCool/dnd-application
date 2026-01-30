@@ -1,0 +1,242 @@
+/**
+ * Dice Select and Count Panel Styles
+ * ===================================
+ * Slide-in panels for mobile dice/artifact selection
+ */
+
+/* ==================== */
+/* DICE SELECT PANEL    */
+/* ==================== */
+
+.dice-select-panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  border-right: 3px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.dice-select-panel.open {
+  transform: translateX(0);
+}
+
+.dice-select-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+}
+
+.dice-select-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.3rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dice-select-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.dice-select-section {
+  margin-bottom: 25px;
+}
+
+.dice-select-section h3 {
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 1rem;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e00606;
+}
+
+.dice-select-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.dice-select-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 10px;
+  background: rgba(139, 0, 0, 0.4);
+  border: 2px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dice-select-item:hover,
+.dice-select-item:active {
+  background: rgba(139, 0, 0, 0.7);
+  border-color: #e00606;
+}
+
+.dice-select-item.selected {
+  background: rgba(139, 0, 0, 0.8);
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.dice-select-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.dice-select-label {
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ==================== */
+/* DICE COUNT PANEL     */
+/* ==================== */
+
+.dice-count-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  border-left: 3px solid #e00606;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.dice-count-panel.open {
+  transform: translateX(0);
+}
+
+.dice-count-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 1);
+  border-bottom: 2px solid #e00606;
+}
+
+.dice-count-header h2 {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  font-size: 1.3rem;
+  color: #e00606;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dice-count-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.dice-count-description {
+  color: #888;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.dice-count-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.dice-count-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 15px;
+  background: rgba(139, 0, 0, 0.4);
+  border: 2px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dice-count-item:hover,
+.dice-count-item:active {
+  background: rgba(139, 0, 0, 0.7);
+  border-color: #e00606;
+}
+
+.dice-count-item.selected {
+  background: rgba(139, 0, 0, 0.8);
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.dice-count-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+}
+
+.dice-count-label {
+  color: #888;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* ==================== */
+/* MOBILE OVERRIDES     */
+/* ==================== */
+
+@media (max-width: 768px) {
+  .dice-select-panel,
+  .dice-count-panel {
+    width: 100%;
+    max-width: 100vw;
+    height: calc(100vh);
+    top: 50px;
+    bottom: 0px;
+  }
+
+  .dice-select-panel {
+    border-right: none;
+  }
+
+  .dice-count-panel {
+    border-left: none;
+  }
+
+  .dice-select-grid,
+  .dice-count-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Landscape mode */
+@media (max-width: 768px) and (orientation: landscape) {
+  .dice-select-panel,
+  .dice-count-panel {
+    height: calc(100vh - 40px - 40px);
+    top: 40px;
+    bottom: 40px;
+  }
+}

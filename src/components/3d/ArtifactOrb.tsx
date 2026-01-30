@@ -263,6 +263,15 @@ export default function ArtifactOrb({ position = [0, 0, 0] }: ArtifactOrbProps) 
     }
   })
 
+  // Stop pointer events from reaching the background (prevents dagger throwing)
+  const handlePointerDown = (e: any) => {
+    e.stopPropagation()
+  }
+
+  const handlePointerUp = (e: any) => {
+    e.stopPropagation()
+  }
+
   const handleClick = (e: any) => {
     e.stopPropagation() // Prevent dagger from being thrown
     if (animation) return // Don't interrupt ongoing animation
@@ -311,6 +320,8 @@ export default function ArtifactOrb({ position = [0, 0, 0] }: ArtifactOrbProps) 
       <mesh
         ref={meshRef}
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
         castShadow
       >
         <sphereGeometry args={[0.8, 64, 64]} />

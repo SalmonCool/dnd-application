@@ -310,6 +310,15 @@ export default function D20Dice({ position = [0, 0, 0], onRollComplete, onStartR
    * Click Handler - Called when user clicks the dice
    * Notifies parent to trigger all dice, then rolls this one
    */
+  // Stop pointer events from reaching the background (prevents dagger throwing)
+  const handlePointerDown = (e: any) => {
+    e.stopPropagation()
+  }
+
+  const handlePointerUp = (e: any) => {
+    e.stopPropagation()
+  }
+
   const handleClick = (e: any) => {
     e.stopPropagation() // Prevent dagger from being thrown
     if (isRolling) return
@@ -382,6 +391,8 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
       <mesh
         ref={meshRef}
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
         castShadow
         position={[0, 0.5, 0]}
       >
@@ -483,7 +494,7 @@ const FACE_UP_ROTATIONS: [number, number, number][] = [
        * Always visible text telling the user to click the dice.
        */}
       <Text
-        position={[0, -0.8, 0]}
+        position={[0, -0.3, 0]}
         fontSize={0.15}
         color="#888888"
         anchorX="center"

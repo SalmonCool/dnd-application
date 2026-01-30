@@ -39,7 +39,7 @@ import { Canvas } from '@react-three/fiber'
  * Environment - Adds environmental lighting/reflections for realistic materials
  * PerspectiveCamera - A camera with perspective (things get smaller with distance)
  */
-import { OrbitControls, Environment, PerspectiveCamera, useTexture } from '@react-three/drei'
+import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei'
 
 /**
  * React Suspense
@@ -50,7 +50,7 @@ import { OrbitControls, Environment, PerspectiveCamera, useTexture } from '@reac
  * LEARNING POINT: Without Suspense, your app might show nothing while loading,
  * or crash. Suspense catches the loading state gracefully.
  */
-import { Suspense } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 
 /**
  * Dice Component Imports
@@ -68,8 +68,7 @@ import SkullArtifact from './SkullArtifact'
 import StickyNote3D from './StickyNote3D'
 import NoteConnectionLine from './NoteConnectionLine'
 import Dagger3D from './Dagger3D'
-//import { MeshStandardMaterial } from 'three' (currently not in use, replaced with custom MeshWoodMaterial)
-import * as THREE from 'three'
+import InteractiveBackground from './InteractiveBackground'
 import type { Note3D, NoteConnection } from '../../types/note'
 import type { Dagger3D as DaggerType } from '../../types/dagger'
 
@@ -112,11 +111,11 @@ interface DiceLayout {
 }
 
 /**
- * Calculate positions and rotations for multiple dice
+ * Calculate positions and rotations for multiple dice (Desktop)
  * Arranges dice in up to 2 rows (5 per row) with spacing
  * Dice on left rotate right, dice on right rotate left (toward focal point)
  */
-function calculateDiceLayouts(count: number): DiceLayout[] {
+function calculateDesktopDiceLayouts(count: number): DiceLayout[] {
   const spacing = 2 // Horizontal spacing between dice
   const rowSpacing = 2.3 // Vertical spacing between rows
   const maxRotation = 0.25 // Maximum Y rotation in radians (~14 degrees)
@@ -164,6 +163,71 @@ function calculateDiceLayouts(count: number): DiceLayout[] {
 }
 
 /**
+ * Calculate positions and rotations for multiple dice (Mobile)
+ * Arranges dice in rows of 3, stacked vertically
+ * Dice on left rotate right, dice on right rotate left (toward focal point)
+ */
+function calculateMobileDiceLayouts(count: number): DiceLayout[] {
+  const spacing = 1.8 // Horizontal spacing between dice (tighter for mobile)
+  const rowSpacing = 1.8 // Vertical spacing between rows
+  const maxRotation = 0.15 // Maximum Y rotation in radians
+  const dicePerRow = 3 // 3 dice per row on mobile
+
+  // Calculate total rows needed
+  const totalRows = Math.ceil(count / dicePerRow)
+
+  // Move dice back based on count - more dice = further back to fit on screen
+  // Single die stays at 0, then scale back based on row count
+  let baseZ = 0
+  if (count > 1) {
+    baseZ = -3 - (totalRows * 0.4) // Push back more as rows increase
+  }
+
+  // Offset to center the grid vertically
+  const verticalOffset = ((totalRows - 1) * rowSpacing) / 2
+
+  return Array.from({ length: count }, (_, i) => {
+    const row = Math.floor(i / dicePerRow) // 3 dice per row
+    const col = i % dicePerRow // Position within row (0-2)
+
+    // Calculate how many dice are in this row
+    const isLastRow = row === totalRows - 1
+    const diceInThisRow = isLastRow ? count - (row * dicePerRow) : dicePerRow
+
+    // Center the row horizontally
+    const rowWidth = (diceInThisRow - 1) * spacing
+    const startX = -rowWidth / 2
+
+    const x = startX + col * spacing
+    const y = verticalOffset - (row * rowSpacing) // Start from top, go down
+    const z = baseZ
+
+    // Calculate Y rotation toward focal point (center)
+    let rotationY = 0
+    if (count > 1 && diceInThisRow > 1) {
+      const centerCol = (diceInThisRow - 1) / 2
+      const normalizedPos = (col - centerCol) / centerCol
+      rotationY = -normalizedPos * maxRotation
+    }
+
+    return {
+      position: [x, y, z] as [number, number, number],
+      rotation: [0, rotationY, 0] as [number, number, number]
+    }
+  })
+}
+
+/**
+ * Calculate dice layouts based on device type
+ */
+function calculateDiceLayouts(count: number, isMobile: boolean): DiceLayout[] {
+  if (isMobile) {
+    return calculateMobileDiceLayouts(count)
+  }
+  return calculateDesktopDiceLayouts(count)
+}
+
+/**
  * Scene Component
  * ---------------
  * Sets up the complete 3D scene with:
@@ -174,29 +238,30 @@ function calculateDiceLayouts(count: number): DiceLayout[] {
  * - A ground plane for shadows
  */
 export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0, notes = [], connections = [], daggers = [], onBackgroundClick, onBackgroundLeftClick, onNoteRemove, onConnectionRemove, onDaggerRemove, onThumbtackClick, connectingFromNoteId }: SceneProps) {
+  // Track if device is mobile for responsive dice layout
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth <= 768
+  })
+
+  // Update mobile state on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   // Calculate positions and rotations for all dice
-  const layouts = calculateDiceLayouts(diceCount)
+  const layouts = calculateDiceLayouts(diceCount, isMobile)
 
   // Create wrapper for onRollComplete that includes index
   const createRollHandler = (index: number) => (value: number) => {
     if (onRollComplete) {
       onRollComplete(value, index)
     }
-  }
-
-  //Create function for that will load mesh standard material with wood texture
-  function MeshWoodMaterial() {
-    /* Load Wood Texture for later use on mesh materials. */
-    const woodTexture = useTexture('/textures/wood-texture-rectangle.png')
-
-    /* Set texture to be repeating */
-    woodTexture.wrapS = THREE.RepeatWrapping
-    woodTexture.wrapT = THREE.RepeatWrapping
-    woodTexture.repeat.set(3, 3)
-
-    return(
-      <meshStandardMaterial map={woodTexture} color="#916f6f" roughness={0.7} metalness={0}/>
-    )
   }
 
   return (
@@ -228,7 +293,7 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
        *   - y: down (-) to up (+)
        *   - z: into screen (-) to toward viewer (+)
        */}
-      <PerspectiveCamera makeDefault position={[0, 0, 5]} />
+      <PerspectiveCamera makeDefault position={[0, 0, isMobile ? 7 : 5]} />
 
       {/**
        * OrbitControls
@@ -385,46 +450,16 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
         )}
 
         {/**
-         * Ground Plane
-         * ------------
-         * A flat surface to catch shadows and give visual grounding.
-         * Clicking on it allows users to add notes.
+         * Interactive Background
+         * ----------------------
+         * A flat surface that handles both desktop and mobile interactions:
+         * - Desktop: Left-click = dagger, Right-click = notes
+         * - Mobile: Tap = dagger, Long-press = notes
          */}
-        <mesh
-          rotation={[0, 0, 0]}
-          position={[0, 0, -5]}
-          receiveShadow={true}
-          onClick={(e) => {
-            e.stopPropagation()
-            if (onBackgroundLeftClick) {
-              const point = e.point
-              onBackgroundLeftClick({
-                x: point.x,
-                y: point.y,
-                z: point.z + 0.1, // Slightly in front of background
-              })
-            }
-          }}
-          onContextMenu={(e) => {
-            e.stopPropagation()
-            // Prevent browser context menu
-            if (e.nativeEvent) {
-              e.nativeEvent.preventDefault()
-            }
-            if (onBackgroundClick) {
-              // Get the intersection point in world coordinates
-              const point = e.point
-              onBackgroundClick({
-                x: point.x,
-                y: point.y,
-                z: point.z + 0.1, // Slightly in front of background
-              })
-            }
-          }}
-        >
-          <planeGeometry args={[64, 34]} />
-          <MeshWoodMaterial/>
-        </mesh>
+        <InteractiveBackground
+          onLeftClick={onBackgroundLeftClick}
+          onRightClick={onBackgroundClick}
+        />
 
         {/* Render 3D Sticky Notes */}
         {notes.map((note) => (

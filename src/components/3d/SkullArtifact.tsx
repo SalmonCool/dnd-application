@@ -280,6 +280,15 @@ export default function SkullArtifact({ position = [0, 0, 0] }: SkullArtifactPro
     }
   })
 
+  // Stop pointer events from reaching the background (prevents dagger throwing)
+  const handlePointerDown = (e: any) => {
+    e.stopPropagation()
+  }
+
+  const handlePointerUp = (e: any) => {
+    e.stopPropagation()
+  }
+
   const handleClick = (e: any) => {
     e.stopPropagation() // Prevent dagger from being thrown
     if (animation) return
@@ -330,7 +339,7 @@ export default function SkullArtifact({ position = [0, 0, 0] }: SkullArtifactPro
       </mesh>
 
       {/* Skull group */}
-      <group ref={groupRef} onClick={handleClick}>
+      <group ref={groupRef} onClick={handleClick} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
         {/* Cranium - main skull shape (low poly) with animated shader */}
         <mesh castShadow position={[0, 0.15, 0]}>
           <sphereGeometry args={[0.55, 8, 6]} />

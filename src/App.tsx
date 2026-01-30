@@ -19,7 +19,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel, NoteInputModal } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel, NoteInputModal, MobileMenu, DiceSelectPanel, DiceCountPanel, LandscapeWarning } from './components/ui'
+import { useIsMobile } from './hooks/useIsMobile'
 import { useStream } from './hooks/useStream'
 import { useVolume } from './hooks/useVolume'
 import { useCharacter } from './hooks/useCharacter'
@@ -51,6 +52,9 @@ type SelectionType = DiceType | 'artifacts'
 type ArtifactType = 'orb' | 'skull' | null
 
 function App() {
+  // Mobile detection
+  const isMobile = useIsMobile()
+
   // State for roll value display and multiplier
   const [displayValue, setDisplayValue] = useState<number | null>(null)
   const [multiplier, setMultiplier] = useState(1)
@@ -68,6 +72,10 @@ function App() {
   const [initiativeOpen, setInitiativeOpen] = useState(false)
   const [characterOpen, setCharacterOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
+
+  // Mobile panel state
+  const [diceSelectPanelOpen, setDiceSelectPanelOpen] = useState(false)
+  const [diceCountPanelOpen, setDiceCountPanelOpen] = useState(false)
 
   // Volume control hook (exposes __getVolume on window)
   useVolume()
@@ -531,6 +539,12 @@ function App() {
             Logout
           </button>
         </div>
+        <MobileMenu
+          onNewSession={handleNewSession}
+          onResetStream={handleResetStream}
+          onResetMusicLead={handleResetMusicLead}
+          onLogout={handleLogout}
+        />
       </header>
 
       {/**
@@ -544,14 +558,20 @@ function App() {
         <aside className="dice-sidebar">
           {/* Artifacts Button - Above dice */}
           <button
-            className={`dice-icon ${selectedDice === 'artifacts' || artifactMenuOpen ? 'selected' : ''}`}
+            className={`dice-icon ${selectedDice === 'artifacts' || artifactMenuOpen || diceSelectPanelOpen ? 'selected' : ''}`}
             onClick={() => {
-              if (artifactMenuOpen) {
-                setArtifactMenuOpen(false)
+              if (isMobile) {
+                // On mobile, open the panel
+                setDiceSelectPanelOpen(true)
               } else {
-                setArtifactMenuOpen(true)
-                setDiceMenuOpen(false)
-                handleDiceTypeChange('artifacts')
+                // On desktop, use the submenu
+                if (artifactMenuOpen) {
+                  setArtifactMenuOpen(false)
+                } else {
+                  setArtifactMenuOpen(true)
+                  setDiceMenuOpen(false)
+                  handleDiceTypeChange('artifacts')
+                }
               }
             }}
             title="Mystical Artifacts"
@@ -559,48 +579,56 @@ function App() {
             <span className="dice-label">🔮</span>
           </button>
 
-          {/* Artifact Submenu */}
-          <div className={`dice-submenu artifact-submenu ${artifactMenuOpen ? 'open' : ''}`}>
-            <button
-              className={`dice-submenu-item ${selectedArtifact === 'orb' ? 'selected' : ''}`}
-              onClick={() => { setSelectedArtifact('orb'); setArtifactMenuOpen(false); }}
-              title="Orb Of Oddlings"
-            >
-              🔮
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedArtifact === 'skull' ? 'selected' : ''}`}
-              onClick={() => { setSelectedArtifact('skull'); setArtifactMenuOpen(false); }}
-              title="Skull of Chattering"
-            >
-              💀
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedArtifact === null ? 'selected' : ''}`}
-              onClick={() => { setSelectedArtifact(null); setArtifactMenuOpen(false); }}
-              title="Cloak of Invisibility"
-            >
-              👻
-            </button>
-          </div>
+          {/* Artifact Submenu (desktop only) */}
+          {!isMobile && (
+            <div className={`dice-submenu artifact-submenu ${artifactMenuOpen ? 'open' : ''}`}>
+              <button
+                className={`dice-submenu-item ${selectedArtifact === 'orb' ? 'selected' : ''}`}
+                onClick={() => { setSelectedArtifact('orb'); setArtifactMenuOpen(false); }}
+                title="Orb Of Oddlings"
+              >
+                🔮
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedArtifact === 'skull' ? 'selected' : ''}`}
+                onClick={() => { setSelectedArtifact('skull'); setArtifactMenuOpen(false); }}
+                title="Skull of Chattering"
+              >
+                💀
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedArtifact === null ? 'selected' : ''}`}
+                onClick={() => { setSelectedArtifact(null); setArtifactMenuOpen(false); }}
+                title="Cloak of Invisibility"
+              >
+                👻
+              </button>
+            </div>
+          )}
 
           <div className="sidebar-divider" />
 
           {/* Dice Menu Button */}
           <button
-            className={`dice-icon ${diceMenuOpen || (selectedDice && selectedDice !== 'artifacts') ? 'selected' : ''}`}
+            className={`dice-icon ${diceMenuOpen || diceSelectPanelOpen || (selectedDice && selectedDice !== 'artifacts') ? 'selected' : ''}`}
             onClick={() => {
-              if (diceMenuOpen) {
-                // Closing menu - also deselect dice to retract count bar
-                setDiceMenuOpen(false)
-                setSelectedDice('artifacts')
-                setDiceResetKey(prev => prev + 1)
-                setDisplayValue(null)
-                setDiceResults([])
+              if (isMobile) {
+                // On mobile, open the panel
+                setDiceSelectPanelOpen(true)
               } else {
-                // Opening menu - close artifact menu
-                setDiceMenuOpen(true)
-                setArtifactMenuOpen(false)
+                // On desktop, use the submenu
+                if (diceMenuOpen) {
+                  // Closing menu - also deselect dice to retract count bar
+                  setDiceMenuOpen(false)
+                  setSelectedDice('artifacts')
+                  setDiceResetKey(prev => prev + 1)
+                  setDisplayValue(null)
+                  setDiceResults([])
+                } else {
+                  // Opening menu - close artifact menu
+                  setDiceMenuOpen(true)
+                  setArtifactMenuOpen(false)
+                }
               }
             }}
             title="Dice Menu"
@@ -608,51 +636,53 @@ function App() {
             <span className="dice-label">🎲</span>
           </button>
 
-          {/* Dice Submenu */}
-          <div className={`dice-submenu ${diceMenuOpen ? 'open' : ''}`}>
-            <button
-              className={`dice-submenu-item ${selectedDice === 'd4' ? 'selected' : ''}`}
-              onClick={() => { handleDiceTypeChange('d4'); setDiceMenuOpen(false); }}
-              title="D4 - Four-sided die"
-            >
-              D4
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedDice === 'd6' ? 'selected' : ''}`}
-              onClick={() => { handleDiceTypeChange('d6'); setDiceMenuOpen(false); }}
-              title="D6 - Six-sided die"
-            >
-              D6
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedDice === 'd8' ? 'selected' : ''}`}
-              onClick={() => { handleDiceTypeChange('d8'); setDiceMenuOpen(false); }}
-              title="D8 - Eight-sided die"
-            >
-              D8
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedDice === 'd10' ? 'selected' : ''}`}
-              onClick={() => { handleDiceTypeChange('d10'); setDiceMenuOpen(false); }}
-              title="D10 - Ten-sided die"
-            >
-              D10
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedDice === 'd12' ? 'selected' : ''}`}
-              onClick={() => { handleDiceTypeChange('d12'); setDiceMenuOpen(false); }}
-              title="D12 - Twelve-sided die"
-            >
-              D12
-            </button>
-            <button
-              className={`dice-submenu-item ${selectedDice === 'd20' ? 'selected' : ''}`}
-              onClick={() => { handleDiceTypeChange('d20'); setDiceMenuOpen(false); }}
-              title="D20 - Twenty-sided die"
-            >
-              D20
-            </button>
-          </div>
+          {/* Dice Submenu (desktop only) */}
+          {!isMobile && (
+            <div className={`dice-submenu ${diceMenuOpen ? 'open' : ''}`}>
+              <button
+                className={`dice-submenu-item ${selectedDice === 'd4' ? 'selected' : ''}`}
+                onClick={() => { handleDiceTypeChange('d4'); setDiceMenuOpen(false); }}
+                title="D4 - Four-sided die"
+              >
+                D4
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedDice === 'd6' ? 'selected' : ''}`}
+                onClick={() => { handleDiceTypeChange('d6'); setDiceMenuOpen(false); }}
+                title="D6 - Six-sided die"
+              >
+                D6
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedDice === 'd8' ? 'selected' : ''}`}
+                onClick={() => { handleDiceTypeChange('d8'); setDiceMenuOpen(false); }}
+                title="D8 - Eight-sided die"
+              >
+                D8
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedDice === 'd10' ? 'selected' : ''}`}
+                onClick={() => { handleDiceTypeChange('d10'); setDiceMenuOpen(false); }}
+                title="D10 - Ten-sided die"
+              >
+                D10
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedDice === 'd12' ? 'selected' : ''}`}
+                onClick={() => { handleDiceTypeChange('d12'); setDiceMenuOpen(false); }}
+                title="D12 - Twelve-sided die"
+              >
+                D12
+              </button>
+              <button
+                className={`dice-submenu-item ${selectedDice === 'd20' ? 'selected' : ''}`}
+                onClick={() => { handleDiceTypeChange('d20'); setDiceMenuOpen(false); }}
+                title="D20 - Twenty-sided die"
+              >
+                D20
+              </button>
+            </div>
+          )}
 
           {/* Initiative Button */}
           <button
@@ -739,20 +769,22 @@ function App() {
           </button>
         </aside>
 
-        {/* Dice Count Bar - slides in when dice is selected */}
-        <div className={`dice-count-bar ${selectedDice && selectedDice !== 'artifacts' ? 'visible' : ''}`}>
-          <span className="count-label">Roll</span>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-            <button
-              key={n}
-              className={`count-button ${diceCount === n ? 'selected' : ''}`}
-              onClick={() => handleDiceCountChange(n)}
-              title={`Roll ${n} ${selectedDice}${n > 1 ? 's' : ''}`}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
+        {/* Dice Count Bar - slides in when dice is selected (desktop only) */}
+        {!isMobile && (
+          <div className={`dice-count-bar ${selectedDice && selectedDice !== 'artifacts' ? 'visible' : ''}`}>
+            <span className="count-label">Roll</span>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+              <button
+                key={n}
+                className={`count-button ${diceCount === n ? 'selected' : ''}`}
+                onClick={() => handleDiceCountChange(n)}
+                title={`Roll ${n} ${selectedDice}${n > 1 ? 's' : ''}`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/**
          * 3D Scene Container
@@ -798,6 +830,9 @@ function App() {
       <div className="multiplier-container">
         <div className="multiply-label">Multiply</div>
         <div className="multiply-reset-button-container">
+          {multiplier > 1 && (
+            <span className="multiplier-display">Current: {multiplier}x</span>
+          )}
           <button
             className="reset-button"
             onClick={handleResetMultiplier}
@@ -807,9 +842,6 @@ function App() {
             Reset
           </button>
           <div className="multiply-buttons">
-            {multiplier > 1 && (
-              <span className="multiplier-display">Current: {multiplier}x</span>
-            )}
             {[2, 3, 4, 5, 6].map((factor) => (
               <button
                 key={factor}
@@ -924,6 +956,32 @@ function App() {
       {/* Character Panel */}
       <CharacterPanel isOpen={characterOpen} onClose={() => setCharacterOpen(false)} />
 
+      {/* Mobile Dice/Artifact Select Panel */}
+      <DiceSelectPanel
+        isOpen={diceSelectPanelOpen}
+        onClose={() => setDiceSelectPanelOpen(false)}
+        selectedDice={selectedDice}
+        selectedArtifact={selectedArtifact}
+        onDiceSelect={(dice) => {
+          handleDiceTypeChange(dice)
+          // On mobile, also open the dice count panel
+          setDiceCountPanelOpen(true)
+        }}
+        onArtifactSelect={(artifact) => {
+          setSelectedArtifact(artifact)
+          setSelectedDice('artifacts')
+        }}
+      />
+
+      {/* Mobile Dice Count Panel */}
+      <DiceCountPanel
+        isOpen={diceCountPanelOpen}
+        onClose={() => setDiceCountPanelOpen(false)}
+        selectedDice={selectedDice !== 'artifacts' ? selectedDice as DiceType : null}
+        diceCount={diceCount}
+        onCountSelect={handleDiceCountChange}
+      />
+
       {/* Screen Select Modal */}
       {showStreamModal && (
         <ScreenSelectModal
@@ -956,6 +1014,9 @@ function App() {
 
       {/* Hidden soundboard player for all players */}
       <SoundboardPlayer />
+
+      {/* Landscape orientation warning for mobile */}
+      <LandscapeWarning />
     </div>
   )
 }

@@ -1,0 +1,876 @@
+/**
+ * Mobile.css - Mobile-Specific Styles
+ * ====================================
+ * Responsive styles for mobile devices
+ */
+
+/* Mobile breakpoint: 768px and below */
+@media (max-width: 768px) {
+  /**
+   * Header - Fixed at top for mobile
+   */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    padding: 0 10px;
+    z-index: 1000;
+  }
+
+  /**
+   * Main content - Add top margin to account for fixed header
+   */
+  .main {
+    margin-top: 50px;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+
+  .header-buttons {
+    display: none; /* Hide header buttons on mobile - will add a menu later */
+  }
+
+  /**
+   * Main Layout
+   */
+  .main {
+    flex-direction: column;
+  }
+
+  /**
+   * Sidebar - Convert to bottom navigation
+   */
+  .dice-sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    border-right: none;
+    border-top: 2px solid #e00606;
+    z-index: 1000;
+    max-height: 70px;
+    overflow-x: auto;
+  }
+
+  .dice-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  .dice-label {
+    font-size: 16px;
+  }
+
+  .sidebar-divider {
+    display: none; /* Hide dividers on mobile */
+  }
+
+  /**
+   * Hide desktop submenus on mobile - using panels instead
+   */
+  .dice-submenu,
+  .dice-count-bar {
+    display: none !important;
+  }
+
+  /**
+   * Scene Container - Full height minus header and bottom nav
+   */
+  .scene-container {
+    height: calc(100vh - 50px - 70px);
+    margin-bottom: 70px;
+  }
+
+  /**
+   * Panels - Full screen overlays on mobile (above bottom nav bar)
+   */
+  .chat-panel,
+  .stream-panel,
+  .playlist-panel,
+  .spellbook-panel,
+  .volume-panel,
+  .notes-panel,
+  .soundboard-panel,
+  .initiative-panel,
+  .character-panel {
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: calc(100vh - 50px - 40px) !important;
+    top: 50px !important;
+    bottom: 40px !important;
+    border-left: none !important;
+    border-radius: 0 !important;
+    z-index: 1001 !important;
+  }
+
+  /**
+   * Left-sliding Panels - Need full-width transform on mobile
+   */
+  .chat-panel,
+  .initiative-panel {
+    left: 0 !important;
+    transform: translateX(-100%) !important;
+    z-index: 1001 !important;
+  }
+
+  .chat-panel.open,
+  .initiative-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /**
+   * Right-sliding Panels - Need full-width transform on mobile
+   */
+  .playlist-panel,
+  .soundboard-panel,
+  .spellbook-panel {
+    right: 0 !important;
+    transform: translateX(100%) !important;
+  }
+
+  .playlist-panel.open,
+  .soundboard-panel.open,
+  .spellbook-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /**
+   * Playlist Panel - Smaller player area on mobile
+   */
+  .playlist-player-container {
+    min-height: 80px !important;
+    padding: 6px !important;
+  }
+
+  .playlist-player-container iframe,
+  .playlist-player-container video {
+    max-height: 60px !important;
+  }
+
+  .now-playing {
+    padding: 6px 10px !important;
+  }
+
+  .now-playing-label {
+    font-size: 10px !important;
+  }
+
+  .now-playing-title {
+    font-size: 12px !important;
+  }
+
+  .music-lead-controls {
+    padding: 6px 10px !important;
+  }
+
+  .music-lead-status {
+    font-size: 11px !important;
+  }
+
+  .add-track-form {
+    padding: 10px !important;
+    gap: 6px !important;
+  }
+
+  .url-input,
+  .title-input {
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+  }
+
+  /**
+   * Notes Panel - Slide from left on mobile (not bottom)
+   */
+  .notes-panel {
+    left: 0 !important;
+    right: auto !important;
+    top: 50px !important;
+    bottom: 70px !important;
+    transform: translateX(-100%) !important;
+    border-top: none !important;
+    border-right: 2px solid #e00606 !important;
+  }
+
+  .notes-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /**
+   * Notes Panel - Smaller sidebar on mobile
+   */
+  .notes-sidebar {
+    width: 120px !important;
+  }
+
+  .notes-sidebar-header {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .notes-add-page-btn {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 14px !important;
+  }
+
+  .notes-page-item {
+    padding: 8px 10px !important;
+  }
+
+  .notes-page-title {
+    font-size: 11px !important;
+  }
+
+  .notes-content {
+    padding: 10px !important;
+  }
+
+  .notes-content-header h3 {
+    font-size: 1rem !important;
+  }
+
+  .notes-editor {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+
+  /**
+   * Character Panel - Slide from left on mobile (not bottom)
+   */
+  .character-panel {
+    left: 0 !important;
+    right: auto !important;
+    top: 50px !important;
+    bottom: 0px !important;
+    height: auto !important;
+    transform: translateX(-100%) !important;
+    border-top: none !important;
+    border-right: 2px solid #e00606 !important;
+    padding-bottom: 10px !important;
+  }
+
+  .character-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /**
+   * Character Panel - Scrollable content and visible reset button
+   */
+  .character-content {
+    overflow-y: auto !important;
+    padding: 10px !important;
+  }
+
+  .stats-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 15px !important;
+  }
+
+  .stats-grid {
+    gap: 10px !important;
+  }
+
+  .stats-divider {
+    width: 80% !important;
+    height: 2px !important;
+    margin: 5px 0 !important;
+  }
+
+  .stat-block {
+    width: 70px !important;
+  }
+
+  .character-footer {
+    padding: 15px 10px !important;
+    margin-top: 10px !important;
+  }
+
+  .reset-stats-button {
+    padding: 12px 24px !important;
+    font-size: 14px !important;
+  }
+
+  /**
+   * Volume Panel - Slide from left on mobile (full height)
+   */
+  .volume-panel {
+    left: 0 !important;
+    right: auto !important;
+    top: 50px !important;
+    bottom: 0px !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: translateX(-100%) !important;
+    border: none !important;
+    border-right: 2px solid #e00606 !important;
+    border-radius: 0 !important;
+  }
+
+  .volume-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /**
+   * Panel Headers - Adjusted for mobile
+   */
+  .chat-header,
+  .stream-header,
+  .playlist-header,
+  .spellbook-header,
+  .volume-header,
+  .notes-header,
+  .soundboard-header,
+  .initiative-header,
+  .character-header {
+    padding: 12px 15px;
+  }
+
+  .chat-header h2,
+  .stream-header h2,
+  .playlist-header h2,
+  .spellbook-header h2,
+  .volume-header h2,
+  .notes-header h2,
+  .soundboard-header h2,
+  .initiative-header h2,
+  .character-header h2 {
+    font-size: 1.2rem;
+  }
+
+  /**
+   * Close buttons - Larger touch targets
+   */
+  .close-button {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  /**
+   * Multiplier Container - Reposition for mobile
+   */
+  .multiplier-container {
+    position: fixed;
+    bottom: 80px;
+    right: 10px;
+    left: auto;
+    transform: none;
+  }
+
+  .multiply-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .multiply-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /**
+   * Modifier Bar - Bottom left corner above bottom bar on mobile
+   */
+  .modifier-bar {
+    position: fixed;
+    bottom: 90px;
+    left: 10px;
+    right: auto;
+    transform: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+    padding: 8px 10px;
+    max-width: 55vw;
+    background: rgba(0, 0, 0, 0.95);
+    border-radius: 6px;
+    z-index: 999;
+  }
+
+  /**
+   * Multiplier Container - Bottom right corner above bottom bar on mobile
+   */
+  .multiplier-container {
+    position: fixed;
+    bottom: 90px;
+    right: 10px;
+    left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #e00606;
+    border-radius: 6px;
+    z-index: 999;
+  }
+
+  .multiply-label {
+    display: none;
+  }
+
+  .multiply-reset-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .reset-button {
+    padding: 3px 10px;
+    font-size: 9px;
+    order: 2;
+  }
+
+  .multiply-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    order: 3;
+  }
+
+  .multiplier-display {
+    font-size: 9px;
+    padding: 4px 10px;
+    background: rgba(139, 0, 0, 0.5);
+    border: 1px solid #e00606;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-align: center;
+    order: 1;
+    width: auto;
+    flex-basis: auto;
+    margin: 0;
+  }
+
+  .multiply-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    max-width: 28px;
+    padding: 0;
+    font-size: 9px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .modifier-input-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .modifier-input-group label {
+    font-size: 10px;
+    min-width: 30px;
+  }
+
+  .flat-modifier-input,
+  .bonus-die-select {
+    padding: 4px 6px;
+    font-size: 11px;
+    flex: 1;
+    max-width: 70px;
+  }
+
+  .flat-modifier-input {
+    width: 50px;
+  }
+
+  .modifier-input-group label {
+    font-size: 10px;
+  }
+
+  .flat-modifier-input,
+  .bonus-die-select {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  /**
+   * Note Input Modal - Mobile optimized
+   */
+  .note-input-modal {
+    width: 95%;
+    max-width: none;
+    margin: 10px;
+  }
+
+  .note-textarea {
+    height: 80px;
+  }
+
+  /**
+   * Chat Messages - Adjusted for mobile
+   */
+  .chat-messages {
+    padding: 10px;
+  }
+
+  .chat-message {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /**
+   * Chat Input - Larger for mobile typing
+   */
+  .chat-input-container {
+    padding: 10px;
+  }
+
+  .chat-input {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    padding: 12px;
+  }
+
+  /**
+   * Volume Sliders - Larger touch targets
+   */
+  .volume-slider {
+    height: 8px;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  /**
+   * Touch Hint Overlay
+   */
+  .touch-hint {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffd700;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'Georgia', serif;
+    border: 1px solid #e00606;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .touch-hint.visible {
+    opacity: 1;
+  }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1rem;
+  }
+
+  .dice-sidebar {
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .dice-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dice-label {
+    font-size: 14px;
+  }
+
+  /* Keep modifier bar and multiplier visible but more compact on small screens */
+  .modifier-bar {
+    bottom: 90px;
+    padding: 6px 8px;
+    gap: 3px 6px;
+    max-width: 50vw;
+  }
+
+  .modifier-input-group label {
+    font-size: 9px;
+    min-width: 24px;
+  }
+
+  .flat-modifier-input,
+  .bonus-die-select {
+    padding: 4px 5px;
+    font-size: 10px;
+    max-width: 55px;
+  }
+
+  .flat-modifier-input {
+    width: 38px;
+  }
+
+  .multiplier-container {
+    padding: 5px 6px;
+  }
+
+  .multiply-button {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    max-width: 24px;
+    font-size: 8px;
+  }
+
+  .reset-button {
+    padding: 2px 10px;
+    font-size: 8px;
+  }
+}
+
+/**
+ * Mobile Menu
+ */
+.mobile-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu {
+    display: block;
+  }
+
+  .mobile-menu-toggle {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 24px;
+  }
+
+  .hamburger span {
+    display: block;
+    height: 3px;
+    background: #ffd700;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .hamburger.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 6px);
+  }
+
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -6px);
+  }
+
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .mobile-menu-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-left: 2px solid #e00606;
+    width: 250px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-menu-item {
+    padding: 15px;
+    background: rgba(139, 0, 0, 0.6);
+    border: 2px solid #555;
+    border-radius: 8px;
+    color: #ffd700;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+  }
+
+  .mobile-menu-item:hover,
+  .mobile-menu-item:active {
+    background: rgba(139, 0, 0, 0.9);
+    border-color: #e00606;
+  }
+
+  .mobile-menu-item.logout {
+    background: rgba(75, 75, 75, 0.6);
+    color: #ccc;
+  }
+
+  .mobile-menu-item.logout:hover,
+  .mobile-menu-item.logout:active {
+    background: rgba(75, 75, 75, 0.9);
+    border-color: #888;
+    color: #fff;
+  }
+
+  .mobile-menu-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #e00606, transparent);
+    margin: 10px 0;
+  }
+}
+
+/**
+ * Landscape Warning Overlay
+ */
+.landscape-warning {
+  display: none;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .landscape-warning {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .landscape-warning-content {
+    text-align: center;
+    padding: 30px;
+  }
+
+  .landscape-warning-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: tilt 1s ease-in-out infinite;
+  }
+
+  @keyframes tilt {
+    0%, 100% { transform: rotate(-15deg); }
+    50% { transform: rotate(15deg); }
+  }
+
+  .landscape-warning h2 {
+    color: #ffd700;
+    font-family: 'Georgia', serif;
+    font-size: 24px;
+    margin: 0 0 15px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .landscape-warning p {
+    color: #ccc;
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+
+  .landscape-warning-arrow {
+    font-size: 48px;
+    color: #e00606;
+    animation: rotate-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes rotate-hint {
+    0%, 100% { transform: rotate(0deg); opacity: 1; }
+    50% { transform: rotate(90deg); opacity: 0.6; }
+  }
+}
+
+/* Landscape mode adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    z-index: 1000;
+  }
+
+  .main {
+    margin-top: 40px;
+  }
+
+  .header h1 {
+    font-size: 1rem;
+  }
+
+  .dice-sidebar {
+    max-height: 50px;
+    padding: 4px;
+  }
+
+  .dice-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .scene-container {
+    height: calc(100vh - 40px - 50px);
+    margin-bottom: 50px;
+  }
+
+  .chat-panel,
+  .stream-panel,
+  .playlist-panel,
+  .spellbook-panel,
+  .volume-panel,
+  .notes-panel,
+  .soundboard-panel,
+  .initiative-panel,
+  .character-panel {
+    height: calc(100vh - 40px - 50px) !important;
+    top: 40px !important;
+    bottom: 50px !important;
+  }
+
+  .notes-panel,
+  .character-panel,
+  .volume-panel {
+    top: 40px !important;
+    bottom: 50px !important;
+  }
+}

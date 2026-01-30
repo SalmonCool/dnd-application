@@ -50,6 +50,47 @@ export function useSceneDaggers() {
     }
   }, [])
 
+  // Periodic cleanup: ensure each player has only one dagger (keep most recent)
+  useEffect(() => {
+    const cleanupDuplicateDaggers = async () => {
+      if (daggers.length < 2) return
+
+      // Group daggers by player
+      const daggersByPlayer = new Map<string, Dagger3D[]>()
+      for (const dagger of daggers) {
+        const playerDaggers = daggersByPlayer.get(dagger.createdBy) || []
+        playerDaggers.push(dagger)
+        daggersByPlayer.set(dagger.createdBy, playerDaggers)
+      }
+
+      // Find and remove duplicates (keep most recent per player)
+      for (const [, playerDaggers] of daggersByPlayer) {
+        if (playerDaggers.length > 1) {
+          // Sort by createdAt descending (most recent first)
+          playerDaggers.sort((a, b) => b.createdAt - a.createdAt)
+
+          // Remove all except the most recent
+          for (let i = 1; i < playerDaggers.length; i++) {
+            try {
+              const daggerRef = ref(database, `sceneDaggers/${playerDaggers[i].id}`)
+              await remove(daggerRef)
+              console.log(`Cleaned up duplicate dagger for ${playerDaggers[i].createdBy}`)
+            } catch (err) {
+              console.error('Error cleaning up duplicate dagger:', err)
+            }
+          }
+        }
+      }
+    }
+
+    // Run cleanup every 2 seconds
+    const intervalId = setInterval(cleanupDuplicateDaggers, 2000)
+
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [daggers])
+
   const addDagger = async (input: DaggerInput, username: string): Promise<void> => {
     try {
       // Remove any existing dagger by this user (one dagger per user)
