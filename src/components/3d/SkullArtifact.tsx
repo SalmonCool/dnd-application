@@ -94,9 +94,7 @@ function GreenStar({ position, opacity, scale }: { position: Vector3; opacity: n
 
 // Voicelines for the skull - spooky themed
 const SKULL_VOICELINES = [
-  '/sounds/artifacts/skull/laugh1.mp3',
-  '/sounds/artifacts/skull/laugh2.mp3',
-  '/sounds/artifacts/skull/spooky1.mp3',
+  '/sounds/artifacts/skull/BadToTheBone.mp3',
 ]
 
 // Animation types
