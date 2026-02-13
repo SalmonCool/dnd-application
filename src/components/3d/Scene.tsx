@@ -69,6 +69,8 @@ import StickyNote3D from './StickyNote3D'
 import NoteConnectionLine from './NoteConnectionLine'
 import Dagger3D from './Dagger3D'
 import InteractiveBackground from './InteractiveBackground'
+import SnowParticles from './SnowParticles'
+import EmberParticles from './EmberParticles'
 import type { Note3D, NoteConnection } from '../../types/note'
 import type { Dagger3D as DaggerType } from '../../types/dagger'
 
@@ -77,6 +79,7 @@ import type { Dagger3D as DaggerType } from '../../types/dagger'
  * Artifact type
  */
 type ArtifactType = 'orb' | 'skull' | null
+type AtmosphereType = 'none' | 'winter' | 'ember'
 
 /**
  * Scene Props Interface
@@ -100,6 +103,7 @@ interface SceneProps {
   onDaggerRemove?: (daggerId: string) => void
   onThumbtackClick?: (noteId: string) => void
   connectingFromNoteId?: string | null
+  atmosphere?: AtmosphereType
 }
 
 /**
@@ -237,7 +241,7 @@ function calculateDiceLayouts(count: number, isMobile: boolean): DiceLayout[] {
  * - Our D20 dice
  * - A ground plane for shadows
  */
-export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0, notes = [], connections = [], daggers = [], onBackgroundClick, onBackgroundLeftClick, onNoteRemove, onConnectionRemove, onDaggerRemove, onThumbtackClick, connectingFromNoteId }: SceneProps) {
+export default function Scene({ onRollComplete, onStartRoll, displayValue, selectedDice = 'd20', selectedArtifact = 'orb', diceCount = 1, rollTrigger = 0, diceResetKey = 0, notes = [], connections = [], daggers = [], onBackgroundClick, onBackgroundLeftClick, onNoteRemove, onConnectionRemove, onDaggerRemove, onThumbtackClick, connectingFromNoteId, atmosphere = 'none' }: SceneProps) {
   // Track if device is mobile for responsive dice layout
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -457,9 +461,15 @@ export default function Scene({ onRollComplete, onStartRoll, displayValue, selec
          * - Mobile: Tap = dagger, Long-press = notes
          */}
         <InteractiveBackground
+          key={atmosphere}
           onLeftClick={onBackgroundLeftClick}
           onRightClick={onBackgroundClick}
+          atmosphere={atmosphere}
         />
+
+        {/* Atmosphere Particles */}
+        {atmosphere === 'winter' && <SnowParticles />}
+        {atmosphere === 'ember' && <EmberParticles />}
 
         {/* Render 3D Sticky Notes */}
         {notes.map((note) => (

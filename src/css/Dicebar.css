@@ -88,6 +88,12 @@
   top: 65px;
 }
 
+/* Atmosphere submenu positioned at the bottom of the sidebar */
+.dice-submenu.atmosphere-submenu {
+  top: auto;
+  bottom: 15px;
+}
+
 .dice-submenu-item {
   width: 50px;
   height: 40px;

@@ -19,13 +19,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './css/All.css'
 import { Scene } from './components/3d'
-import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel, NoteInputModal, MobileMenu, DiceSelectPanel, DiceCountPanel, LandscapeWarning } from './components/ui'
+import { ChatPanel, StreamPanel, ScreenSelectModal, PlaylistPanel, SpellbookPanel, SpellSoundPlayer, VolumePanel, NotesPanel, SoundboardPanel, SoundboardPlayer, InitiativePanel, CharacterPanel, NoteInputModal, MobileMenu, DiceSelectPanel, DiceCountPanel, LandscapeWarning, AtmospherePanel } from './components/ui'
 import { useIsMobile } from './hooks/useIsMobile'
 import { useStream } from './hooks/useStream'
 import { useVolume } from './hooks/useVolume'
 import { useCharacter } from './hooks/useCharacter'
 import { useSceneNotes } from './hooks/useSceneNotes'
 import { useSceneDaggers } from './hooks/useSceneDaggers'
+import { useAtmosphere } from './hooks/useAtmosphere'
 import { calculateModifier, calculateProficiencyBonus } from './types/character'
 
 /**
@@ -73,9 +74,14 @@ function App() {
   const [characterOpen, setCharacterOpen] = useState(false)
   const [showStreamModal, setShowStreamModal] = useState(false)
 
+  // Atmosphere (synced via Firebase)
+  const { atmosphere, setAtmosphere } = useAtmosphere()
+  const [atmosphereMenuOpen, setAtmosphereMenuOpen] = useState(false)
+
   // Mobile panel state
   const [diceSelectPanelOpen, setDiceSelectPanelOpen] = useState(false)
   const [diceCountPanelOpen, setDiceCountPanelOpen] = useState(false)
+  const [atmospherePanelOpen, setAtmospherePanelOpen] = useState(false)
 
   // Volume control hook (exposes __getVolume on window)
   useVolume()
@@ -767,6 +773,41 @@ function App() {
           >
             <span className="dice-label">👤</span>
           </button>
+
+          {/* Atmosphere Button */}
+          <button
+            className={`dice-icon ${atmosphereMenuOpen || atmospherePanelOpen || atmosphere !== 'none' ? 'selected' : ''}`}
+            onClick={() => {
+              if (isMobile) {
+                setAtmospherePanelOpen(true)
+              } else {
+                setAtmosphereMenuOpen(!atmosphereMenuOpen)
+              }
+            }}
+            title="Atmosphere"
+          >
+            <span className="dice-label">🌄</span>
+          </button>
+
+          {/* Atmosphere Submenu (desktop only) */}
+          {!isMobile && (
+            <div className={`dice-submenu atmosphere-submenu ${atmosphereMenuOpen ? 'open' : ''}`}>
+              <button
+                className={`dice-submenu-item ${atmosphere === 'winter' ? 'selected' : ''}`}
+                onClick={() => { setAtmosphere(atmosphere === 'winter' ? 'none' : 'winter'); setAtmosphereMenuOpen(false); }}
+                title="Winter Atmosphere"
+              >
+                ❄
+              </button>
+              <button
+                className={`dice-submenu-item ${atmosphere === 'ember' ? 'selected' : ''}`}
+                onClick={() => { setAtmosphere(atmosphere === 'ember' ? 'none' : 'ember'); setAtmosphereMenuOpen(false); }}
+                title="Ember Atmosphere"
+              >
+                🔥
+              </button>
+            </div>
+          )}
         </aside>
 
         {/* Dice Count Bar - slides in when dice is selected (desktop only) */}
@@ -822,6 +863,7 @@ function App() {
             onDaggerRemove={removeSceneDagger}
             onThumbtackClick={handleThumbtackClick}
             connectingFromNoteId={connectingFromNoteId}
+            atmosphere={atmosphere}
           />
         </div>
       </main>
@@ -980,6 +1022,14 @@ function App() {
         selectedDice={selectedDice !== 'artifacts' ? selectedDice as DiceType : null}
         diceCount={diceCount}
         onCountSelect={handleDiceCountChange}
+      />
+
+      {/* Mobile Atmosphere Panel */}
+      <AtmospherePanel
+        isOpen={atmospherePanelOpen}
+        onClose={() => setAtmospherePanelOpen(false)}
+        atmosphere={atmosphere}
+        onAtmosphereSelect={setAtmosphere}
       />
 
       {/* Screen Select Modal */}

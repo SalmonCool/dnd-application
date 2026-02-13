@@ -10,14 +10,18 @@ import { useRef, useCallback } from 'react'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 
+type AtmosphereType = 'none' | 'winter' | 'ember'
+
 interface InteractiveBackgroundProps {
   onLeftClick?: (position: { x: number; y: number; z: number }) => void
   onRightClick?: (position: { x: number; y: number; z: number }) => void
+  atmosphere?: AtmosphereType
 }
 
 export default function InteractiveBackground({
   onLeftClick,
   onRightClick,
+  atmosphere = 'none',
 }: InteractiveBackgroundProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isLongPressRef = useRef(false)
@@ -27,8 +31,15 @@ export default function InteractiveBackground({
   const LONG_PRESS_DELAY = 500 // ms
   const MOVE_THRESHOLD = 10 // pixels
 
+  // Choose texture based on atmosphere
+  const texturePath = atmosphere === 'winter'
+    ? '/textures/wood-texture-rectangle-cold.png'
+    : atmosphere === 'ember'
+      ? '/textures/fire-texture.png'
+      : '/textures/wood-texture-rectangle.png'
+
   // Load wood texture
-  const woodTexture = useTexture('/textures/wood-texture-rectangle.png')
+  const woodTexture = useTexture(texturePath)
   woodTexture.wrapS = THREE.RepeatWrapping
   woodTexture.wrapT = THREE.RepeatWrapping
   woodTexture.repeat.set(3, 3)
