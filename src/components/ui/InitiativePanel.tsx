@@ -14,7 +14,7 @@ interface InitiativePanelProps {
 }
 
 // Turn notification sound (place mp3 in public/sounds/)
-const TURN_SOUND_FILEPATH = '/sounds/turn-notification.mp3'
+const TURN_SOUND_FILEPATH = '/sounds/NextTurnSound.mp3'
 
 export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProps) {
   const [inputName, setInputName] = useState('')
@@ -51,7 +51,7 @@ export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProp
   const playTurnSound = () => {
     if (audioRef.current) {
       // Get volume from settings if available
-      const volume = window.__getVolume?.('sfx') ?? 0.5
+      const volume = window.__getVolume?.('dice') ?? 0.5
       audioRef.current.volume = volume
       audioRef.current.currentTime = 0
       audioRef.current.play().catch(err => {
