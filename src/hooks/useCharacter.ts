@@ -6,7 +6,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { database, ref, onValue, off, set } from '../config/firebase'
-import type { CharacterStats } from '../types/character'
+import type { CharacterStats, SkillProficiencies, SkillProficiency } from '../types/character'
+import { DEFAULT_SKILL_PROFICIENCIES } from '../types/character'
 
 const USERNAME_KEY = 'dnd_chat_username'
 
@@ -18,6 +19,7 @@ const DEFAULT_STATS: CharacterStats = {
   wisdom: 10,
   charisma: 10,
   level: 1,
+  skillProficiencies: { ...DEFAULT_SKILL_PROFICIENCIES },
 }
 
 export function useCharacter() {
@@ -49,6 +51,9 @@ export function useCharacter() {
             wisdom: data.wisdom ?? 10,
             charisma: data.charisma ?? 10,
             level: data.level ?? 1,
+            skillProficiencies: data.skillProficiencies
+              ? { ...DEFAULT_SKILL_PROFICIENCIES, ...data.skillProficiencies }
+              : { ...DEFAULT_SKILL_PROFICIENCIES },
           })
         } else {
           setStats(DEFAULT_STATS)
@@ -115,6 +120,29 @@ export function useCharacter() {
     }
   }, [username])
 
+  // Update a single skill proficiency
+  const updateSkillProficiency = useCallback(async (
+    skillName: keyof SkillProficiencies,
+    level: SkillProficiency
+  ): Promise<void> => {
+    if (!username) return
+
+    try {
+      const updatedProficiencies = {
+        ...(stats.skillProficiencies || DEFAULT_SKILL_PROFICIENCIES),
+        [skillName]: level,
+      }
+      const statsRef = ref(database, `characters/${username}/stats`)
+      await set(statsRef, {
+        ...stats,
+        skillProficiencies: updatedProficiencies,
+      })
+    } catch (err) {
+      console.error('Error updating skill proficiency:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update skill')
+    }
+  }, [username, stats])
+
   return {
     stats,
     loading,
@@ -122,5 +150,6 @@ export function useCharacter() {
     updateStat,
     updateAllStats,
     resetStats,
+    updateSkillProficiency,
   }
 }

@@ -4,6 +4,88 @@
  * TypeScript interfaces for D&D character sheet
  */
 
+export type SkillProficiency = 'none' | 'proficient' | 'expert'
+
+export type AbilityKey = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma'
+
+export interface SkillProficiencies {
+  acrobatics: SkillProficiency
+  sleightOfHand: SkillProficiency
+  stealth: SkillProficiency
+  animalHandling: SkillProficiency
+  insight: SkillProficiency
+  medicine: SkillProficiency
+  perception: SkillProficiency
+  survival: SkillProficiency
+  arcana: SkillProficiency
+  history: SkillProficiency
+  investigation: SkillProficiency
+  nature: SkillProficiency
+  religion: SkillProficiency
+  athletics: SkillProficiency
+  deception: SkillProficiency
+  intimidation: SkillProficiency
+  performance: SkillProficiency
+  persuasion: SkillProficiency
+}
+
+export const DEFAULT_SKILL_PROFICIENCIES: SkillProficiencies = {
+  acrobatics: 'none',
+  sleightOfHand: 'none',
+  stealth: 'none',
+  animalHandling: 'none',
+  insight: 'none',
+  medicine: 'none',
+  perception: 'none',
+  survival: 'none',
+  arcana: 'none',
+  history: 'none',
+  investigation: 'none',
+  nature: 'none',
+  religion: 'none',
+  athletics: 'none',
+  deception: 'none',
+  intimidation: 'none',
+  performance: 'none',
+  persuasion: 'none',
+}
+
+export interface SkillDefinition {
+  key: keyof SkillProficiencies
+  label: string
+  ability: AbilityKey
+}
+
+export const SKILL_DEFINITIONS: SkillDefinition[] = [
+  { key: 'acrobatics', label: 'Acrobatics', ability: 'dexterity' },
+  { key: 'sleightOfHand', label: 'Sleight of Hand', ability: 'dexterity' },
+  { key: 'stealth', label: 'Stealth', ability: 'dexterity' },
+  { key: 'animalHandling', label: 'Animal Handling', ability: 'wisdom' },
+  { key: 'insight', label: 'Insight', ability: 'wisdom' },
+  { key: 'medicine', label: 'Medicine', ability: 'wisdom' },
+  { key: 'perception', label: 'Perception', ability: 'wisdom' },
+  { key: 'survival', label: 'Survival', ability: 'wisdom' },
+  { key: 'arcana', label: 'Arcana', ability: 'intelligence' },
+  { key: 'history', label: 'History', ability: 'intelligence' },
+  { key: 'investigation', label: 'Investigation', ability: 'intelligence' },
+  { key: 'nature', label: 'Nature', ability: 'intelligence' },
+  { key: 'religion', label: 'Religion', ability: 'intelligence' },
+  { key: 'athletics', label: 'Athletics', ability: 'strength' },
+  { key: 'deception', label: 'Deception', ability: 'charisma' },
+  { key: 'intimidation', label: 'Intimidation', ability: 'charisma' },
+  { key: 'performance', label: 'Performance', ability: 'charisma' },
+  { key: 'persuasion', label: 'Persuasion', ability: 'charisma' },
+]
+
+export const ABILITY_LABELS: Record<AbilityKey, string> = {
+  strength: 'STR',
+  dexterity: 'DEX',
+  constitution: 'CON',
+  intelligence: 'INT',
+  wisdom: 'WIS',
+  charisma: 'CHA',
+}
+
 export interface CharacterStats {
   strength: number
   dexterity: number
@@ -12,6 +94,7 @@ export interface CharacterStats {
   wisdom: number
   charisma: number
   level: number
+  skillProficiencies?: SkillProficiencies
 }
 
 export interface CharacterSheet {

@@ -6,8 +6,8 @@
 
 import { useState, useEffect } from 'react'
 import { useCharacter } from '../../hooks/useCharacter'
-import { calculateModifier, formatModifier, calculateProficiencyBonus } from '../../types/character'
-import type { CharacterStats } from '../../types/character'
+import { calculateModifier, formatModifier, calculateProficiencyBonus, SKILL_DEFINITIONS, DEFAULT_SKILL_PROFICIENCIES } from '../../types/character'
+import type { AbilityKey } from '../../types/character'
 
 interface CharacterPanelProps {
   isOpen: boolean
@@ -139,11 +139,20 @@ function LevelInput({ level, onChange }: LevelInputProps) {
   )
 }
 
+// Group skills by ability for display
+const SKILL_GROUPS: { ability: AbilityKey; label: string }[] = [
+  { ability: 'strength', label: 'STR' },
+  { ability: 'dexterity', label: 'DEX' },
+  { ability: 'intelligence', label: 'INT' },
+  { ability: 'wisdom', label: 'WIS' },
+  { ability: 'charisma', label: 'CHA' },
+]
+
 export default function CharacterPanel({ isOpen, onClose }: CharacterPanelProps) {
-  const { stats, loading, error, updateStat, resetStats } = useCharacter()
+  const { stats, loading, error, updateStat, resetStats, updateSkillProficiency } = useCharacter()
   const [showResetModal, setShowResetModal] = useState(false)
 
-  const statConfig: { key: keyof CharacterStats; label: string; short: string }[] = [
+  const statConfig: { key: AbilityKey | 'level'; label: string; short: string }[] = [
     { key: 'strength', label: 'Strength', short: 'STR' },
     { key: 'dexterity', label: 'Dexterity', short: 'DEX' },
     { key: 'constitution', label: 'Constitution', short: 'CON' },
@@ -189,6 +198,43 @@ export default function CharacterPanel({ isOpen, onClose }: CharacterPanelProps)
                 level={stats.level}
                 onChange={(value) => updateStat('level', value)}
               />
+            </div>
+
+            {/* Skills Section */}
+            <div className="skills-section">
+              <div className="skills-section-title">Skills</div>
+              <div className="skills-groups-container">
+                {SKILL_GROUPS.map(({ ability, label }) => {
+                  const groupSkills = SKILL_DEFINITIONS.filter(s => s.ability === ability)
+                  if (groupSkills.length === 0) return null
+                  const proficiencies = stats.skillProficiencies || DEFAULT_SKILL_PROFICIENCIES
+                  return (
+                    <div key={ability} className="skills-group">
+                      <div className="skills-group-header">{label}</div>
+                      {groupSkills.map(skill => {
+                        const current = proficiencies[skill.key]
+                        return (
+                          <div key={skill.key} className="skill-row">
+                            <span className="skill-name">{skill.label}</span>
+                            <div className="skill-radio-group">
+                              <button
+                                className={`skill-radio prof ${current === 'proficient' ? 'active' : ''}`}
+                                onClick={() => updateSkillProficiency(skill.key, current === 'proficient' ? 'none' : 'proficient')}
+                                title="Proficient"
+                              >P</button>
+                              <button
+                                className={`skill-radio expert ${current === 'expert' ? 'active' : ''}`}
+                                onClick={() => updateSkillProficiency(skill.key, current === 'expert' ? 'none' : 'expert')}
+                                title="Expert"
+                              >E</button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="character-footer">

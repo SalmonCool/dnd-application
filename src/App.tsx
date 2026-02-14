@@ -27,7 +27,8 @@ import { useCharacter } from './hooks/useCharacter'
 import { useSceneNotes } from './hooks/useSceneNotes'
 import { useSceneDaggers } from './hooks/useSceneDaggers'
 import { useAtmosphere } from './hooks/useAtmosphere'
-import { calculateModifier, calculateProficiencyBonus } from './types/character'
+import { calculateModifier, calculateProficiencyBonus, SKILL_DEFINITIONS, DEFAULT_SKILL_PROFICIENCIES, ABILITY_LABELS } from './types/character'
+import type { AbilityKey } from './types/character'
 
 /**
  * App Component
@@ -47,8 +48,6 @@ import { calculateModifier, calculateProficiencyBonus } from './types/character'
  */
 // Available dice types
 type DiceType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20'
-type StatType = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma' | ''
-type SkillLevel = 'none' | 'proficient' | 'expert'
 type SelectionType = DiceType | 'artifacts'
 type ArtifactType = 'orb' | 'skull' | null
 
@@ -101,8 +100,8 @@ function App() {
   // Roll modifiers
   const [flatModifier, setFlatModifier] = useState<string>('')
   const [bonusDie, setBonusDie] = useState<DiceType | ''>('')
-  const [selectedStat, setSelectedStat] = useState<StatType>('')
-  const [skillLevel, setSkillLevel] = useState<SkillLevel>('none')
+  const [selectedStat, setSelectedStat] = useState<AbilityKey | ''>('')
+  const [selectedSkill, setSelectedSkill] = useState<string>('')
 
   // Character stats for modifier calculations
   const { stats: characterStats } = useCharacter()
@@ -165,27 +164,46 @@ function App() {
     }
   }, [handleMessageCountChange, handleChatOpenChange])
 
-  // Calculate total stat and proficiency modifier
-  const getStatAndProficiencyModifier = useCallback(() => {
-    let total = 0
+  // Resolve selected skill or stat into ability key and proficiency level
+  const resolveSkillSelection = useCallback(() => {
+    // Skill takes priority if set
+    if (selectedSkill) {
+      const skillDef = SKILL_DEFINITIONS.find(s => s.key === selectedSkill)
+      if (!skillDef) return { abilityKey: null as AbilityKey | null, profLevel: 'none' as string }
 
-    // Add stat modifier if a stat is selected
-    if (selectedStat && characterStats[selectedStat] !== undefined) {
-      total += calculateModifier(characterStats[selectedStat])
+      const proficiencies = characterStats.skillProficiencies || DEFAULT_SKILL_PROFICIENCIES
+      const profLevel = proficiencies[skillDef.key] || 'none'
+      return { abilityKey: skillDef.ability, profLevel }
     }
 
-    // Add proficiency bonus based on skill level
-    if (skillLevel !== 'none') {
+    // Fall back to raw stat (no proficiency)
+    if (selectedStat) {
+      return { abilityKey: selectedStat as AbilityKey, profLevel: 'none' as string }
+    }
+
+    return { abilityKey: null as AbilityKey | null, profLevel: 'none' as string }
+  }, [selectedSkill, selectedStat, characterStats])
+
+  // Calculate total stat and proficiency modifier
+  const getStatAndProficiencyModifier = useCallback(() => {
+    const { abilityKey, profLevel } = resolveSkillSelection()
+    let total = 0
+
+    if (abilityKey && characterStats[abilityKey] !== undefined) {
+      total += calculateModifier(characterStats[abilityKey])
+    }
+
+    if (profLevel !== 'none') {
       const profBonus = calculateProficiencyBonus(characterStats.level)
-      if (skillLevel === 'proficient') {
+      if (profLevel === 'proficient') {
         total += profBonus
-      } else if (skillLevel === 'expert') {
+      } else if (profLevel === 'expert') {
         total += profBonus * 2
       }
     }
 
     return total
-  }, [selectedStat, skillLevel, characterStats])
+  }, [resolveSkillSelection, characterStats])
 
   // Expose modifier functions for spells to use
   useEffect(() => {
@@ -201,7 +219,7 @@ function App() {
       setFlatModifier('')
       setBonusDie('')
       setSelectedStat('')
-      setSkillLevel('none')
+      setSelectedSkill('')
     }
 
     return () => {
@@ -304,16 +322,18 @@ function App() {
           const flatMod = parseInt(flatModifier) || 0
           const hasBonusDie = bonusDie !== ''
 
-          // Calculate individual components
+          // Resolve skill selection into ability + proficiency
+          const { abilityKey, profLevel } = resolveSkillSelection()
+
           let statMod = 0
-          if (selectedStat && characterStats[selectedStat] !== undefined) {
-            statMod = calculateModifier(characterStats[selectedStat])
+          if (abilityKey && characterStats[abilityKey] !== undefined) {
+            statMod = calculateModifier(characterStats[abilityKey])
           }
 
           let profBonus = 0
-          if (skillLevel !== 'none') {
+          if (profLevel !== 'none') {
             const baseProfBonus = calculateProficiencyBonus(characterStats.level)
-            profBonus = skillLevel === 'expert' ? baseProfBonus * 2 : baseProfBonus
+            profBonus = profLevel === 'expert' ? baseProfBonus * 2 : baseProfBonus
           }
 
           const totalMod = flatMod + statMod + profBonus
@@ -331,8 +351,14 @@ function App() {
 
             // Send modifier message with individual components
             if ((window as any).__sendRollModifier) {
+              // Display the skill/ability name for the chat message
+              const displayStat = selectedSkill
+                ? (SKILL_DEFINITIONS.find(s => s.key === selectedSkill)?.label || selectedSkill)
+                : selectedStat
+                  ? ABILITY_LABELS[selectedStat]
+                  : null
               ;(window as any).__sendRollModifier(
-                selectedStat || null,
+                displayStat,
                 statMod,
                 profBonus,
                 flatMod,
@@ -346,7 +372,7 @@ function App() {
             setFlatModifier('')
             setBonusDie('')
             setSelectedStat('')
-            setSkillLevel('none')
+            setSelectedSkill('')
           }
         } else {
           console.warn('⚠️ __sendDiceRoll not available yet')
@@ -906,7 +932,7 @@ function App() {
             id="stat-select"
             className="bonus-die-select"
             value={selectedStat}
-            onChange={(e) => setSelectedStat(e.target.value as StatType)}
+            onChange={(e) => { setSelectedStat(e.target.value as AbilityKey | ''); if (e.target.value) setSelectedSkill('') }}
           >
             <option value="">None</option>
             <option value="strength">STR</option>
@@ -918,16 +944,39 @@ function App() {
           </select>
         </div>
         <div className="modifier-input-group">
-          <label htmlFor="skill-level">Skill:</label>
+          <label htmlFor="skill-select">Skill:</label>
           <select
-            id="skill-level"
+            id="skill-select"
             className="bonus-die-select"
-            value={skillLevel}
-            onChange={(e) => setSkillLevel(e.target.value as SkillLevel)}
+            value={selectedSkill}
+            onChange={(e) => { setSelectedSkill(e.target.value); if (e.target.value) setSelectedStat('') }}
           >
-            <option value="none">Not Skilled</option>
-            <option value="proficient">Proficient</option>
-            <option value="expert">Expert</option>
+            <option value="">None</option>
+            <optgroup label="STR">
+              {SKILL_DEFINITIONS.filter(s => s.ability === 'strength').map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="DEX">
+              {SKILL_DEFINITIONS.filter(s => s.ability === 'dexterity').map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="INT">
+              {SKILL_DEFINITIONS.filter(s => s.ability === 'intelligence').map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="WIS">
+              {SKILL_DEFINITIONS.filter(s => s.ability === 'wisdom').map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="CHA">
+              {SKILL_DEFINITIONS.filter(s => s.ability === 'charisma').map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </optgroup>
           </select>
         </div>
         <div className="modifier-input-group">

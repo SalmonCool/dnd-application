@@ -10,7 +10,7 @@
   left: 72px;
   right: 0;
   bottom: 0;
-  height: 220px;
+  height: 420px;
   background: rgba(0, 0, 0, 0.95);
   border-top: 2px solid #e00606;
   display: flex;
@@ -61,7 +61,7 @@
   display: flex;
   flex-direction: column;
   padding: 15px 20px;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .character-status {
@@ -250,4 +250,105 @@
   font-weight: bold;
   text-align: center;
   font-family: 'Georgia', serif;
+}
+
+/* Skills Section */
+.skills-section {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #e00606;
+}
+
+.skills-section-title {
+  color: #ffd700;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.skills-groups-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.skills-group {
+  min-width: 130px;
+}
+
+.skills-group-header {
+  color: #e00606;
+  font-family: 'Georgia', serif;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(224, 6, 6, 0.3);
+}
+
+.skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.skill-name {
+  color: #ccc;
+  font-size: 12px;
+  font-family: 'Georgia', serif;
+}
+
+.skill-radio-group {
+  display: flex;
+  gap: 4px;
+}
+
+.skill-radio {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #555;
+  border-radius: 4px;
+  background: transparent;
+  color: #555;
+  font-size: 10px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.skill-radio:hover {
+  border-color: #888;
+  color: #888;
+}
+
+.skill-radio.prof.active {
+  color: #4ade80;
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+}
+
+.skill-radio.prof.active:hover {
+  background: rgba(74, 222, 128, 0.25);
+}
+
+.skill-radio.expert.active {
+  color: #ffd700;
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.skill-radio.expert.active:hover {
+  background: rgba(255, 215, 0, 0.25);
 }

@@ -185,12 +185,18 @@ export function useChat() {
       let text = 'added '
       const parts: string[] = []
 
-      if (statName && statModifier !== 0) {
+      if (statName) {
         const statStr = statModifier > 0 ? `+${statModifier}` : `${statModifier}`
-        parts.push(`${statName.toUpperCase()} (${statStr})`)
-      }
-
-      if (proficiencyBonus !== 0) {
+        // If proficiency is included, show skill with combined breakdown
+        if (proficiencyBonus !== 0) {
+          const profStr = proficiencyBonus > 0 ? `+${proficiencyBonus}` : `${proficiencyBonus}`
+          const combined = statModifier + proficiencyBonus
+          const combinedStr = combined > 0 ? `+${combined}` : `${combined}`
+          parts.push(`${statName} ${combinedStr} [${statStr} stat, ${profStr} prof]`)
+        } else {
+          parts.push(`${statName} (${statStr})`)
+        }
+      } else if (proficiencyBonus !== 0) {
         const profStr = proficiencyBonus > 0 ? `+${proficiencyBonus}` : `${proficiencyBonus}`
         parts.push(`Prof (${profStr})`)
       }
