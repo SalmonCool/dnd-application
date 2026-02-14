@@ -27,12 +27,15 @@ export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProp
     loading,
     error,
     currentTurnEntry,
+    initiativeState,
     addEntry,
     removeEntry,
     setCurrentTurn,
     nextTurn,
     clearInitiative,
   } = useInitiative()
+
+  const prevTurnIdRef = useRef<string | null | undefined>(undefined)
 
   // Initialize audio element
   useEffect(() => {
@@ -47,18 +50,27 @@ export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProp
     }
   }, [])
 
-  // Play turn sound
-  const playTurnSound = () => {
-    if (audioRef.current) {
-      // Get volume from settings if available
-      const volume = window.__getVolume?.('dice') ?? 0.5
-      audioRef.current.volume = volume
-      audioRef.current.currentTime = 0
-      audioRef.current.play().catch(err => {
-        console.error('Error playing turn sound:', err)
-      })
+  // Play turn sound for all players when the current turn changes in Firebase
+  useEffect(() => {
+    const currentId = initiativeState?.currentTurnId ?? null
+    // Skip initial load (prevTurnIdRef starts as undefined)
+    if (prevTurnIdRef.current === undefined) {
+      prevTurnIdRef.current = currentId
+      return
     }
-  }
+    // Play sound when turn changes to a new combatant
+    if (currentId && currentId !== prevTurnIdRef.current) {
+      if (audioRef.current) {
+        const volume = window.__getVolume?.('dice') ?? 0.5
+        audioRef.current.volume = volume
+        audioRef.current.currentTime = 0
+        audioRef.current.play().catch(err => {
+          console.error('Error playing turn sound:', err)
+        })
+      }
+    }
+    prevTurnIdRef.current = currentId
+  }, [initiativeState?.currentTurnId])
 
   // Send turn message to chat
   const sendTurnMessage = (name: string) => {
@@ -82,7 +94,6 @@ export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProp
   const handleNextTurn = async () => {
     const nextEntry = await nextTurn()
     if (nextEntry) {
-      playTurnSound()
       sendTurnMessage(nextEntry.name)
     }
   }
@@ -91,7 +102,6 @@ export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProp
     if (entries.length > 0) {
       // Start with highest initiative
       await setCurrentTurn(entries[0].id)
-      playTurnSound()
       sendTurnMessage(entries[0].name)
     }
   }
@@ -103,7 +113,6 @@ export default function InitiativePanel({ isOpen, onClose }: InitiativePanelProp
 
   const handleSelectTurn = async (entryId: string, name: string) => {
     await setCurrentTurn(entryId)
-    playTurnSound()
     sendTurnMessage(name)
   }
 
